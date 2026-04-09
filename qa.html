@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q&A — Fokker Challenge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    body { font-family: 'Segoe UI', system-ui, sans-serif; }
+    pre { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen py-8">
+  <div class="max-w-4xl mx-auto px-6">
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-bold text-gray-800 mb-3">Q&A — Fokker Challenge</h1>
+      <p class="text-gray-600">Why this project uses Lean 4, why it is suitable for AI, and how it compares to related work.</p>
+      <div class="mt-4 flex justify-center gap-3 flex-wrap">
+        <a href="index.html" class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-100 transition">
+          <i class="fas fa-arrow-left"></i>
+          Back to home
+        </a>
+        <a href="https://github.com/awesome-lambda-calculus/Fokker_challenge" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-slate-800 transition">
+          <i class="fab fa-github"></i>
+          View repo
+        </a>
+      </div>
+    </div>
+
+    <section class="space-y-8 bg-white rounded-3xl shadow-xl ring-1 ring-slate-200 p-8">
+      <article class="space-y-4">
+        <h2 class="text-2xl font-semibold text-slate-900">Why Lean 4?</h2>
+        <p class="text-slate-700">Lean 4 is a modern proof assistant with a strong type system, fast execution, and good support for automation. It lets us encode lambda calculus reasoning formally and verify every step of the proof instead of relying on informal arguments.</p>
+        <p class="text-slate-700">Using Lean 4 also means we can combine proof search with executable code and reuse existing libraries such as <strong>cslib</strong>. This is important for the Fokker challenge because we need both rigorous formal verification and the ability to explore many candidate terms quickly.</p>
+        <p class="text-slate-700">Although we use Lean4, try hard to <strong>avoid classic logic</strong>. We hope to prove everything in <strong>constructive mathematics</strong>.</p>
+      </article>
+
+      <article class="space-y-4">
+        <h2 class="text-2xl font-semibold text-slate-900">Why LocallyNameless?</h2>
+        <p class="text-slate-700">When representing variables in lambda calculus or proof assistants, the three most common approaches are named variables, de Bruijn index, and locally nameless.</p>
+        <p class="text-slate-700">We chose locally nameless because cslib offers the most comprehensive support, and we have contributed a lot to cslib as well.</p>
+      </article>
+
+<!--
+      <article class="space-y-4">
+        <h2 class="text-2xl font-semibold text-slate-900">Is this suitable for AI?</h2>
+        <p class="text-slate-700">Yes. The Fokker challenge is a strong fit for AI because it combines symbolic structure, search, classification, and formal proof. AI can help with several key tasks:</p>
+        <ul class="list-disc list-inside space-y-2 text-slate-700">
+          <li><strong>Pattern recognition:</strong> identify common patterns in undecided terms.</li>
+          <li><strong>Decider discovery:</strong> propose new reasoning rules or invariants that rule out more candidates.</li>
+          <li><strong>Proof automation:</strong> generate Lean proof scripts or tactics for individual cases.</li>
+          <li><strong>Search heuristics:</strong> rank promising terms and prune unhelpful search branches.</li>
+        </ul>
+      </article>
+-->
+
+      <article class="space-y-4">
+        <h2 class="text-2xl font-semibold text-slate-900">How does this compare to related collaborative projects?</h2>
+        <!-- <h4 class="text-xl font-semibold text-slate-800 mt-6 mb-2">Key Related Projects</h4> -->
+        
+        <h5 class="text-lg font-semibold text-slate-700 mt-5 mb-1">teorth/equational_theories</h5>
+        <p class="text-slate-700">Modern AI (LLMs like GPT, Claude, etc.) was NOT heavily used for the core work.</p>
+        
+        <h5 class="text-lg font-semibold text-slate-700 mt-5 mb-1">Busy Beaver (BB Challenger)</h5>
+        <p class="text-slate-700">Is another search-driven formal challenge. It is similar because it targets the smallest programs with extreme behavior, but the Fokker challenge has fewer unsolved cases in its current search space and is more immediately approachable with AI-guided reasoning.</p>
+        
+        <h5 class="text-lg font-semibold text-slate-700 mt-6 mb-2">Similarities and Differences</h5>
+        <div class="space-y-3 text-slate-700 pl-4 border-l-2 border-slate-200">
+          <p><strong>Similar:</strong> all these projects are about combining formal methods with search, exploring the boundary of what can be proven automatically, and managing a tight space of candidate structures. We will all make extensive use of AI.</p>
+          <p><strong>Less unsolved cases:</strong> the current Fokker challenge scope is bounded by small Fokker size and a finite set of candidate terms. That makes it more tractable than broad open problems such as general equational theories or the full busy beaver landscape.</p>
+          <p><strong>More difficult work:</strong> the hard part here is not just brute force, but recognizing patterns in lambda terms and developing new deciders. This means the project benefits from AI that can synthesize structural insights, not only compute exhaustively.</p>
+          <p><strong>More previous papers:</strong> We are currently still assimilating the achievements of our predecessors and formalizing them. </p>
+          <p><strong>Decidability</strong> In bbchallenge, based on current mathematical knowledge, some TMs are impossible to determine halting. But in Fokker challenge, we believe every term is decidable. </p>
+        </div>
+      </article>
+
+<!--
+      <article class="space-y-4">
+        <h2 class="text-2xl font-semibold text-slate-900">Where AI is most useful</h2>
+        <ul class="list-disc list-inside space-y-2 text-slate-700">
+          <li>Analyze undecided terms to discover common structural motifs.</li>
+          <li>Suggest new Lean deciders or invariants that can rule out many terms at once.</li>
+          <li>Generate and refine Lean 4 proof scripts for edge cases.</li>
+          <li>Automate the classification of terms by difficulty, termination behavior, or redex properties.</li>
+        </ul>
+        <p class="text-slate-700">In short, AI can help move the project from raw term search toward intelligent proof strategies and pattern-driven reasoning.</p>
+      </article>
+-->
+
+      <article class="space-y-4">
+        <h2 class="text-2xl font-semibold text-slate-900">Will we write a paper?</h2>
+        <div class="space-y-3 text-slate-700">
+          <p class="text-slate-700">If we prove some non-trival theorems, we will write a paper. </p>
+        </div>
+      </article>
+
+      <article class="space-y-4">
+        <h2 class="text-2xl font-semibold text-slate-900">Plan after Fokker challenge finish</h2>
+        <div class="space-y-3 text-slate-700">
+          <p class="text-slate-700">We plan to verify the smallest single-point basis, measured in bits using <a href="https://tromp.github.io/cl/Binary_lambda_calculus.html" class="text-indigo-600 hover:underline">Binary Lambda Calculus</a> </p>
+        </div>
+      </article>
+        
+    </section>
+
+    <footer class="text-center text-gray-400 text-xs mt-12">
+      Fokker Challenge Q&A page
+    </footer>
+  </div>
+</body>
+</html>

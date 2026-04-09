@@ -1,0 +1,23 @@
+name = "Fokker_challenge"
+version = "0.1.0"
+defaultTargets = ["fokker_challenge"]
+
+[[lean_lib]]
+name = "FokkerChallenge"
+
+[[lean_exe]]
+name = "fokker_challenge"
+root = "Main"
+
+[[lean_exe]]
+name = "encode"
+root = "FokkerChallenge.EncoderDecoder.Encode"
+
+[[lean_exe]]
+name = "decode"
+root = "FokkerChallenge.EncoderDecoder.Decode"
+
+[[require]]
+name = "cslib"
+git = "https://github.com/awesome-lambda-calculus/cslib"
+rev = "sn_eta_step"

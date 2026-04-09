@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fokker Challenge — Smallest one-point basis in Lean 4</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    body { font-family: 'Segoe UI', system-ui, sans-serif; }
+    pre { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen py-8">
+    <script type="module">
+        import init, { parse_term_in_any_format } from './rust-scripts/pkg/rust_scripts.js';
+
+        const response = await fetch("./rust-scripts/basis_extract_result.json");
+        window.basis_extract_result= await response.json();
+
+        const response2 = await fetch("./FokkerChallenge/GenFinite/finite.json");
+        window.finite_terms= await response2.json();
+
+        const response3 = await fetch("./undecided_terms.json");
+        window.undecided_terms= await response3.json();
+
+        document.getElementById("unproved-count").textContent = window.basis_extract_result.undecided_terms;
+        document.getElementById("proved-count").textContent =  5420 - window.basis_extract_result.undecided_terms;
+        document.getElementById("proved-percent").textContent =  Math.floor((5420 - window.basis_extract_result.undecided_terms) * 100 / 5420); 
+        document.getElementById("finite-count").textContent = window.basis_extract_result.finite_terms;
+        document.getElementById("two-vars-are-enough-count").textContent = window.basis_extract_result.two_vars_are_enough_terms;
+        document.getElementById("with-redex-count").textContent = window.basis_extract_result.terms_with_redex;
+        document.getElementById("others-count").textContent = window.basis_extract_result.other_terms;
+
+        async function run() {
+            await init(); // Initialize WASM
+
+            window.generateLean = () => {
+              const input = document.getElementById('input').value.trim();
+              const lean4template = document.getElementById('lean4template');
+              const status = document.getElementById('status');
+              const fokker_size = document.getElementById('fokker_size');
+              const has_beta_redex = document.getElementById('has-beta-redex');
+              const has_eta_redex = document.getElementById('has-eta-redex');
+              const debruijn = document.getElementById('debruijn');
+              const encoded = document.getElementById('encoded');
+              const difficulty = document.getElementById('difficulty');
+
+              if (!input) {
+                status.innerHTML = `<span class="text-red-500">Please enter a term</span>`;
+                return;
+              }
+
+              console.log(input); // Debug: show encoded term
+              const res = parse_term_in_any_format(input);
+              console.log(res);
+
+              if (res === undefined) {
+                lean4template.textContent = "";
+                status.innerHTML = `<span class="text-red-500">Failed to parse term. Please check the format.</span>`;
+                has_beta_redex.innerHTML = "";
+                has_eta_redex.innerHTML = "";
+                fokker_size.innerHTML = "";
+                debruijn.innerHTML = "";
+                encoded.innerHTML = "";
+                difficulty.innerHTML = "";
+                return;
+              }
+
+              // Save successful search to history (defined later in non-module script)
+              if (typeof window.saveSearchHistory === 'function') {
+                window.saveSearchHistory(input);
+              }
+
+              debruijn.innerHTML = `<span class="text-gray-500">DeBruijn: ${res.debruijn}</span>`;
+              encoded.innerHTML = `<span class="text-gray-500">Encoded: ${res.encoded}</span>`;
+
+              if (!res.lc) {
+                lean4template.textContent = "";
+                status.innerHTML = `<span class="text-red-500">${res.debruijn} is not closed</span>`;
+                has_beta_redex.innerHTML = "";
+                has_eta_redex.innerHTML = "";
+                fokker_size.innerHTML = "";
+                difficulty.innerHTML = "";
+                return;
+              }
+
+              if (res.has_beta_redex) {
+                has_beta_redex.innerHTML = `<span class="text-red-500">Has beta redex</span>`;
+              } else {
+                has_beta_redex.innerHTML = `<span class="text-emerald-600">No beta redex</span>`;
+              }
+              if (res.eta_normal_form === undefined) {
+                has_eta_redex.innerHTML = `<span class="text-emerald-600">No eta redex</span>`;
+              } else {
+                has_eta_redex.innerHTML = `<span class="text-red-500">Has eta redex: eta-reduce to ${res.eta_normal_form}</span>`;
+              }
+
+              if (res.fokker_size >= 7) {
+                lean4template.textContent = "";
+                status.innerHTML = `<span class="text-red-500">Fokker size exceeds 7, which is out of consideration</span>`;
+                fokker_size.innerHTML = `<span class="text-red-500">Fokker size: ${res.fokker_size}</span>`;
+              } else {
+                fokker_size.innerHTML = `<span class="text-emerald-600">Fokker size: ${res.fokker_size}</span>`;
+                if (res.every_bvar_is_used) {
+                  status.innerHTML = `<span class="text-emerald-600">✓ ${res.debruijn} is solved by decider every_bvar_is_used</span>`;
+                } else if (res.all0) {
+                  status.innerHTML = `<span class="text-emerald-600">✓ ${res.debruijn} is solved by decider all0</span>`;
+                } else if (res.no_duplicate) {
+                  status.innerHTML = `<span class="text-emerald-600">✓ ${res.debruijn} is solved by decider no_duplicate</span>`;
+                } else if (res.only_one_var_used) {
+                  status.innerHTML = `<span class="text-emerald-600">✓ ${res.debruijn} is solved by decider only_one_var_used</span>`;
+                } else if (res.two_vars_are_enough) {
+                  status.innerHTML = `<span class="text-red-500">${res.debruijn} is not proven<br>But it satisfies "two vars are not enough"</span>`;
+                  difficulty.innerHTML = `<span class="text-emerald-600">Difficulty: medium</span>`;
+                } else {
+                  let found = false;
+                  outer: for (const result of window.basis_extract_result.results) {
+                    for (const m of result.matches) {
+                      if (m.extracted_prefix === res.encoded) {
+                        status.innerHTML = `<span class="text-emerald-600">${res.encoded} is proven in ${result.filepath}</span><br>`;
+                        found = true;
+                        break outer;
+                      }
+                    }
+                  }
+                  if (found) {
+                    return;
+                  }
+
+                  lean4template.textContent = res.code_template;
+                  status.innerHTML = `<span class="text-red-500">${res.debruijn} is not proven</span>`;
+
+                  if (window.finite_terms.includes(res.debruijn)) {
+                    status.innerHTML += `<br><span class="text-emerald-600">However, it is finite</span>`;
+                    difficulty.innerHTML = `<span class="text-emerald-600">Difficulty: easy</span>`;
+                  }else{
+                    difficulty.innerHTML = `<span class="text-red-500">Difficulty: unknown</span>`;
+                  }
+                }
+              }
+            }
+        }
+
+        run();
+    </script>
+
+  <div class="max-w-4xl mx-auto px-6">
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-bold text-gray-800 mb-2 whitespace-nowrap">
+        Fokker Challenge: Smallest one-point basis in Lean 4
+      </h1>
+      <p class="text-gray-600">Searching for smallest one-point basis and verify in Lean4</p>
+      <div class="mt-4 flex justify-center gap-3 flex-wrap">
+        <a href="https://github.com/awesome-lambda-calculus/Fokker_challenge" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-slate-800 transition">
+          <i class="fab fa-github"></i>
+          View on GitHub
+        </a>
+        <a href="qa.html" class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-100 transition">
+          <i class="fas fa-question-circle"></i>
+          Q&A
+        </a>
+      </div>
+    </div>
+
+
+    <section class="mt-10 rounded-3xl bg-white shadow-xl ring-1 ring-slate-200 p-8">
+      <div class="max-w-4xl mx-auto space-y-6 text-slate-700">
+      <p>
+        A one-point basis is a single lambda term that can generate the entire untyped lambda calculus by itself through repeated application.
+      </p>
+
+        <p>The currently known smallest one-point basis for untyped lambda calculus (in terms of <strong>Fokker size</strong>) have fokker size 7.</p>
+        <pre class="w-full max-w-full rounded-xl bg-slate-950 text-slate-100 p-4 overflow-x-auto text-sm leading-relaxed"><code>α = λλλ2 0 (1 (λ1))
+B = λλλ2 (1 0) = α(α(α(α(α α) α))(α α) α)(α(α(α α)))
+C = λλλ2 0 1 = α(α α α(α α α)(α α)(α α)) α α
+K = λλ1 = α α(α(α α) α α α) α α
+W = λλ1 0 0 = α α(α(α(α α) α))
+I = λ0 = α(α(α(α α) α))(α(α α) α)
+S = λλλ (2 0) (1 0) = α(α(α α(α α(α α))(α(α(α α(α α))))))α α </code></pre>
+        <p>The Fokker size of a closed term is the number of abstractions and applications.</p>
+        <pre class="w-full max-w-full rounded-xl bg-slate-950 text-slate-100 p-4 overflow-x-auto text-sm leading-relaxed"><code>def fokker_size : (Term String) -> Nat
+| bvar _ => 0
+| fvar _ => 0
+| abs t => 1 + fokker_size t
+| app t1 t2 => 1 + fokker_size t1 + fokker_size t2</code></pre>
+        <div>
+          <h3 class="text-xl font-semibold text-slate-900">Our goal</h3>
+          <br>
+          <p>We are a collaborative project aim to </p>
+          <ul class="list-disc list-inside mt-3 space-y-2 text-slate-700">
+            <li>Verify α is the smallest basis OR</li>
+            <li>Find the smallest basis</li>
+          </ul>
+        </div>
+        <p>We use Lean 4 to formalize that all smaller closed lambda terms can't be a basis. </p>
+        <p>Our proof is based on <a href="https://github.com/leanprover/cslib" class="text-indigo-600 hover:underline">cslib</a>.</p>
+        <div>
+          <h3 class="text-xl font-semibold text-slate-900">What we have done</h3>
+          <br>
+          <p>There are 5420 terms with Fokker size < 7. We have proved <strong id="proved-percent"></strong> % are not bases by 4 simple deciders.</p>
+          <ul class="list-disc list-inside mt-3 space-y-2 text-slate-700">
+            <li><strong>Decider/EveryBvarUsed.lean</strong>: If every var is used, it cannot form a basis — unable to discard variable.</li>
+            <li><strong>Decider/OnlyOneVarUsed.lean</strong>: If only one var is used, it cannot form a basis - unable to reorder.</li>
+            <li><strong>Decider/NoDuplicate.lean</strong>: If every variable appears at most once (zero or one time), it cannot form a basis — variables cannot be duplicated.</li>
+            <li><strong>Decider/All0.lean</strong>: In de Bruijn index, if every number is 0, it cannot form a basis — one variable is not enough, unable to construct complicated terms.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold text-slate-900">Next steps</h3>
+          <ol class="list-decimal list-inside mt-3 space-y-2 text-slate-700">
+            <li>Deal with terms without redex first</li>
+            <li>Filter terms always terminate</li>
+            <li>Filter terms always diverge</li>
+            <li>Formalize some papers</li>
+            <li>Find more deciders: especially ability to reorder variables</li>
+            <li>Investigate patterns of undecided terms</li>
+          </ol>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold text-slate-900">Looking for Participation</h3>
+          <p> This repository is an intentional experiment in AI-native development. </p>
+
+          <strong>We are especially hoping for AI assistance</strong> to help prove the remaining ~2000 terms are not bases.
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold text-slate-900">How AI Can Help (High Priority)</h3>
+          <p>This project is quite suitable for AI-driven autonomous proof.</p>
+          <ol class="list-decimal list-inside mt-3 space-y-2 text-slate-700">
+              <li><strong>Enrich cslib:</strong> We are blocked by formalization of standardization theorem.</li>
+              <li><strong>Autonomous Solve Known Trival Cases</strong>: <a href="https://github.com/awesome-lambda-calculus/Fokker_challenge/blob/main/FokkerChallenge/GenFinite/LA0L1.lean" class="text-indigo-600 hover:underline">Proof of finite terms</a> are quite tedious. AI is quite good at this. </li>
+              <li><strong>Automated Search Unknown Trival cases</strong></li>
+              <li><strong>Pattern Recognition</strong>: Analyze undecided terms to identify common structures or properties, guiding the discovery of new deciders. </li>
+              <li><strong>Mass Analysis</strong>: Systematically analyze thousands of undecided terms in parallel.</li>
+              <li><strong>Formalization of related papers</strong></li>
+              <li><strong>Benchmark Platform</strong>: Our project is an excellent platform for testing LLMs' capabilities.</li>
+          </ol>
+        </div>
+        <!--
+        <div>
+          <h3 class="text-xl font-semibold text-slate-900">References</h3>
+          <ul class="list-disc list-inside mt-3 space-y-2 text-slate-700">
+            <li><a href="https://github.com/tromp/AIT/blob/master/Bases.lhs" class="text-indigo-600 hover:underline">Legrand, Remi. A basis result in combinatory logic.</a></li>
+            <li><a href="https://esolangs.org/wiki/Closed_lambda_term" class="text-indigo-600 hover:underline">Closed lambda term — Esolangs</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/Combinatory_logic" class="text-indigo-600 hover:underline">Combinatory logic — Wikipedia</a></li>
+          </ul>
+        </div>
+        -->
+      </div>
+    </section>
+
+    <br>
+
+    <div class="mx-auto mb-10 max-w-3xl overflow-hidden rounded-3xl bg-white shadow-xl ring-1 ring-slate-200">
+      <div class="px-6 py-5 border-b border-slate-200">
+        <h2 class="text-lg font-semibold text-slate-900">Proof Status Summary</h2>
+        <p class="mt-1 text-sm text-slate-500">Counts for proved and unproved terms, grouped by priority and difficulty.</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-sm text-slate-700">
+          <thead class="bg-slate-50 text-left text-xs uppercase tracking-[0.12em] text-slate-500">
+            <tr>
+              <th class="px-6 py-4">Category</th>
+              <th class="px-6 py-4">Detail</th>
+              <th class="px-6 py-4">Count</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 bg-white">
+            <tr class="bg-slate-50">
+              <td class="px-6 py-4 font-semibold text-slate-900">Total</td>
+              <td class="px-6 py-4 text-slate-500">All terms with Fokker size < 7 </td>
+              <td class="px-6 py-4 font-semibold">5420</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-4 font-semibold text-slate-900">Proved</td>
+              <td class="px-6 py-4 text-slate-500">Verified by the <a href="https://github.com/awesome-lambda-calculus/Fokker_challenge/tree/main/FokkerChallenge/Decider" class="text-emerald-600 hover:underline">4 deciders</a></td>
+              <td id="proved-count" class="px-6 py-4 font-semibold">2814</td>
+            </tr>
+            <tr class="bg-slate-50">
+              <td class="px-6 py-4 font-semibold text-slate-900">Unproved</td>
+              <td class="px-6 py-4 text-slate-500">Remaining cases</td>
+              <td class="px-6 py-4 font-semibold">
+                <a id="unproved-count" href="https://github.com/awesome-lambda-calculus/Fokker_challenge/blob/main/undecided_terms.json" class="text-emerald-600 hover:underline">  </a>
+                </td>
+            </tr>
+            <tr>
+              <td class="px-6 py-4 pl-10 text-slate-900">
+                  Generation is FinSet
+              </td>
+              <td class="px-6 py-4 text-slate-500">Priority: medium; Difficulty: easy</td>
+              <td class="px-6 py-4">
+                <a id="finite-count" href="https://github.com/awesome-lambda-calculus/Fokker_challenge/blob/main/FokkerChallenge/GenFinite/finite.json" class="text-emerald-600 hover:underline">  </a>
+              </td>
+            </tr>
+            <tr class="bg-slate-50">
+              <td class="px-6 py-4 pl-10 text-slate-900">Two vars are enough</td>
+              <td class="px-6 py-4 text-rose-600">Priority: high; Difficulty: medium</td>
+              <td id="two-vars-are-enough-count" class="px-6 py-4">23</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-4 pl-10 text-slate-900">With beta-redex or eta-redex</td>
+              <td class="px-6 py-4 text-slate-500">Priority: low</td>
+              <td id="with-redex-count" class="px-6 py-4">1469</td>
+            </tr>
+            <tr class="bg-slate-50">
+              <td class="px-6 py-4 pl-10 text-slate-900">Others</td>
+              <td class="px-6 py-4 text-amber-600">Priority: high; Difficulty: unknown</td>
+              <td id="others-count" class="px-6 py-4">993</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="px-6 py-4 border-t border-slate-200 bg-slate-50">
+        <p class="text-sm text-slate-600">
+          Although some terms are labelled as low priority, if you proved any of them, PRs are very welcome.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Input -->
+      <div class="bg-white rounded-2xl shadow-lg p-8">
+        <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+          <i class="fas fa-input"></i> Input Term
+        </h2>
+        
+        <textarea id="input" rows="6"
+          class="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:border-indigo-500 font-mono text-sm resize-none"
+          placeholder="Enter your term (e.g. lam x. x, app (var 0) (var 1), etc.)"></textarea>
+
+        <div class="mt-4 flex gap-3 flex-wrap">
+          <button onclick="generateLean()" 
+            class="flex-1 min-w-[140px] bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-xl transition">
+            <i class="fas fa-magic mr-2"></i> Search
+          </button>
+          
+          <button onclick="feelLucky()" title="Choose random from undecided terms" aria-label="Choose random from undecided terms"
+            class="min-w-[140px] bg-amber-500 hover:bg-amber-600 text-white font-medium py-3 px-6 rounded-xl transition">
+            <i class="fas fa-dice mr-2"></i> Feel lucky
+          </button>
+
+          <button onclick="clearAll()" 
+            class="min-w-[120px] px-6 py-3 border border-gray-300 hover:bg-gray-100 rounded-xl transition">
+            Clear
+          </button>
+        </div>
+
+        <!-- Examples -->
+        <div class="mt-6">
+          <p class="text-sm text-gray-500 mb-2">Examples:</p>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="loadExample('λx.x')" class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg">λx.x</button>
+            <button onclick="loadExample('lam (app (var 0) (var 0))')" class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg">lam (app (var 0) (var 0))</button>
+            <button onclick="loadExample('λλλ0 (0 1)')" class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg">λλλ0 (0 1)</button>
+            <button onclick="loadExample('λλ1 1 (λλ1)')" class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg">λλ1 1 (λλ1)</button>
+          </div>
+        </div>
+        <!-- Search history -->
+        <div class="mt-6">
+          <p class="text-sm text-gray-500 mb-2">Search History:</p>
+          <div id="search-history" class="flex flex-wrap gap-2"></div>
+          <div class="mt-2">
+            <button id="clear-history-btn" onclick="clearHistory()" class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg">Clear history</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output -->
+      <div class="bg-white rounded-2xl shadow-lg p-8">
+        <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+          Generated Lean 4 Code
+        </h2>
+        
+        <div id="status" class="mt-4 text-sm text-center text-gray-500"></div>
+        <div id="debruijn" class="mt-4 text-sm text-center text-gray-500"></div>
+        <div id="encoded" class="mt-4 text-sm text-center text-gray-500"></div>
+        <div id="fokker_size" class="mt-4 text-sm text-center text-gray-500"></div>
+        <div id="has-beta-redex" class="mt-4 text-sm text-center text-gray-500"></div>
+        <div id="has-eta-redex" class="mt-4 text-sm text-center text-gray-500"></div>
+        <div id="difficulty" class="mt-4 text-sm text-center text-gray-500"></div>
+        <div id="priority" class="mt-4 text-sm text-center text-gray-500"></div>
+        
+        <!-- Interactive Code Wrapper with Dynamic Copy Button -->
+        <div class="relative mt-4 group">
+          <button id="copyBtn" onclick="copyToClipboard()" 
+            class="absolute top-3 right-3 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-700 flex items-center gap-1.5 transition shadow-sm"
+            title="Copy to clipboard">
+            <i class="fas fa-copy"></i> Copy
+          </button>
+          <pre id="lean4template" class="w-full max-w-full bg-gray-900 text-green-400 p-6 rounded-xl overflow-x-auto overflow-y-auto max-h-[500px] text-sm leading-relaxed"></pre>
+        </div>
+      </div>
+    </div>
+
+    <footer class="text-center text-gray-400 text-xs mt-12">
+      Starting from May 2026
+    </footer>
+  </div>
+
+  <script>
+    function loadExample(term) {
+      document.getElementById('input').value = term;
+      generateLean();
+    }
+
+    function clearAll() {
+      document.getElementById('input').value = '';
+      document.getElementById('lean4template').textContent = '';
+      document.getElementById('status').innerHTML = '';
+      document.getElementById('fokker_size').innerHTML = '';
+      document.getElementById('debruijn').innerHTML = '';
+      document.getElementById('encoded').innerHTML = '';
+      document.getElementById('has-beta-redex').innerHTML = '';
+      document.getElementById('has-eta-redex').innerHTML = '';
+      document.getElementById('difficulty').innerHTML = '';
+      document.getElementById('priority').innerHTML = '';
+    }
+
+
+    function feelLucky() {
+      const terms = window.undecided_terms || []; // Feel lucky only among undecided terms
+      const status = document.getElementById('status');
+
+      if (!terms.length) {
+        if (status) {
+          status.innerHTML = `<span class="text-yellow-600">No "feel lucky" terms are configured yet.</span>`;
+        }
+        return;
+      }
+
+      const randomTerm = terms[Math.floor(Math.random() * terms.length)];
+      document.getElementById('input').value = randomTerm;
+      window.generateLean();
+    }
+
+    // Dynamic Clipboard Implementation
+    function copyToClipboard() {
+      const text = document.getElementById('lean4template').textContent;
+      if (!text) return;
+
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check text-emerald-400"></i> Copied!';
+        btn.classList.add('border-emerald-600', 'bg-slate-900');
+        
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.classList.remove('border-emerald-600', 'bg-slate-900');
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy code text: ', err);
+      });
+    }
+
+    // Search history helpers (uses localStorage)
+    function getSearchHistory() {
+      try {
+        return JSON.parse(localStorage.getItem('searchHistory')) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    window.saveSearchHistory = function (term) {
+      if (!term) return;
+      const arr = getSearchHistory().filter(t => t !== term);
+      arr.unshift(term);
+      const max = 50;
+      const trimmed = arr.slice(0, max);
+      localStorage.setItem('searchHistory', JSON.stringify(trimmed));
+      loadHistoryUI();
+    }
+
+    function loadHistoryUI() {
+      const container = document.getElementById('search-history');
+      if (!container) return;
+      container.innerHTML = '';
+      const arr = getSearchHistory();
+      if (!arr || arr.length === 0) {
+        const el = document.createElement('span');
+        el.className = 'text-xs text-gray-400';
+        el.textContent = 'No history';
+        container.appendChild(el);
+        return;
+      }
+      for (const t of arr) {
+        const wrap = document.createElement('div');
+        wrap.className = 'flex items-center gap-2';
+
+        const btn = document.createElement('button');
+        btn.className = 'text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg';
+        btn.textContent = t;
+        btn.onclick = () => {
+          document.getElementById('input').value = t;
+          generateLean();
+        };
+
+        const del = document.createElement('button');
+        del.className = 'ml-1 text-xs px-2 py-1 bg-white border border-gray-200 hover:bg-red-50 text-red-600 rounded';
+        del.title = 'Delete this history item';
+        del.textContent = '✕';
+        del.onclick = (e) => {
+          e.stopPropagation();
+          deleteHistoryItem(t);
+        };
+
+        wrap.appendChild(btn);
+        wrap.appendChild(del);
+        container.appendChild(wrap);
+      }
+    }
+
+    window.deleteHistoryItem = function (term) {
+      if (!term) return;
+      const arr = getSearchHistory().filter(t => t !== term);
+      localStorage.setItem('searchHistory', JSON.stringify(arr));
+      loadHistoryUI();
+    }
+
+    window.clearHistory = function () {
+      localStorage.removeItem('searchHistory');
+      loadHistoryUI();
+    }
+
+    // Keyboard shortcut: Ctrl/Cmd + Enter
+    document.getElementById('input').addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        generateLean();
+      }
+    });
+
+    // Initialize history UI on load
+    loadHistoryUI();
+  </script>
+</body>
+</html>
