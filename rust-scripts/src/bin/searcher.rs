@@ -40,6 +40,7 @@ struct SearchResult {
 const UNDECIDED_TERMS_JSON: &str = "../undecided_terms.json";
 const FINITE_TERMS_JSON: &str = "../FokkerChallenge/GenFinite/finite.json";
 const TWO_VARS_ARE_ENOUGH_TERMS_JSON: &str = "../two_vars_are_enough_terms.json";
+const TERMS_01_JSON: &str = "../terms_01.json";
 
 fn serialize_terms(terms: Vec<Term>) -> Vec<String> {
     let mut serialized = terms
@@ -111,6 +112,10 @@ fn main() {
         .into_iter()
         .partition(|t| t.two_vars_are_enough());
 
+    let (terms_01, other_terms): (Vec<Term>, Vec<Term>) = other_terms
+        .into_iter()
+        .partition(|t| t.all01());
+
     let (terms_with_redex, other_terms): (Vec<Term>, Vec<Term>) = other_terms
         .into_iter()
         .partition(|t| t.has_beta_redex() || t.has_eta_redex());
@@ -171,6 +176,10 @@ fn main() {
 
     if let Err(e) = write_terms_to_json_file(two_vars_are_enough_terms, TWO_VARS_ARE_ENOUGH_TERMS_JSON) {
         eprintln!("Failed to write {}: {}", TWO_VARS_ARE_ENOUGH_TERMS_JSON, e);
+    }
+
+    if let Err(e) = write_terms_to_json_file(terms_01, TERMS_01_JSON) {
+        eprintln!("Failed to write {}: {}", TERMS_01_JSON, e);
     }
 
     let search_result = SearchResult {
