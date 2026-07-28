@@ -78,7 +78,7 @@ pub fn parse_term_in_any_format(x: &str) -> Option<Res> {
         has_beta_redex: t.has_beta_redex(),
         eta_normal_form,
         two_vars_are_enough: t.two_vars_are_enough(),
-        xy_representation: t.convert().map(|x| format!("{x}")),
+        xy_representation: t.convert().map(|x| format!("{}", x.plus())),
         code_template: format!(
             "def Term_{0}: Term String := {1}
 
