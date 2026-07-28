@@ -34,13 +34,13 @@ struct SearchResult {
     undecided_terms: usize,
     finite_terms: usize,
     terms_with_redex: usize,
-    other_terms: usize,
 }
 
 const UNDECIDED_TERMS_JSON: &str = "../undecided_terms.json";
 const FINITE_TERMS_JSON: &str = "../FokkerChallenge/GenFinite/finite.json";
 const TWO_VARS_ARE_ENOUGH_TERMS_JSON: &str = "../two_vars_are_enough_terms.json";
 const TERMS_01_JSON: &str = "../terms_01.json";
+const OTHER_JSON: &str = "../other.json";
 
 fn serialize_terms(terms: Vec<Term>) -> Vec<String> {
     let mut serialized = terms
@@ -120,6 +120,19 @@ fn main() {
         .into_iter()
         .partition(|t| t.has_beta_redex() || t.has_eta_redex());
 
+    if let Err(e) = write_terms_to_json_file(two_vars_are_enough_terms, TWO_VARS_ARE_ENOUGH_TERMS_JSON) {
+        eprintln!("Failed to write {}: {}", TWO_VARS_ARE_ENOUGH_TERMS_JSON, e);
+    }
+
+    if let Err(e) = write_terms_to_json_file(terms_01, TERMS_01_JSON) {
+        eprintln!("Failed to write {}: {}", TERMS_01_JSON, e);
+    }
+
+    if let Err(e) = write_terms_to_json_file(other_terms, OTHER_JSON) {
+        eprintln!("Failed to write {}: {}", OTHER_JSON, e);
+    }
+
+
     let folder_path = "..";
     let file_extension: &OsStr = OsStr::new("lean");
     let output_file = "basis_extract_result.json";
@@ -174,14 +187,6 @@ fn main() {
         }
     }
 
-    if let Err(e) = write_terms_to_json_file(two_vars_are_enough_terms, TWO_VARS_ARE_ENOUGH_TERMS_JSON) {
-        eprintln!("Failed to write {}: {}", TWO_VARS_ARE_ENOUGH_TERMS_JSON, e);
-    }
-
-    if let Err(e) = write_terms_to_json_file(terms_01, TERMS_01_JSON) {
-        eprintln!("Failed to write {}: {}", TERMS_01_JSON, e);
-    }
-
     let search_result = SearchResult {
         search_pattern: "_is_not_basis".to_string(),
         search_time: Local::now().format("%Y-%m-%d %H:%M:%S").to_string(),
@@ -194,7 +199,6 @@ fn main() {
         undecided_terms: undecided_terms.len(),
         finite_terms: finite_terms.len(),
         terms_with_redex: terms_with_redex.len(),
-        other_terms: other_terms.len(),
     };
 
     match serde_json::to_string_pretty(&search_result) {

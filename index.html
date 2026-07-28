@@ -24,11 +24,18 @@
         const response3 = await fetch("./undecided_terms.json");
         window.undecided_terms= await response3.json();
 
+        const response4 = await fetch("./terms_01.json");
+        window.terms_01 = await response4.json();
+
+        const response5 = await fetch("./two_vars_are_enough_terms.json");
+        window.two_vars_are_enough_terms = await response5.json();
+
         document.getElementById("unproved-count").textContent = window.basis_extract_result.undecided_terms;
         document.getElementById("proved-count").textContent =  5420 - window.basis_extract_result.undecided_terms;
         document.getElementById("proved-percent").textContent =  Math.floor((5420 - window.basis_extract_result.undecided_terms) * 100 / 5420); 
         document.getElementById("finite-count").textContent = window.basis_extract_result.finite_terms;
-        document.getElementById("two-vars-are-enough-count").textContent = window.basis_extract_result.two_vars_are_enough_terms;
+        document.getElementById("two-vars-are-enough-count").textContent = window.two_vars_are_enough_terms.length;
+        document.getElementById("terms_01").textContent = window.terms_01.length;
         document.getElementById("with-redex-count").textContent = window.basis_extract_result.terms_with_redex;
         document.getElementById("others-count").textContent = window.basis_extract_result.other_terms;
 
