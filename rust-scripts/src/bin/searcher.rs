@@ -114,7 +114,7 @@ fn main() {
 
     let (terms_01, other_terms): (Vec<Term>, Vec<Term>) = other_terms
         .into_iter()
-        .partition(|t| t.all01());
+        .partition(|t| t.convert().is_some());
 
     let (terms_with_redex, other_terms): (Vec<Term>, Vec<Term>) = other_terms
         .into_iter()

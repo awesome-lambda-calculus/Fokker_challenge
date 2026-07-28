@@ -123,6 +123,9 @@
                 } else if (res.two_vars_are_enough) {
                   status.innerHTML = `<span class="text-red-500">${res.debruijn} is not proven<br>But it satisfies "two vars are not enough"</span>`;
                   difficulty.innerHTML = `<span class="text-emerald-600">Difficulty: medium</span>`;
+                } else if (res.xy_representation !== undefined) {
+                  status.innerHTML = `<span class="text-red-500">${res.debruijn} is not proven<br>But it is β-reduct from "two_vars_are_enough" term: ${res.xy_representation}</span>`;
+                  difficulty.innerHTML = `<span class="text-emerald-600">Difficulty: medium</span>`;
                 } else {
                   let found = false;
                   outer: for (const result of window.basis_extract_result.results) {
