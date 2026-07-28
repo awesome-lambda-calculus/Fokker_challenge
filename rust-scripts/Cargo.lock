@@ -142,7 +142,7 @@ dependencies = [
 [[package]]
 name = "lambda_calculus"
 version = "3.5.0"
-source = "git+https://github.com/awesome-lambda-calculus/lambda_calculus_rust?branch=fokker_challenge#1a11d88edb145037001d5ce99fa11a12a3051848"
+source = "git+https://github.com/awesome-lambda-calculus/lambda_calculus_rust?branch=fokker_challenge#4c28fef31dfb0452cfde98831703a621f8e38879"
 
 [[package]]
 name = "libc"
