@@ -24,11 +24,14 @@
         const response3 = await fetch("./undecided_terms.json");
         window.undecided_terms= await response3.json();
 
-        const response4 = await fetch("./terms_01.json");
-        window.terms_01 = await response4.json();
+        const response4 = await fetch("./two_vars_are_enough_terms.json");
+        window.two_vars_are_enough_terms = await response4.json();
 
-        const response5 = await fetch("./two_vars_are_enough_terms.json");
-        window.two_vars_are_enough_terms = await response5.json();
+        const response5 = await fetch("./terms_01.json");
+        window.terms_01 = await response5.json();
+
+        const response6 = await fetch("./other.json");
+        window.other = await response6.json();
 
         document.getElementById("unproved-count").textContent = window.basis_extract_result.undecided_terms;
         document.getElementById("proved-count").textContent =  5420 - window.basis_extract_result.undecided_terms;
@@ -37,7 +40,7 @@
         document.getElementById("two-vars-are-enough-count").textContent = window.two_vars_are_enough_terms.length;
         document.getElementById("terms_01").textContent = window.terms_01.length;
         document.getElementById("with-redex-count").textContent = window.basis_extract_result.terms_with_redex;
-        document.getElementById("others-count").textContent = window.basis_extract_result.other_terms;
+        document.getElementById("others-count").textContent = window.other.length;
 
         async function run() {
             await init(); // Initialize WASM
@@ -302,17 +305,22 @@ S = λλλ (2 0) (1 0) = α(α(α α(α α(α α))(α(α(α α(α α))))))α α 
             <tr class="bg-slate-50">
               <td class="px-6 py-4 pl-10 text-slate-900">Two vars are enough</td>
               <td class="px-6 py-4 text-rose-600">Priority: high; Difficulty: medium</td>
-              <td id="two-vars-are-enough-count" class="px-6 py-4">23</td>
+              <td id="two-vars-are-enough-count" href="https://github.com/awesome-lambda-calculus/Fokker_challenge/blob/main/FokkerChallenge/GenFinite/two_vars_are_enough_terms.json" class="text-emerald-600 hover:underline"></td>
+            </tr>
+            <tr class="bg-slate-50">
+              <td class="px-6 py-4 pl-10 text-slate-900">Converted from "Two vars are enough"</td>
+              <td class="px-6 py-4 text-rose-600">Priority: high; Difficulty: low</td>
+              <td id="terms_01" href="https://github.com/awesome-lambda-calculus/Fokker_challenge/blob/main/FokkerChallenge/GenFinite/terms_01.json" class="text-emerald-600 hover:underline"></td>
             </tr>
             <tr>
               <td class="px-6 py-4 pl-10 text-slate-900">With beta-redex or eta-redex</td>
               <td class="px-6 py-4 text-slate-500">Priority: low</td>
-              <td id="with-redex-count" class="px-6 py-4">1469</td>
+              <td id="with-redex-count" class="px-6 py-4"></td>
             </tr>
             <tr class="bg-slate-50">
               <td class="px-6 py-4 pl-10 text-slate-900">Others</td>
               <td class="px-6 py-4 text-amber-600">Priority: high; Difficulty: unknown</td>
-              <td id="others-count" class="px-6 py-4">993</td>
+              <td id="others-count" href="https://github.com/awesome-lambda-calculus/Fokker_challenge/blob/main/FokkerChallenge/GenFinite/other.json" class="text-emerald-600 hover:underline"></td>
             </tr>
           </tbody>
         </table>
