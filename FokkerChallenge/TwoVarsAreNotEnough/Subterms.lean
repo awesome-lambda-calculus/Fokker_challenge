@@ -12,7 +12,7 @@ def subterms : Term String -> List (Term String)
   | Term.fvar _ => []
   | Term.abs (Term.abs t) => t.abs.abs :: (subterms t)
   | Term.abs _ => []
-  | Term.app t1 t2 => subterms t1 ∪ subterms t2
+  | Term.app t1 t2 => subterms t1 ++ subterms t2
 
 theorem subterms_subset {t : Term String} :
     ∀ s ∈ t.subterms, s.subterms ⊆ t.subterms := by
