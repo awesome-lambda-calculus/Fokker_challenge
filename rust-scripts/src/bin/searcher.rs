@@ -38,8 +38,6 @@ struct SearchResult {
 
 const UNDECIDED_TERMS_JSON: &str = "../undecided_terms.json";
 const FINITE_TERMS_JSON: &str = "../FokkerChallenge/GenFinite/finite.json";
-const TWO_VARS_ARE_ENOUGH_TERMS_JSON: &str = "../two_vars_are_enough_terms.json";
-const TERMS_01_JSON: &str = "../terms_01.json";
 const OTHER_JSON: &str = "../other.json";
 
 fn serialize_terms(terms: Vec<Term>) -> Vec<String> {
@@ -108,25 +106,9 @@ fn main() {
 
     let not_finite_terms: HashSet<Term> = &undecided_terms - &finite_terms;
 
-    let (two_vars_are_enough_terms, other_terms): (Vec<Term>, Vec<Term>) = not_finite_terms
-        .into_iter()
-        .partition(|t| t.two_vars_are_enough());
-
-    let (terms_01, other_terms): (Vec<Term>, Vec<Term>) = other_terms
-        .into_iter()
-        .partition(|t| t.convert().is_some());
-
-    let (terms_with_redex, other_terms): (Vec<Term>, Vec<Term>) = other_terms
+    let (terms_with_redex, other_terms): (Vec<Term>, Vec<Term>) = not_finite_terms
         .into_iter()
         .partition(|t| t.has_beta_redex() || t.has_eta_redex());
-
-    if let Err(e) = write_terms_to_json_file(two_vars_are_enough_terms, TWO_VARS_ARE_ENOUGH_TERMS_JSON) {
-        eprintln!("Failed to write {}: {}", TWO_VARS_ARE_ENOUGH_TERMS_JSON, e);
-    }
-
-    if let Err(e) = write_terms_to_json_file(terms_01, TERMS_01_JSON) {
-        eprintln!("Failed to write {}: {}", TERMS_01_JSON, e);
-    }
 
     if let Err(e) = write_terms_to_json_file(other_terms, OTHER_JSON) {
         eprintln!("Failed to write {}: {}", OTHER_JSON, e);
@@ -209,7 +191,6 @@ fn main() {
                 println!("✅ Processing complete!");
                 println!("   Total prefixes extracted: {}", total_matches);
                 println!("   Main output file: {}", output_file);
-                println!("   Separate terms file: {}", TWO_VARS_ARE_ENOUGH_TERMS_JSON);
             }
         }
         Err(e) => eprintln!("Fail serialize JSON: {}", e),

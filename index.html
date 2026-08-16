@@ -37,8 +37,6 @@
         document.getElementById("proved-count").textContent =  5420 - window.basis_extract_result.undecided_terms;
         document.getElementById("proved-percent").textContent =  Math.floor((5420 - window.basis_extract_result.undecided_terms) * 100 / 5420); 
         document.getElementById("finite-count").textContent = window.basis_extract_result.finite_terms;
-        document.getElementById("two-vars-are-enough-count").textContent = window.two_vars_are_enough_terms.length;
-        document.getElementById("terms_01").textContent = window.terms_01.length;
         document.getElementById("with-redex-count").textContent = window.basis_extract_result.terms_with_redex;
         document.getElementById("others-count").textContent = window.other.length;
 
