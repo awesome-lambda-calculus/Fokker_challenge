@@ -8,7 +8,14 @@ import FokkerChallenge.Basic
 import FokkerChallenge.EnhancedCslib.Basic
 import FokkerChallenge.EnhancedCslib.CountBvar
 import FokkerChallenge.EnhancedCslib.FvarSubset
+import FokkerChallenge.EnhancedCslib.GenFinset
 import FokkerChallenge.FamousCombinator
+
+/-!
+Deprecated!
+
+This decider is covered by "2 vars are not enough"
+-/
 
 namespace Cslib
 
@@ -291,7 +298,7 @@ theorem Gen_all0_no_fvar_inside_abs {Y M : Term String} :
   Gen Y M → all0_no_fvar_inside_abs Y -> all0_no_fvar_inside_abs M := by
   intro h
   induction h with
-  | base => simp
+  | base => simp_all
   | app hM hN ihM ihN =>  intro h
                           specialize ihM h
                           specialize ihN h

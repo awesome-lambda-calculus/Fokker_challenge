@@ -7,6 +7,7 @@ import FokkerChallenge.Basic
 import FokkerChallenge.EnhancedCslib.Basic
 import FokkerChallenge.EnhancedCslib.CountFvar
 import FokkerChallenge.EnhancedCslib.FvarSubset
+import FokkerChallenge.EnhancedCslib.GenFinset
 import FokkerChallenge.FamousCombinator
 
 namespace Cslib
@@ -361,7 +362,7 @@ theorem Gen_no_duplicate {Y M : Term String} :
   Gen Y M → no_duplicate Y -> no_duplicate M := by
   intro h
   induction h with
-  | base => simp
+  | base => simp_all
   | app hM hN ihM ihN =>  intro h
                           specialize ihM h
                           specialize ihN h

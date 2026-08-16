@@ -1,10 +1,8 @@
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Basic
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBeta
-import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullEta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaConfluence
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Congruence
-import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaEtaConfluence
-import FokkerChallenge.EnhancedCslib.CountBvar
+import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LeftmostReduction
 import Mathlib.Data.Finset.Lattice.Basic
 
 namespace Cslib
@@ -130,6 +128,22 @@ theorem has_beta_redex_equiv_full_beta {M : Term String} :
     exact ⟨has_beta_redex_of_full_beta hN, FullBeta.step_lc_l hN⟩
 
 theorem normal_fullBeta_iff_no_beta_redex {N}: (N.has_beta_redex = false \/ ¬ N.LC) <-> Relation.Normal FullBeta N := by grind [has_beta_redex_equiv_full_beta]
+
+
+@[scoped grind]
+axiom betanormal_iff {M : Term String} : BetaNormal M <-> Relation.Normal FullBeta M
+
+theorem normal_app (t : Term String) (hlc : t.LC) (habs: ¬ IsAbs t) (hfv : t.fv = ∅) : ¬t.BetaNormal := by
+  induction t with cases hlc
+  | abs _ _ => grind
+  | fvar _ => unfold fv at hfv
+              simp at hfv
+  | app a _ ihl _ =>  by_cases a.IsAbs
+                      . grind [BetaNormal, countRedexes]
+                      . specialize ihl (by grind) (by grind) (by grind)
+                        intro h
+                        apply BetaNormal.app_inv at h
+                        grind [BetaNormal, countRedexes]
 
 end LambdaCalculus.LocallyNameless.Untyped.Term
 

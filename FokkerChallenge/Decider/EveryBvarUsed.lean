@@ -6,6 +6,7 @@ import Mathlib.Data.Set.Card
 import FokkerChallenge.EnhancedCslib.CountBvar
 import FokkerChallenge.Basic
 import FokkerChallenge.FamousCombinator
+import FokkerChallenge.EnhancedCslib.GenFinset
 
 namespace Cslib
 
@@ -42,7 +43,7 @@ theorem Gen_every_bvar_used {Y M : Term String} :
   Gen Y M → every_bvar_used Y -> every_bvar_used M := by
   intro h
   induction h with
-  | base => simp
+  | base => simp_all
   | app hM hN ihM ihN =>  intro h
                           specialize ihM h
                           specialize ihN h

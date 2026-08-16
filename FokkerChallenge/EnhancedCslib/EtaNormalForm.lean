@@ -166,9 +166,8 @@ theorem has_eta_redex_equiv_full_eta {M : Term String} :
           show has_eta_redex (Term.openRec 0 (Term.fvar x) e) = true
           rw [has_eta_redex_openRec]; exact h_inner
         have ⟨N, hN⟩ := ih x hxL h_redex_open
-        have h_lc_open : (e ^ Term.fvar x).LC := h_body x hxL
         have hclose : ((e ^ Term.fvar x) ^* x).abs ⭢ηᶠ (N ^* x).abs :=
-          FullEta.step_abs_close hN h_lc_open
+          FullEta.step_abs_close hN
         rw [show (e ^ Term.fvar x) ^* x = e from (open_close_var x e hxe).symm] at hclose
         exact ⟨_, hclose⟩
     | @app l r lc_l lc_r ih_l ih_r =>
