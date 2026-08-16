@@ -4,7 +4,7 @@ import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.ListFullBeta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaConfluence
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaEtaConfluence
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LeftmostReduction
-import Cslib.Foundations.Data.HasFresh
+import Cslib.Languages.LambdaCalculus.Named.Untyped.Basic
 import FokkerChallenge.Basic
 import FokkerChallenge.FamousCombinator
 import FokkerChallenge.EnhancedCslib.Basic
@@ -48,15 +48,7 @@ proves it correct (`LambdaLN.namableXY_iff`), and checks it on a list of terms.
 -/
 
 
-/-- Named lambda terms, with variable names given by strings. -/
-inductive NTerm where
-  /-- A variable occurrence. -/
-  | var : String → NTerm
-  /-- A lambda abstraction binding the given name. -/
-  | lam : String → NTerm → NTerm
-  /-- An application. -/
-  | app : NTerm → NTerm → NTerm
-  deriving DecidableEq, Repr
+abbrev NTerm := Cslib.LambdaCalculus.Named.Untyped.Term String
 
 namespace NTerm
 
@@ -69,25 +61,25 @@ def idx (v : String) : List String → Option ℕ
 the names of the enclosing binders, innermost first.  A variable that does not
 occur in `ctx` becomes a free variable. -/
 def toLN (ctx : List String) : NTerm → Term String
-  | var v => match idx v ctx with
+  | .var v => match idx v ctx with
              | some i => Term.bvar i
              | none => Term.fvar v
-  | lam v b => Term.abs (toLN (v :: ctx) b)
-  | app a b => Term.app (toLN ctx a) (toLN ctx b)
+  | .abs v b => Term.abs (toLN (v :: ctx) b)
+  | .app a b => Term.app (toLN ctx a) (toLN ctx b)
 
 /-- `WN ctx u` says that the named term `u` is well scoped in the context `ctx`
 (every variable occurrence is bound by `ctx` or by an enclosing binder of `u`)
 and that all its binders use one of the two names `"x"`, `"y"`. -/
 def WN : List String → NTerm → Prop
-  | ctx, var v => v ∈ ctx
-  | ctx, lam v b => (v = "x" ∨ v = "y") ∧ WN (v :: ctx) b
-  | ctx, app a b => WN ctx a ∧ WN ctx b
+  | ctx, .var v => v ∈ ctx
+  | ctx, .abs v b => (v = "x" ∨ v = "y") ∧ WN (v :: ctx) b
+  | ctx, .app a b => WN ctx a ∧ WN ctx b
 
 /-- All names occurring in a named term. -/
 def names : NTerm → List String
-  | var v => [v]
-  | lam v b => v :: names b
-  | app a b => names a ++ names b
+  | .var v => [v]
+  | .abs v b => v :: names b
+  | .app a b => names a ++ names b
 
 end NTerm
 
@@ -461,7 +453,7 @@ theorem sat_cons {ctx : List String} (hctx : ∀ v ∈ ctx, v = "x" ∨ v = "y")
       exact h k b (mem_shiftConstr.2 hm) a c ha hc
 
 theorem toLN_var_mem {v : String} {ctx : List String} (hv : v ∈ ctx) :
-    ∃ i, NTerm.idx v ctx = some i ∧ NTerm.toLN ctx (NTerm.var v) = Term.bvar i := by
+    ∃ i, NTerm.idx v ctx = some i ∧ NTerm.toLN ctx (.var v) = Term.bvar i := by
   obtain ⟨i, hi⟩ := Option.isSome_iff_exists.1 (idx_isSome_of_mem hv)
   exact ⟨i, hi, by simp [NTerm.toLN, hi]⟩
 
@@ -483,7 +475,7 @@ theorem exists_named_iff (t : Term String) :
         | .var v =>
             obtain ⟨j, _, hjeq⟩ := toLN_var_mem (v := v) hwn
             rw [hjeq] at heq; simp at heq
-        | .lam v c => simp [NTerm.toLN] at heq
+        | .abs v c => simp [NTerm.toLN] at heq
         | .app u1 u2 => simp [NTerm.toLN] at heq
       · rintro ⟨L, hL, -⟩
         simp [constraints] at hL
@@ -502,7 +494,7 @@ theorem exists_named_iff (t : Term String) :
               rw [List.getElem?_eq_none (by omega)] at h1
               simp at h1
             exact ⟨bvarConstr i, by simp [constraints, hlt], sat_bvarConstr hctx h1 h2⟩
-        | .lam v c => simp [NTerm.toLN] at heq
+        | .abs v c => simp [NTerm.toLN] at heq
         | .app u1 u2 => simp [NTerm.toLN] at heq
       · rintro ⟨L, hL, hsat⟩
         simp only [constraints] at hL
@@ -514,7 +506,7 @@ theorem exists_named_iff (t : Term String) :
               intro j hj
               have := no_shadow_of_sat hlt hsat j hj
               rwa [h1] at this
-            exact ⟨NTerm.var ctx[i], List.mem_of_getElem? h1, by
+            exact ⟨.var ctx[i], List.mem_of_getElem? h1, by
               simp [NTerm.toLN, idx_of_get h1 h2]⟩
         · exact absurd hL (by simp)
   | abs t ih =>
@@ -526,7 +518,7 @@ theorem exists_named_iff (t : Term String) :
             obtain ⟨j, _, hjeq⟩ := toLN_var_mem (v := v) hwn
             rw [hjeq] at heq; simp at heq
         | .app u1 u2 => simp [NTerm.toLN] at heq
-        | .lam v c =>
+        | .abs v c =>
             obtain ⟨hv, hwn'⟩ := hwn
             simp only [NTerm.toLN, Term.abs.injEq] at heq
             have hctx' : ∀ w ∈ v :: ctx, w = "x" ∨ w = "y" := by
@@ -550,7 +542,7 @@ theorem exists_named_iff (t : Term String) :
           · exact hctx w hw
         obtain ⟨u, hwn, heq⟩ :=
           (ih (chooseName ctx L' :: ctx) hctx').2 ⟨L', by simpa using hL', sat_cons hctx hcons hsat⟩
-        exact ⟨NTerm.lam (chooseName ctx L') u, ⟨hmem, hwn⟩, by simp [NTerm.toLN, heq]⟩
+        exact ⟨.abs (chooseName ctx L') u, ⟨hmem, hwn⟩, by simp [NTerm.toLN, heq]⟩
   | app a b iha ihb =>
       intro ctx hctx
       constructor
@@ -559,7 +551,7 @@ theorem exists_named_iff (t : Term String) :
         | .var v =>
             obtain ⟨j, _, hjeq⟩ := toLN_var_mem (v := v) hwn
             rw [hjeq] at heq; simp at heq
-        | .lam v c => simp [NTerm.toLN] at heq
+        | .abs v c => simp [NTerm.toLN] at heq
         | .app u1 u2 =>
             obtain ⟨hw1, hw2⟩ := hwn
             simp only [NTerm.toLN, Term.app.injEq] at heq
@@ -584,7 +576,7 @@ theorem exists_named_iff (t : Term String) :
               obtain ⟨hs₁, hs₂⟩ := sat_append.1 hsat
               obtain ⟨u1, hw1, e1⟩ := (iha ctx hctx).2 ⟨L₁, h₁, hs₁⟩
               obtain ⟨u2, hw2, e2⟩ := (ihb ctx hctx).2 ⟨L₂, h₂, hs₂⟩
-              exact ⟨NTerm.app u1 u2, ⟨hw1, hw2⟩, by simp [NTerm.toLN, e1, e2]⟩
+              exact ⟨.app u1 u2, ⟨hw1, hw2⟩, by simp [NTerm.toLN, e1, e2]⟩
             · exact absurd hL (by simp)
         · exact absurd hL (by simp)
 
@@ -614,7 +606,7 @@ theorem NTerm.onlyXY {u : NTerm} :
       simp only [NTerm.names, List.mem_singleton] at hv
       subst hv
       exact hctx _ hwn
-  | lam w c ih =>
+  | abs w c ih =>
       intro ctx hctx hwn v hv
       obtain ⟨hw, hwn'⟩ := hwn
       have hctx' : ∀ z ∈ w :: ctx, z = "x" ∨ z = "y" := by
@@ -640,25 +632,25 @@ theorem NTerm.onlyXY {u : NTerm} :
 there is one.  The name of an abstraction is chosen from the constraints of its
 body, exactly as in the correctness proof. -/
 def namedOf (ctx : List String) : Term String → Option NTerm
-  | Term.bvar i => (ctx[i]?).map NTerm.var
+  | Term.bvar i => (ctx[i]?).map .var
   | Term.fvar _ => none
   | Term.app a b =>
       match namedOf ctx a, namedOf ctx b with
-      | some u, some v => some (NTerm.app u v)
+      | some u, some v => some (.app u v)
       | _, _ => none
   | Term.abs t =>
       match constraints t (ctx.length + 1) with
       | none => none
-      | some L => (namedOf (chooseName ctx L :: ctx) t).map (NTerm.lam (chooseName ctx L))
+      | some L => (namedOf (chooseName ctx L :: ctx) t).map (.abs (chooseName ctx L))
 
 /-- Build a closed named term over `{"x","y"}` denoting `t`, if there is one. -/
 def namedOf? (t : Term String) : Option NTerm := namedOf [] t
 
 /-- Boolean check that a named term only uses the names `"x"` and `"y"`. -/
 def NTerm.usesOnlyXY : NTerm → Bool
-  | var v => v == "x" || v == "y"
-  | lam v b => (v == "x" || v == "y") && usesOnlyXY b
-  | app a b => usesOnlyXY a && usesOnlyXY b
+  | .var v => v == "x" || v == "y"
+  | .abs v b => (v == "x" || v == "y") && usesOnlyXY b
+  | .app a b => usesOnlyXY a && usesOnlyXY b
 
 def isNamedOfXY (t : Term String) : Bool :=
   (namedOf? t).any NTerm.usesOnlyXY
@@ -687,11 +679,11 @@ example :
 
 /-- `namedOf?` produces a witness. -/
 example : namedOf? (Term.abs (Term.abs (Term.app (Term.bvar 1) (Term.bvar 0))))
-    = some (NTerm.lam "x" (NTerm.lam "y" (NTerm.app (NTerm.var "x") (NTerm.var "y")))) := by rfl
+    = some (.abs "x" (.abs "y" (.app (.var "x") (.var "y")))) := by rfl
 
 /-- The naming of `λx. x x`. -/
 example :
-    NTerm.toLN [] (NTerm.lam "x" (NTerm.app (NTerm.var "x") (NTerm.var "x")))
+    NTerm.toLN [] (.abs "x" (.app (.var "x") (.var "x")))
       = Term.abs (Term.app (Term.bvar 0) (Term.bvar 0)) := by
   rfl
 

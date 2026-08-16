@@ -146,7 +146,7 @@ theorem toLN_append_self {z : String} : ∀ (c : NTerm) {ctx : List String}, z �
   intro c
   induction c with
   | var v => intro ctx hz; simp only [NTerm.toLN, idx_append_self hz v]
-  | lam w b ih =>
+  | abs w b ih =>
       intro ctx hz
       simp only [NTerm.toLN]
       have : w :: (ctx ++ [z]) = (w :: ctx) ++ [z] := by simp
@@ -173,7 +173,7 @@ theorem subst_toLN_mem {z : String} {V : Term String} :
             rw [hv] at this
             simp at this
           grind
-  | lam w b ih =>
+  | abs w b ih =>
       intro ctx hz
       simp only [NTerm.toLN, Term.subst, ih (List.mem_cons_of_mem w hz)]
       grind
@@ -196,7 +196,7 @@ theorem openRec_toLN_ge {V : Term String} :
           simp [Term.openRec]
           omega
       | none => simp [Term.openRec]
-  | lam w b ih =>
+  | abs w b ih =>
       intro ctx k hk
       simp only [NTerm.toLN, Term.openRec]
       exact congrArg _ (ih (by simp; omega))
@@ -248,7 +248,7 @@ theorem toLN_openRec_subst {V : Term String} :
             split <;> grind
         | none => simp [Term.openRec, Term.subst, hv]
                   grind
-  | lam w b ih =>
+  | abs w b ih =>
       intro ctx z hz
       simp only [NTerm.toLN, Term.openRec, Term.subst]
       have hcons : w :: (ctx ++ [z]) = (w :: ctx) ++ [z] := by simp
@@ -278,7 +278,7 @@ theorem fv_toLN_eq_empty : ∀ (u : NTerm) {ctx : List String}, NTerm.WN ctx u �
       cases hv : NTerm.idx v ctx with
       | some i => simp [NTerm.toLN, hv, Term.fv]
       | none => rw [hv] at hs; simp at hs
-  | lam w b ih =>
+  | abs w b ih =>
       intro ctx h
       exact ih h.2
   | app a b iha ihb =>
@@ -290,7 +290,7 @@ theorem WN_mono : ∀ (u : NTerm) {ctx ctx' : List String}, (∀ v ∈ ctx, v �
   intro u
   induction u with
   | var v => intro ctx ctx' hsub h; exact hsub v h
-  | lam w b ih =>
+  | abs w b ih =>
       intro ctx ctx' hsub h
       refine ⟨h.1, ih ?_ h.2⟩
       intro v hv
@@ -377,7 +377,7 @@ theorem exists_block_body : ∀ (u : NTerm) (p q : String), p ≠ q →
   | var v =>
       intro p q hpq hp hq hwn
       have hv : v = p ∨ v = q := by simpa [NTerm.WN] using hwn
-      have htv : NTerm.toLN [] (NTerm.var v) = Term.fvar v := rfl
+      have htv : NTerm.toLN [] (.var v) = Term.fvar v := rfl
       rcases hv with h | h
       · refine ⟨Term.bvar 1, by simp [two_vars_are_enough], lc_block_bvar1, ?_⟩
         intro A B hA hB hAx hBx
@@ -417,7 +417,7 @@ theorem exists_block_body : ∀ (u : NTerm) (p q : String), p ≠ q →
         cases FullBeta.steps_lc_or_rfl h1 with
         | inl h => grind
         | inr h => grind [lc_abs2_open hLa hA hB]
-  | lam z c ih =>
+  | abs z c ih =>
       intro p q hpq hp hq hwn
       obtain ⟨hz, hwnc⟩ := hwn
       have hzpq : z = p ∨ z = q := by
@@ -461,7 +461,7 @@ theorem exists_block_body : ∀ (u : NTerm) (p q : String), p ≠ q →
             have := Xi.base (Beta.beta (M := Term.abs Ec) (N := B) hLc hB)
             grind
           refine Relation.ReflTransGen.head hstep ?_
-          have htarget : ((NTerm.toLN [] (NTerm.lam z c))[q:=B])[p:=A]
+          have htarget : ((NTerm.toLN [] (.abs z c))[q:=B])[p:=A]
               = Term.abs (((NTerm.toLN [p] c)[q:=B])[p:=A]) := by
             rw [hzp]
             simp [NTerm.toLN, Term.subst]
@@ -528,7 +528,7 @@ theorem exists_block_body : ∀ (u : NTerm) (p q : String), p ≠ q →
             have := Xi.base (Beta.beta (M := Term.abs Ec) (N := A) hLc hA)
             grind
           refine Relation.ReflTransGen.head hstep ?_
-          have htarget : ((NTerm.toLN [] (NTerm.lam z c))[q:=B])[p:=A]
+          have htarget : ((NTerm.toLN [] (.abs z c))[q:=B])[p:=A]
               = Term.abs (((NTerm.toLN [q] c)[q:=B])[p:=A]) := by
             rw [hzq]
             simp [NTerm.toLN, Term.subst]
