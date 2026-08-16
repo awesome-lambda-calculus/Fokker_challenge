@@ -30,7 +30,6 @@ inductive HeadReduction2 : Term String → Term String → Prop
   | base {M N1 N2: Term String} : HeadReduction2 ((M.abs.abs.app N1).app N2) (M⟦1 ↝ N1⟧⟦0 ↝ N2⟧)
   | appL {N M1 M2: Term String} : HeadReduction2 M1 M2 -> HeadReduction2 (M1.app N) (M2.app N)
 
-@[scoped grind]
 theorem HeadReduction2.fv {M N : Term String} (h : HeadReduction2 M N) : N.fv ⊆ M.fv := by
   induction h with grind [open_preserve_not_fvar]
 
@@ -62,8 +61,7 @@ theorem HeadReduction2.steps_2_beta {M N : Term String} (h : Relation.ReflTransG
   | tail _ h ih =>
       apply HeadReduction2.step_2_beta at h
       cases FullBeta.steps_lc_or_rfl ih with
-      | inl h =>  refine .trans (by assumption) ?_
-                  grind
+      | inl h => exact .trans ih (by grind)
       | inr h => grind
 
 theorem HeadReduction2.unique {M N Z : Term String}
@@ -155,6 +153,7 @@ theorem foldl_multiapp_cases {f M : Term String} {l : List (Term String)}
           | appL ih => cases ih <;> grind
           . grind
           . grind
+
 theorem HeadReduction2_preserver_fvar_or_combinator {M N : Term String}
   (hm : ClosedUnderApp fvar_or_combinator M)
   (hmn : HeadReduction2 M N):

@@ -132,7 +132,7 @@ theorem idx_append_self {z : String} : ∀ {ctx : List String}, z ∈ ctx →
       simp only [List.cons_append, NTerm.idx]
       by_cases hw : w = v
       · simp [hw]
-      · simp only [hw, if_false]
+      · simp only [hw]
         by_cases hzs : z ∈ ws
         · rw [ih hzs]
         · have hwz : w = z := by
@@ -175,11 +175,11 @@ theorem subst_toLN_mem {z : String} {V : Term String} :
           grind
   | abs w b ih =>
       intro ctx hz
-      simp only [NTerm.toLN, Term.subst, ih (List.mem_cons_of_mem w hz)]
+      simp only [NTerm.toLN]
       grind
   | app a b iha ihb =>
       intro ctx hz
-      simp only [NTerm.toLN, Term.subst, iha hz, ihb hz]
+      simp only [NTerm.toLN]
       grind
 
 theorem openRec_toLN_ge {V : Term String} :
@@ -238,19 +238,19 @@ theorem toLN_openRec_subst {V : Term String} :
       by_cases hv : v = z
       · subst_vars
         rw [idx_append_notMem hz, idx_none_of_notMem hz]
-        simp [Term.openRec, Term.subst]
+        simp [Term.openRec]
         grind
       · rw [idx_append_ne hv]
         cases hi : NTerm.idx v ctx with
         | some i =>
             have := idx_lt_length hi
-            simp [Term.openRec, Term.subst]
+            simp [Term.openRec]
             split <;> grind
-        | none => simp [Term.openRec, Term.subst, hv]
+        | none => simp [Term.openRec]
                   grind
   | abs w b ih =>
       intro ctx z hz
-      simp only [NTerm.toLN, Term.openRec, Term.subst]
+      simp only [NTerm.toLN, Term.openRec]
       have hcons : w :: (ctx ++ [z]) = (w :: ctx) ++ [z] := by simp
       rw [hcons]
       by_cases hw : w = z
@@ -265,7 +265,7 @@ theorem toLN_openRec_subst {V : Term String} :
         · exact hz h
   | app a b iha ihb =>
       intro ctx z hz
-      simp only [NTerm.toLN, Term.openRec, Term.subst, iha hz, ihb hz]
+      simp only [NTerm.toLN, Term.openRec, iha hz, ihb hz]
       grind
 
 theorem fv_toLN_eq_empty : ∀ (u : NTerm) {ctx : List String}, NTerm.WN ctx u →
@@ -383,7 +383,7 @@ theorem exists_block_body : ∀ (u : NTerm) (p q : String), p ≠ q →
         intro A B hA hB hAx hBx
         rw [htv, h]
         have h1 : Term.openRec 0 B (Term.openRec 1 A (Term.bvar 1)) = A := by
-          simp [Term.openRec, open_lc]
+          simp [Term.openRec]
           grind
         have h2 : ((Term.fvar p)[q:=B])[p:=A] = A := by
           grind
@@ -409,7 +409,7 @@ theorem exists_block_body : ∀ (u : NTerm) (p q : String), p ≠ q →
         exact LC.app (lc_abs2_open hLa (LC.fvar f) (LC.fvar g))
           (lc_abs2_open hLb (LC.fvar f) (LC.fvar g))
       · intro A B hA hB hAx hBx
-        simp only [Term.openRec, NTerm.toLN, Term.subst]
+        simp only [Term.openRec, NTerm.toLN]
         have h1 := hRa A B hA hB hAx hBx
         have h2 := hRb A B hA hB hAx hBx
         have lcXb := lc_abs2_open hLb hA hB
@@ -464,7 +464,7 @@ theorem exists_block_body : ∀ (u : NTerm) (p q : String), p ≠ q →
           have htarget : ((NTerm.toLN [] (.abs z c))[q:=B])[p:=A]
               = Term.abs (((NTerm.toLN [p] c)[q:=B])[p:=A]) := by
             rw [hzp]
-            simp [NTerm.toLN, Term.subst]
+            simp [NTerm.toLN]
             grind
           rw [htarget]
           refine FullBeta.redex_abs_cong ({"x", "y"} : Finset String) ?_
@@ -520,7 +520,7 @@ theorem exists_block_body : ∀ (u : NTerm) (p q : String), p ≠ q →
               (Term.openRec 1 A (Term.app (Term.abs (Term.abs Ec)) (Term.bvar 1)))
               = Term.app (Term.abs (Term.abs Ec)) A := by
             rw [openRec_app_block hLc, openRec_app_block hLc]
-            simp [Term.openRec, open_lc]
+            simp [Term.openRec]
             grind
           rw [hopen]
           have hstep : FullBeta (Term.app (Term.abs (Term.abs Ec)) A)
@@ -531,7 +531,7 @@ theorem exists_block_body : ∀ (u : NTerm) (p q : String), p ≠ q →
           have htarget : ((NTerm.toLN [] (.abs z c))[q:=B])[p:=A]
               = Term.abs (((NTerm.toLN [q] c)[q:=B])[p:=A]) := by
             rw [hzq]
-            simp [NTerm.toLN, Term.subst]
+            simp [NTerm.toLN]
             grind
           rw [htarget]
           refine FullBeta.redex_abs_cong ({"x", "y"} : Finset String) ?_

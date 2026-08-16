@@ -22,7 +22,6 @@ lemma steps_flip_app_l {R} {M M'} {Ns : List (Term String)} (steps : Relation.Re
     Relation.ReflTransGen (Xi R) (Ns.foldl (flip app) M) (Ns.foldl (flip app) M') := by
   induction steps <;> grind [step_flip_app_l]
 
-@[scoped grind]
 lemma flip_app_fv {M} {Ns : List (Term String)}:
   (Ns.foldl (flip app) M).fv = (Ns.map fv).foldl Union.union M.fv := by
     induction Ns generalizing M with
@@ -32,7 +31,6 @@ lemma flip_app_fv {M} {Ns : List (Term String)}:
       specialize @ih (head.app M)
       grind
 
-@[scoped grind]
 lemma multiapp_fv {M} {Ns : List (Term String)}:
   (Ns.foldl app M).fv = (Ns.map fv).foldl Union.union M.fv := by
     induction Ns generalizing M with

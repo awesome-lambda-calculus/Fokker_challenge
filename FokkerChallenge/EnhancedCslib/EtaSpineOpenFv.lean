@@ -92,7 +92,6 @@ theorem mem_fv_openDown_of_mem_fv {y : Var} :
       intro u t h
       exact ih u (openRec m u t) (by grind[open_preserve_not_fvar])
 
-variable  [HasFresh Var]
 
 /-! ## The main statement -/
 
@@ -121,6 +120,8 @@ theorem mem_fv_openDown_of_forall_hasBvar {n : ℕ} {E : List (Term Var)}
   intro B hB
   obtain ⟨k, hk, hkB, _⟩ := hE B hB
   exact mem_fv_openDown_of_hasBvar hk hkB y
+
+variable  [HasFresh Var]
 
 /-- Combined with the shape theorem: for a locally closed β-normal `M` with
 `M ↠ηᶠ x N`, the appended arguments `E` of `M = absN n (x A E₁ … E_n)` all

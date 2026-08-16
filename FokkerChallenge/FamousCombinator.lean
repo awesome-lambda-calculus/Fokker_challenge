@@ -36,7 +36,7 @@ def H : Nat -> Term String
 @[simp, scoped grind =]
 theorem H_fv {n} : (H n).fv = ∅ := by induction n with grind
 
-@[simp, scoped grind]
+@[simp, scoped grind <-]
 theorem H.LC {n} : (H n).LC := by
   rw [<- lcAt_iff_LC]
   induction n with

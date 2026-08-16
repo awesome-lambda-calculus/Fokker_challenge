@@ -13,26 +13,7 @@ universe u
 
 open Term
 
-variable {Var : Type u} [DecidableEq Var]
-
-theorem fv_absN (n : ℕ) (t : Term Var) : fv (abs^[n] t) = fv t := by
-  induction n with
-  | zero => rfl
-  | succ m ih =>  rw [add_comm, Function.iterate_add]
-                  simp
-                  grind
-
-theorem absn_openrec {i n} {N M : Term String} :
-  (abs^[n] M)⟦i ↝ N⟧ = abs^[n] (M⟦n+i ↝ N⟧) := by
-  induction n generalizing M with
-  | zero => simp
-  | succ n ih => simp; grind
-
-theorem absn_lcat {i n} {M : Term String} :
-  LcAt i (abs^[n] M) = LcAt (n+i) M := by
-  induction n generalizing M with
-  | zero => simp
-  | succ n ih => simp; grind
+variable {Var : Type u}
 
 /-- Refinement of `openRec_absN_spine`: opening reflects the shape
 `absN n (spine x l)` *argument by argument*. -/
@@ -92,3 +73,24 @@ theorem openRec_absN_spine_args {T : Term Var} {k n : ℕ} {x y : Var} {l : List
           rw [add_comm, Function.iterate_add] at h
           simp only [openRec] at h
           cases h
+
+variable [DecidableEq Var]
+
+theorem fv_absN (n : ℕ) (t : Term Var) : fv (abs^[n] t) = fv t := by
+  induction n with
+  | zero => rfl
+  | succ m ih =>  rw [add_comm, Function.iterate_add]
+                  simp
+                  grind
+
+theorem absn_openrec {i n} {N M : Term String} :
+  (abs^[n] M)⟦i ↝ N⟧ = abs^[n] (M⟦n+i ↝ N⟧) := by
+  induction n generalizing M with
+  | zero => simp
+  | succ n ih => simp; grind
+
+theorem absn_lcat {i n} {M : Term String} :
+  LcAt i (abs^[n] M) = LcAt (n+i) M := by
+  induction n generalizing M with
+  | zero => simp
+  | succ n ih => simp; grind

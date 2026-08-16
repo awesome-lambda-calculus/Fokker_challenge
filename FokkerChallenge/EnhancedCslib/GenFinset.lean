@@ -48,7 +48,7 @@ theorem genfinset_forall2_of_lc {l1 l2 : List (Term String)} {N : Term String}
   induction hn with
   | @base a hmem =>
       intro _
-      obtain ⟨b, hb, hstar⟩ := exists_mem_forall₂_left hl hmem
+      obtain ⟨b, hb, hstar⟩ := forall₂_exists_left hl hmem
       exact ⟨b, ClosedUnderApp.base hb, hstar⟩
   | @app a b _ _ iha ihb =>
       intro hN
@@ -70,7 +70,7 @@ theorem genfinset_forall2 {l1 l2 : List (Term String)}
     ∀ N,  GenFinset l2 N -> ∃ M, GenFinset l1 M ∧ M ↠βᶠ N := by
   have hlc2 : ∀ t ∈ l2, LC t := by
     intro t ht
-    obtain ⟨a, ha, hstar⟩ := exists_mem_forall₂_left hl ht
+    obtain ⟨a, ha, hstar⟩ := forall₂_exists_left hl ht
     apply FullBeta.steps_lc_or_rfl at hstar
     grind
   intros N hn

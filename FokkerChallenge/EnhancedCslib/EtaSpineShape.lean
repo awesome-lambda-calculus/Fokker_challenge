@@ -4,6 +4,7 @@ import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullEta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.EtaPostpone
 import FokkerChallenge.EnhancedCslib.EtaToSpine
 import FokkerChallenge.EnhancedCslib.AbsN
+import FokkerChallenge.EnhancedCslib.List
 
 namespace Cslib
 
@@ -35,39 +36,8 @@ universe u
 
 open Term
 
-variable {Var : Type u} [HasFresh Var] [DecidableEq Var]
+variable {Var : Type u}
 
-/-! ## Free variables are invariant under η-reduction -/
-
-/-- If the bodies of two abstractions have related free variables after opening
-with all sufficiently fresh variables, the bodies themselves do. -/
-theorem fv_abs_body_subset {M N : Term Var} {xs : Finset Var}
-    (h : ∀ z ∉ xs, fv (M ^ Term.fvar z) ⊆ fv (N ^ Term.fvar z)) : fv M ⊆ fv N := by
-  intro y hy
-  obtain ⟨z, hz⟩ := Infinite.exists_notMem_finset (xs ∪ fv M ∪ fv N ∪ {y})
-  simp only [Finset.mem_union, Finset.mem_singleton, not_or] at hz
-  obtain ⟨⟨⟨hzxs, _⟩, _⟩, hzy⟩ := hz
-  have h1 : y ∈ fv (M ^ Term.fvar z) := by grind [open_preserve_not_fvar]
-  have h2 : y ∈ fv (N ^ Term.fvar z) := h z hzxs h1
-  grind [open_preserve_not_fvar]
-
-/-- η-reduction neither creates nor destroys free variables. -/
-theorem fullEta_fv_eq {a b : Term Var} (h : FullEta a b) : fv a = fv b := by
-  induction h with
-  | base hb => cases hb with
-    | eta _ => simp [fv]
-  | appL _ _ ih => simp [fv, ih]
-  | appR _ _ ih => simp [fv, ih]
-  | abs xs _ ih =>
-      simp only [fv]
-      exact Finset.Subset.antisymm
-        (fv_abs_body_subset (xs := xs) (fun z hz => (ih z hz).subset))
-        (fv_abs_body_subset (xs := xs) (fun z hz => (ih z hz).symm.subset))
-
-theorem fullEtaStar_fv_eq {a b : Term Var} (h : a ↠ηᶠ b) : fv a = fv b := by
-  induction h with
-  | refl => rfl
-  | tail _ hstep ih => exact ih.trans (fullEta_fv_eq hstep)
 
 /-! ## Dangling bound variables -/
 
@@ -116,8 +86,10 @@ theorem hasBvar_openRec_of_ne {k j : ℕ} (hne : j ≠ k) {u t : Term Var} (h : 
       simp only [HasBvar] at h ⊢
       exact h.imp (iha hne) (ihb hne)
 
+variable [HasFresh Var]
+
 /-- A locally closed term has no dangling bound variables. -/
-theorem Term.LC.not_hasBvar {t : Term Var} (h : LC t) (k : ℕ) : ¬ HasBvar k t := by
+theorem LC.not_hasBvar {t : Term Var} (h : LC t) (k : ℕ) : ¬ HasBvar k t := by
   induction h generalizing k with
   | fvar x => simp [HasBvar]
   | abs xs t hbody ih =>
@@ -129,6 +101,9 @@ theorem Term.LC.not_hasBvar {t : Term Var} (h : LC t) (k : ℕ) : ¬ HasBvar k t
         grind)
   | app h1 h2 ih1 ih2 => simp only [HasBvar]; exact not_or.2 ⟨ih1 k, ih2 k⟩
 
+variable [DecidableEq Var]
+
+omit [HasFresh Var] in
 /-- Opening at the index of a dangling bound variable introduces the opening
 term's free variables: if `HasBvar k t` then `y` is free in `openRec k (fvar y) t`. -/
 theorem mem_fv_openRec_of_hasBvar {k : ℕ} {t : Term Var} (y : Var)
@@ -166,12 +141,15 @@ def EtaExpArgs : ℕ → List (Term Var) → Prop
   | (n + 1), (E :: l) => EtaExpBvar n E ∧ EtaExpArgs n l
   | _, _ => False
 
+omit [HasFresh Var] in
 @[simp] theorem etaExpArgs_zero {E : List (Term Var)} : EtaExpArgs 0 E ↔ E = [] := by
   cases E <;> simp [EtaExpArgs]
 
+omit [HasFresh Var] in
 @[simp] theorem etaExpArgs_succ {n : ℕ} {E : Term Var} {l : List (Term Var)} :
     EtaExpArgs (n + 1) (E :: l) ↔ EtaExpBvar n E ∧ EtaExpArgs n l := Iff.rfl
 
+omit [HasFresh Var] in
 theorem EtaExpArgs.length {n : ℕ} {l : List (Term Var)} (h : EtaExpArgs n l) :
     l.length = n := by
   induction n generalizing l with
@@ -188,7 +166,7 @@ theorem EtaExpBvar.hasBvar {k : ℕ} {E : Term Var} (h : EtaExpBvar k E) : HasBv
   obtain ⟨y, hy⟩ := Infinite.exists_notMem_finset (fv E)
   have hred := h y hy
   rw [openRec_eq_self_of_not_hasBvar hb] at hred
-  have : fv E = ({y} : Finset Var) := by simpa [fv] using fullEtaStar_fv_eq hred
+  have : fv E = ({y} : Finset Var) := by simpa [fv] using FullEta.steps_fv hred
   exact hy (by simp [this])
 
 /-- **Every entry of the appended argument list contains an unbound bound
@@ -212,10 +190,11 @@ theorem EtaExpArgs.not_lc {n : ℕ} {l : List (Term Var)} (h : EtaExpArgs n l) :
     ∀ B ∈ l, ¬ LC B := by
   intro B hB hlc
   obtain ⟨k, _, hk⟩ := h.exists_hasBvar B hB
-  exact Term.LC.not_hasBvar hlc k hk
+  exact LC.not_hasBvar hlc k hk
 
 /-! ## Auxiliary lemmas about opening, `absN` and spines -/
 
+omit [HasFresh Var] in
 theorem fv_head_subset_foldl : ∀ (l : List (Term Var)) (h : Term Var),
     fv h ⊆ fv (l.foldl app h) := by
   intro l
@@ -226,6 +205,7 @@ theorem fv_head_subset_foldl : ∀ (l : List (Term Var)) (h : Term Var),
       refine subset_trans ?_ (ih (app h c))
       intro y hy; simp only [fv, Finset.mem_union]; exact Or.inl hy
 
+omit [HasFresh Var] in
 theorem fv_subset_foldl_app {A : Term Var} : ∀ (l : List (Term Var)) (h : Term Var),
     A ∈ l → fv A ⊆ fv (l.foldl app h) := by
   intro l
@@ -238,12 +218,14 @@ theorem fv_subset_foldl_app {A : Term Var} : ∀ (l : List (Term Var)) (h : Term
         intro y hy; simp only [fv, Finset.mem_union]; exact Or.inr hy
       · exact ih _ hA'
 
+omit [HasFresh Var] in
 theorem fv_subset_spine_arg {x : Var} {l : List (Term Var)} {A : Term Var} (hA : A ∈ l) :
     fv A ⊆ fv (spine x l) := fv_subset_foldl_app l (fvar x) hA
 
 /-- The union of the free variables of a list of terms. -/
 noncomputable def fvList (l : List (Term Var)) : Finset Var := l.foldr (fun t s => fv t ∪ s) ∅
 
+omit [HasFresh Var] in
 theorem fv_subset_fvList {l : List (Term Var)} {A : Term Var} (hA : A ∈ l) :
     fv A ⊆ fvList l := by
   induction l with
@@ -255,6 +237,7 @@ theorem fv_subset_fvList {l : List (Term Var)} {A : Term Var} (hA : A ∈ l) :
         simp only [fvList, List.foldr_cons, Finset.mem_union]
         exact Or.inr (ih hA' hy)
 
+omit [HasFresh Var] in
 /-- If opening at `k` with `y` produces a term without `y` free, it was the
 identity. -/
 theorem openRec_fvar_eq_self_of_notMem {P : Term Var} {k : ℕ} {y : Var}
@@ -270,19 +253,6 @@ theorem openRec_fvar_eq_self_of_notMem {P : Term Var} {k : ℕ} {y : Var}
       simp only [openRec, fv, Finset.mem_union, not_or] at h ⊢
       rw [iha h.1, ihb h.2]
 
-theorem forall₂_snoc_right {α β : Type _} (R : α → β → Prop) (l₀ : List α) (l : List β) (b : β)
-    (h : List.Forall₂ R l₀ (l ++ [b])) :
-    ∃ l₀' a, l₀ = l₀' ++ [a] ∧ List.Forall₂ R l₀' l ∧ R a b := by
-  induction l generalizing l₀ with
-  | nil =>
-      cases h with
-      | cons hab hrest => cases hrest; exact ⟨[], _, rfl, List.Forall₂.nil, hab⟩
-  | cons c l ih =>
-      cases h with
-      | cons hab hrest =>
-          obtain ⟨l₀', a, rfl, h1, h2⟩ := ih _ hrest
-          exact ⟨_ :: l₀', a, rfl, List.Forall₂.cons hab h1, h2⟩
-
 /-- An η-expansion of a bound variable is unaffected by opening at any index:
 apart from the index it expands, it has no dangling bound variables and no free
 variables at all. -/
@@ -291,7 +261,7 @@ theorem EtaExpBvar.openRec_eq_self {j m : ℕ} {y : Var} {E : Term Var}
   set Q := openRec m (fvar y) E with hQ
   obtain ⟨z, hz⟩ := Infinite.exists_notMem_finset (fv Q)
   have hred := h z hz
-  have hfv : fv (openRec j (fvar z) Q) = {z} := by simpa [fv] using fullEtaStar_fv_eq hred
+  have hfv : fv (openRec j (fvar z) Q) = {z} := by simpa [fv] using FullEta.steps_fv hred
   have hsub : fv Q ⊆ ({z} : Finset Var) := by grind [open_preserve_not_fvar]
   have hempty : y ∉ fv Q := by
     intro hy
@@ -306,49 +276,8 @@ theorem fullEtaStar_subst {M N : Term Var} (h : M ↠ηᶠ N) (x : Var) {u : Ter
   | refl => exact Relation.ReflTransGen.refl
   | tail _ hstep ih => exact ih.tail (FullEta.step_subst_cong_l _ _ _ hstep hu)
 
-theorem forall₂_refl {α : Type _} {R : α → α → Prop} (l : List α) :
-    List.Forall₂ (Relation.ReflTransGen R) l l := by
-  induction l with
-  | nil => exact List.Forall₂.nil
-  | cons a l ih => exact List.Forall₂.cons Relation.ReflTransGen.refl ih
 
-theorem forall₂_trans {α : Type _} {R : α → α → Prop} {l₁ l₂ l₃ : List α}
-    (h₁ : List.Forall₂ (Relation.ReflTransGen R) l₁ l₂)
-    (h₂ : List.Forall₂ (Relation.ReflTransGen R) l₂ l₃) :
-          List.Forall₂ (Relation.ReflTransGen R) l₁ l₃ := by
-  induction h₁ generalizing l₃ with
-  | nil => cases h₂; exact List.Forall₂.nil
-  | cons hab _ ih =>
-      cases h₂ with
-      | cons hbc hrest => exact List.Forall₂.cons (hab.trans hbc) (ih hrest)
-
-theorem forall₂_sub {α : Type _} {R1 R2 : α → α → Prop} {l₁ l₂ : List α}
-    (h : R1  ≤  R2)
-    (h₁ : List.Forall₂ R1 l₁ l₂) :
-          List.Forall₂ R2 l₁ l₂  := by
-  induction h₁ with
-  | nil => exact List.Forall₂.nil
-  | cons g _ ih => exact List.Forall₂.cons (h _ _ g) ih
-
-
-theorem forall₂_concat {α β : Type _} {R : α → β → Prop} {as : List α} {bs : List β} {a : α}
-    {b : β} (h : List.Forall₂ R as bs) (hab : R a b) :
-    List.Forall₂ R (as ++ [a]) (bs ++ [b]) := by
-  induction h with
-  | nil => exact List.Forall₂.cons hab List.Forall₂.nil
-  | cons hh _ ih => exact List.Forall₂.cons hh ih
-
-theorem forall₂_exists_right {α β : Type _} {R : α → β → Prop} {as : List α} {bs : List β}
-    (h : List.Forall₂ R as bs) : ∀ a ∈ as, ∃ b ∈ bs, R a b := by
-  induction h with
-  | nil => simp
-  | @cons a b as bs hab _ ih =>
-      intro c hc
-      rcases List.mem_cons.1 hc with rfl | hc'
-      · exact ⟨b, by simp, hab⟩
-      · obtain ⟨d, hd, hcd⟩ := ih c hc'
-        exact ⟨d, by simp [hd], hcd⟩
-
+omit [HasFresh Var] in
 /-- Opening a list of terms at an index none of them uses is the identity. -/
 theorem map_openRec_eq_of_fresh {y : Var} {k : ℕ} : ∀ (as bs : List (Term Var)),
     as.map (openRec k (fvar y)) = bs → (∀ b ∈ bs, y ∉ fv b) → as = bs := by
@@ -455,7 +384,7 @@ theorem Normal_etaStar_spine_shape {M : Term Var} (h : Normal M) :
       have hfreshA : ∀ b ∈ l₀', y ∉ fv b := by
         intro b hb
         obtain ⟨c, hc, hbc⟩ := forall₂_exists_right hFl b hb
-        rw [fullEtaStar_fv_eq hbc]
+        rw [FullEta.steps_fv hbc]
         exact fun hmem => hyl (fv_subset_fvList hc hmem)
       have hA : argsA = l₀' := map_openRec_eq_of_fresh argsA l₀' hmapA hfreshA
       subst hA
@@ -520,7 +449,7 @@ theorem betaNF_etaStar_shape_len_one {M N : Term Var} {x : Var}
   refine ⟨n, A, E, by simpa using hEq, hLC A (by simp), hAN, hE.length, hE, ?_⟩
   intro B hB
   obtain ⟨k, hk, hkB⟩ := hE.exists_hasBvar B hB
-  exact ⟨k, hk, hkB, fun hlcB =>  Term.LC.not_hasBvar hlcB k hkB⟩
+  exact ⟨k, hk, hkB, fun hlcB =>  LC.not_hasBvar hlcB k hkB⟩
 
 /-- The same statement, phrased for a target list `l` of length `1`, matching
 `betaNF_etaStar_absN_spine_len_one`.  Besides the length information

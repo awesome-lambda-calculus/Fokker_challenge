@@ -27,7 +27,7 @@ universe u
 
 open Term
 
-variable {Var : Type u} [HasFresh Var]
+variable {Var : Type u}
 
 /-! ## Inversion lemmas for a single η-step -/
 

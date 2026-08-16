@@ -104,7 +104,7 @@ theorem gen_terms_complete : ∀ (M : Term String) (d : Nat),
     -- The second equation lemma gives a clean unfolding (the side condition is vacuous).
     show abs M ∈ gen_terms (1 + M.abs_count) M.app_count d
     rw [gen_terms.eq_2 _ _ _ (by intro h; omega)]
-    simp only [show (1 + M.abs_count) > 0 from by omega, if_true,
+    simp only [show (1 + M.abs_count) > 0 from by omega, ite_true,
       show (1 + M.abs_count) - 1 = M.abs_count from by omega]
     apply List.mem_append_left
     exact List.mem_map_of_mem ihM
@@ -131,7 +131,7 @@ theorem gen_terms_complete : ∀ (M : Term String) (d : Nat),
     show app L R ∈ gen_terms (L.abs_count + R.abs_count) (1 + L.app_count + R.app_count) d
     rw [gen_terms.eq_2 _ _ _ (by intro _ h; omega)]
     apply List.mem_append_right
-    simp only [show (1 + L.app_count + R.app_count) > 0 from by omega, if_true]
+    simp only [show (1 + L.app_count + R.app_count) > 0 from by omega, ite_true]
     -- Pick left_l_nat = a_L and left_a_nat = b_L; the inner right_l reduces to a_R, right_a to b_R.
     refine List.mem_flatMap.mpr ⟨⟨L.abs_count, ?_⟩, ?_, ?_⟩
     · -- L.abs_count ∈ List.range (L.abs_count + R.abs_count + 1)

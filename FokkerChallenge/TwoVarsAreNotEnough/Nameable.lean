@@ -173,7 +173,7 @@ theorem idx_of_get {v : String} : ∀ {ctx : List String} {i : ℕ},
       | i+1 =>
           have hw : w ≠ v := by
             intro hc; exact h2 0 (by omega) (by simpa using hc)
-          simp only [NTerm.idx, if_neg hw]
+          simp only [NTerm.idx, ite_eq_right hw]
           rw [ih (by simpa using h1) (fun j hj => by simpa using h2 (j+1) (by omega))]
           simp
 
@@ -185,7 +185,7 @@ theorem idx_isSome_of_mem {v : String} {ctx : List String} (h : v ∈ ctx) :
       simp only [NTerm.idx]
       by_cases hw : w = v
       · simp [hw]
-      · simp only [if_neg hw]
+      · simp only [ite_eq_right hw]
         rcases List.mem_cons.1 h with h' | h'
         · exact absurd h'.symm hw
         · simpa using ih h'
@@ -566,7 +566,7 @@ theorem exists_named_iff (t : Term String) :
               have t2 := hs₂ m c2 hm2 _ _ e1 e2
               cases c1 <;> cases c2 <;> simp_all
             refine ⟨L₁ ++ L₂, ?_, sat_append.2 ⟨hs₁, hs₂⟩⟩
-            simp only [constraints, h₁, h₂, hcomp, if_true]
+            simp only [constraints, h₁, h₂, hcomp, ite_true]
       · rintro ⟨L, hL, hsat⟩
         simp only [constraints] at hL
         split at hL

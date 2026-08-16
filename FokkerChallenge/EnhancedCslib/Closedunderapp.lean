@@ -37,14 +37,13 @@ theorem closedunderapp_multiapp_cons {l : List (Term String)} {Q} {f: Term Strin
     simp
     apply ih <;> grind
 
-@[scoped grind]
+@[scoped grind ->]
 theorem closedunderapp_lc {Q} {M : Term String}
   (h : ∀ x, Q x -> x.LC)
   (h2 : ClosedUnderApp Q M) :
   M.LC := by
   induction h2 with grind
 
-@[scoped grind]
 theorem closedunderapp_fv {Q} {M : Term String}
   (h : ∀ x, Q x -> x.fv = ∅ )
   (h2 : ClosedUnderApp Q M) :
@@ -73,7 +72,7 @@ def ClosedUnderAppBool (P : Term String → Bool) : Term String → Bool
   | .app a b => ClosedUnderAppBool P a && ClosedUnderAppBool P b
   | a        => P a
 
-@[scoped grind]
+@[scoped grind ->]
 theorem closedunderappbool_lc {Q} {M : Term String}
   (h : ∀ x, Q x -> x.LC)
   (h2 : ClosedUnderAppBool Q M) : M.LC := by induction M <;> grind
