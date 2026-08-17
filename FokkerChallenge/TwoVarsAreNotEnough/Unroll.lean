@@ -26,14 +26,14 @@ namespace Cslib
 namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
 @[scoped grind]
-inductive unroll_inner : Term String → Term String → Prop
-  | reflTrans {M N: Term String} : HeadReduction2 M N -> unroll_inner M N
-  | throughAbsApp {N1 N2: Term String} : unroll_inner (N1.abs.app N2) N2
+inductive unroll_step : Term String → Term String → Prop
+  | reflTrans {M N: Term String} : HeadReduction2 M N -> unroll_step M N
+  | throughAbsApp {N1 N2: Term String} : unroll_step (N1.abs.app N2) N2
 
 theorem unroll_inner_eq {M N Z : Term String}
   (m_lc : M.LC)
-  (hx : unroll_inner M N)
-  (hy : unroll_inner M Z):
+  (hx : unroll_step M N)
+  (hy : unroll_step M Z):
   N = Z := by
   cases hx <;> cases hy <;> rename_i h
   . rename_i g
@@ -43,20 +43,19 @@ theorem unroll_inner_eq {M N Z : Term String}
   . cases h with | appL h => cases h
   . grind
 
-theorem unroll_inner.fv {M N  : Term String}
-  (h : unroll_inner M N):
+theorem unroll_step.fv {M N  : Term String}
+  (h : unroll_step M N):
   N.fv ⊆ M.fv := by
   cases h with grind [HeadReduction2.fv]
 
-@[simp, grind unfold]
-def unroll : Term String → Term String → Prop := Relation.ReflTransGen unroll_inner
+abbrev unroll : Term String → Term String → Prop := Relation.ReflTransGen unroll_step
 
 theorem unroll.fv {M N  : Term String}
   (h : unroll M N):
   N.fv ⊆ M.fv := by
   induction h with
   | refl => grind
-  | tail _ h _ => grind [unroll_inner.fv h]
+  | tail _ h _ => grind [unroll_step.fv h]
 
 theorem unroll.LC {M N : Term String}
   (hmn : unroll M N) (m_lc: M.LC) : N.LC := by
