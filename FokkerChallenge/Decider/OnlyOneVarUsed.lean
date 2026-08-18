@@ -91,7 +91,6 @@ theorem xi_preserves_only_one_var_used {R: Term String → Term String → Prop}
                                 have g := xi_preserves_count_bvar_all_eq_0 h9 h7 _ _ h
                                 simp at g
                                 specialize g hm
-                                unfold open' at g
                                 rw [<- openRec_bvar_all_eq_zero_of_count_bvar_eq_total] at g
                                 assumption
                     | inr hm => obtain ⟨_, hm⟩ := hm

@@ -158,7 +158,6 @@ theorem beta_preserves_fvar: r_preserves_fvar Beta := by
     left
     left
     unfold count_fvar
-  unfold open'
   rw [count_fvar_openRec_distrib]
   have h : count_fvar x M = 0 \/ count_fvar x M = 1 := by omega
   cases h
@@ -237,7 +236,6 @@ theorem xi_preserves_fvar {R}:  r_preserves_fvar_subset (Xi R) ->
                     unfold count_fvar at hcfv
                     unfold no_duplicate at hnd
                     simp at hnd
-                    unfold open' at ih
                     rw [count_fvar_openRec_distrib, count_fvar_openRec_distrib] at ih
                     have h: count_fvar x (fvar y) = 0 := by unfold count_fvar
                                                             grind
@@ -285,9 +283,7 @@ theorem xi_preserves_no_duplicate {R: Term String → Term String → Prop} :
                       specialize h y (by grind)
                       apply xi_preserves_fvar at h
                       any_goals assumption
-                      unfold open' at h
-                      rw [count_fvar_openRec_distrib] at h
-                      rw [count_fvar_openRec_distrib] at h
+                      rw [count_fvar_openRec_distrib, count_fvar_openRec_distrib] at h
                       conv at h =>
                         lhs
                         left

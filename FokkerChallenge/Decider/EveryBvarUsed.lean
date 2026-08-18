@@ -179,12 +179,9 @@ theorem xi_preserves_free_vars {R}: r_preserves_free_vars R -> r_preserves_free_
                     specialize ih x (by assumption) (by assumption)
                     unfold every_bvar_used at g
                     simp at g
-                    unfold open' at ih
-                    rw [openRec_fv_union] at ih
+                    rw [openRec_fv_union, openRec_fv_union] at ih
                     simp at ih
-                    rw [openRec_fv_union] at ih
                     any_goals omega
-                    simp at ih
                     apply subset_antisymm
                     . rw [<- Finset.insert_subset_insert_iff]
                       apply superset_of_eq
@@ -203,9 +200,8 @@ theorem xi_preserves_free_vars {R}: r_preserves_free_vars R -> r_preserves_free_
                     any_goals assumption
                     rename_i h1
                     apply openRec_noop_of_count_bvar_zero at h1
-                    rw [h1] at ih
-                    rw [<- ih] at hx
-                    simp at hx
+                    grind
+                    grind
 
 theorem beta_preserves_free_vars: r_preserves_free_vars Beta := by
   intro M N h g
@@ -217,7 +213,6 @@ theorem beta_preserves_free_vars: r_preserves_free_vars Beta := by
     left
     left
     unfold fv
-  unfold open'
   rw [openRec_fv_union]
   unfold every_bvar_used at g
   simp at g
@@ -293,15 +288,8 @@ theorem xi_preserves_every_bvar_used {R: Term String → Term String → Prop} :
                         tauto
                       have h4 := h x (by assumption)
                       have h5 := h y (by assumption)
-                      conv at h4 =>
-                        right
-                        unfold open'
-                      conv at h5 =>
-                        right
-                        unfold open'
-                      rw [@openRec_noop_of_count_bvar_zero N] at h4
-                      any_goals assumption
-                      rw [@openRec_noop_of_count_bvar_zero N] at h5
+                      unfold open' at h4 h5
+                      rw [@openRec_noop_of_count_bvar_zero N] at h4 h5
                       any_goals assumption
                       apply xi_preserves_free_vars at h9
                       apply h9 at h4
@@ -312,10 +300,7 @@ theorem xi_preserves_every_bvar_used {R: Term String → Term String → Prop} :
                       have : (M ^ fvar y).every_bvar_used := by apply open_every_bvar_used
                                                                 all_goals tauto
                       specialize h5 this
-                      rw [<- h5] at h4
-                      unfold open' at h4
-                      rw [openRec_fv_union] at h4
-                      rw [openRec_fv_union] at h4
+                      rw [<- h5, openRec_fv_union, openRec_fv_union] at h4
                       any_goals tauto
                       simp at h4
                       have h : y ∈ insert x M.fv := by  rw [h4]

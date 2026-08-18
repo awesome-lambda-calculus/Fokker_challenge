@@ -149,7 +149,6 @@ theorem beta_eta_spline_contain_x {Ns : List _} {M : Term String}
     rw [multiapp_fv]
     grind [union_foldl]
 
-
 end LambdaCalculus.LocallyNameless.Untyped.Term
 
 end Cslib

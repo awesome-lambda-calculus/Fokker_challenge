@@ -207,7 +207,6 @@ theorem HeadStep.regular {M N : Term Var} (h : HeadStep M N) : LC M ∧ LC N := 
   induction h with
   | beta hM hN => refine ⟨LC.app hM hN, ?_⟩
                   rw [<- lcAt_iff_LC] at *
-                  unfold open'
                   rw [lcAt_openRec_iff_lcAt _ _ _ hN]
                   grind
   | app _ _ hN ih => exact ⟨LC.app ih.1 hN, LC.app ih.2 hN⟩
@@ -317,7 +316,6 @@ theorem HeadStep.deterministic {M N N' : Term Var} (h : HeadStep M N)
       have hEq : A' ^ Term.fvar x = A'' ^ Term.fvar x := ih x (by grind) (hbody' x (by grind))
       have hclose : closeRec 0 x (A' ^ Term.fvar x) = closeRec 0 x (A'' ^ Term.fvar x) := by
         rw [hEq]
-      unfold open' at hclose
       rw [<- open_close, <- open_close] at hclose <;> grind
 
 /-- A β-step out of a head neutral term `y R₁ … Rₖ` reduces one of the arguments,

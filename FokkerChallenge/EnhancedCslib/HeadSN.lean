@@ -91,7 +91,6 @@ theorem IPar.headStep_lift {P M₁ M₂ : Term Var} (h : IPar P M₁) (hs : Head
             grind
             grind
           · have h2 := ParBeta.abs_close x hQ₀'
-            unfold open' at h2
             rw [<- open_close] at h2
             grind
             grind

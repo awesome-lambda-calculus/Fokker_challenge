@@ -101,7 +101,6 @@ theorem StarSeq.abs_cofinite {M M' : Term Var} (xs : Finset Var)
   obtain ⟨z, hz⟩ := Infinite.exists_notMem_finset (xs ∪ (fv M ∪ fv M'))
   simp only [Finset.mem_union, not_or] at hz
   have h2 := StarSeq.abs_close z (h z hz.1)
-  unfold open' at h2
   rw [<- open_close, <- open_close] at h2
   grind
   grind

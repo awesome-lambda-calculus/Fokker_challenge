@@ -70,8 +70,7 @@ theorem no_fvar_inside_abs_of_open_rev {M x} : (M ^ fvar x).no_fvar_inside_abs -
   | fvar _ => grind
   | bvar _ => grind [no_fvar_inside_abs]
   | app _ _ _ _ => grind [no_fvar_inside_abs]
-  | abs M ih => unfold open' openRec
-                unfold no_fvar_inside_abs
+  | abs M ih => unfold no_fvar_inside_abs
                 simp
                 intros h1
                 have h := open_preserve_not_fvar 1 M (fvar x)
@@ -83,7 +82,7 @@ theorem no_fvar_inside_abs_of_open {M N}: M.all0 -> N.no_fvar_inside_abs -> M.no
   | fvar _ => grind
   | app _ _ _ _ => grind [all0, no_fvar_inside_abs]
   | abs M _ =>  intros h1 _ h
-                unfold open' openRec no_fvar_inside_abs
+                unfold openRec no_fvar_inside_abs
                 unfold no_fvar_inside_abs at h
                 unfold all0 at h1
                 simp
@@ -150,12 +149,12 @@ theorem all0_openrec_rev {x M}: (i: Nat) -> M⟦i ↝ fvar x⟧.all0 = true → 
 
 theorem all0_of_open_all0 {M x} : (M ^ (fvar x)).all0 -> (M ^ (fvar x)).no_fvar_inside_abs -> M.all0 := by
   induction M with
-  | bvar _ => grind [open', openRec, all0]
-  | fvar _ => grind [open', openRec, all0]
-  | app _ _ _ _ =>  unfold open' openRec all0 no_fvar_inside_abs
+  | bvar _ => grind [openRec, all0]
+  | fvar _ => grind [openRec, all0]
+  | app _ _ _ _ =>  unfold all0 no_fvar_inside_abs
                     intros _ h
                     grind
-  | abs M ih => unfold open' openRec all0 no_fvar_inside_abs
+  | abs M ih => unfold openRec all0 no_fvar_inside_abs
                 simp
                 intros _ _
                 apply all0_openrec_rev <;> tauto

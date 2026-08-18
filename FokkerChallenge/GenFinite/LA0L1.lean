@@ -42,9 +42,8 @@ private theorem gen_term_reduces_to_normal {X} (h: Gen Term_LA0L1 X) : Relation.
                             assumption
                             rw [← lcAt_iff_LC]
                             decide
-                          . apply Relation.ReflTransGen.trans
-                            . apply Relation.ReflTransGen.single
-                              left
+                          . apply Relation.ReflTransGen.head
+                            . left
                               apply Xi.base
                               unfold Term_LA0L1
                               constructor
@@ -52,34 +51,23 @@ private theorem gen_term_reduces_to_normal {X} (h: Gen Term_LA0L1 X) : Relation.
                               decide
                               rw [← lcAt_iff_LC]
                               decide
-                            . unfold open' openRec openRec
-                              simp
-                              unfold openRec
-                              simp
-                              . apply Relation.ReflTransGen.trans
-                                . apply Relation.ReflTransGen.single
-                                  left
-                                  constructor
+                            . apply Relation.ReflTransGen.head
+                              . left
+                                constructor
+                                constructor
+                                rw [← lcAt_iff_LC]
+                                decide
+                                rw [← lcAt_iff_LC]
+                                decide
+                              . apply Relation.ReflTransGen.head
+                                . left
+                                  apply Xi.base
                                   constructor
                                   rw [← lcAt_iff_LC]
                                   decide
                                   rw [← lcAt_iff_LC]
                                   decide
-                                . unfold open' openRec openRec
-                                  simp
-                                  unfold openRec
-                                  simp
-                                  . apply Relation.ReflTransGen.trans
-                                    . apply Relation.ReflTransGen.single
-                                      left
-                                      apply Xi.base
-                                      constructor
-                                      rw [← lcAt_iff_LC]
-                                      decide
-                                      rw [← lcAt_iff_LC]
-                                      decide
-                                    . unfold open' openRec
-                                      tauto
+                                . tauto
 
 
 theorem LA0L1_is_not_basis : not_basis Term_LA0L1 := by

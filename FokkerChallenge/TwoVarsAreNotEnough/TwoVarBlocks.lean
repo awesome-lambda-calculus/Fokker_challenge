@@ -492,7 +492,7 @@ theorem exists_block_body : ∀ (u : NTerm) (p q : String), p ≠ q →
               = ((NTerm.toLN [] c)[p:=Term.fvar f])[q:=B] := by
             calc (((NTerm.toLN [p] c)[q:=B])[p:=A]) ^ Term.fvar f
                 = Term.openRec 0 ((Term.fvar f)[p:=A])
-                    (((NTerm.toLN [p] c)[q:=B])[p:=A]) := by rw [e1]; rfl
+                    (((NTerm.toLN [p] c)[q:=B])[p:=A]) := by rw [e1]
               _ = (Term.openRec 0 (Term.fvar f)
                     ((NTerm.toLN [p] c)[q:=B]))[p:=A] := by grind
               _ = ((Term.openRec 0 (Term.fvar f) (NTerm.toLN [p] c))[q:=B])[p:=A] := by grind
@@ -550,7 +550,7 @@ theorem exists_block_body : ∀ (u : NTerm) (p q : String), p ≠ q →
               = ((NTerm.toLN [] c)[q:=Term.fvar f])[p:=A] := by
             calc (((NTerm.toLN [q] c)[q:=B])[p:=A]) ^ Term.fvar f
                 = Term.openRec 0 ((Term.fvar f)[p:=A])
-                    (((NTerm.toLN [q] c)[q:=B])[p:=A]) := by rw [e1]; rfl
+                    (((NTerm.toLN [q] c)[q:=B])[p:=A]) := by rw [e1]
               _ = (Term.openRec 0 (Term.fvar f) ((NTerm.toLN [q] c)[q:=B]))[p:=A] := by grind
                     -- (Term.subst_openRec hA 0 (Term.fvar f) _).symm
               _ = ((Term.openRec 0 (Term.fvar f) (NTerm.toLN [q] c))[q:=B])[p:=A] := by grind
