@@ -66,22 +66,11 @@ theorem H_succ_reduce {n} : ((H (n + 1)).app (fvar "x")).app (fvar "y") ↠βᶠ
     rw [<- this]
     grind [H.LC]
     grind
-    refine Relation.ReflTransGen.single (Xi.base ?_)
-    unfold open' openRec openRec openRec
-    rw [openRec_bvar, open_lc]
-    split <;> try grind
-    have : (((fvar "x").app ((bvar 0).app (H n))).open' (fvar "y")) =
-           (((fvar "x").app ((fvar "y").app (H n)))) := by
-      unfold open' openRec openRec
-      rw [openRec_bvar, open_lc]
-      split <;> grind
+    refine .head ((Xi.base (.beta ?_ (by grind)))) ?_
+    . apply LC.abs ∅
       grind [H.LC]
-    rw [<- this]
-    apply Beta.beta
-    apply LC.abs ∅
-    grind [H.LC]
-    grind
-    grind [H.LC]
+    . simp [openRec, open']
+      grind
 
 theorem H_0_reduce : ((H 0).app (fvar "x")).app (fvar "y") ↠βᶠ ((fvar "x").app ((fvar "y").app (fvar "y"))) := by
     apply Relation.ReflTransGen.head
@@ -93,10 +82,8 @@ theorem H_0_reduce : ((H 0).app (fvar "x")).app (fvar "y") ↠βᶠ ((fvar "x").
     decide
     grind
     refine .head ((Xi.base (.beta ?_ (by grind)))) ?_
-    unfold openRec openRec openRec
-    split <;> try grind
-    split <;> try grind
-    rw [<- lcAt_iff_LC]
-    decide
-    unfold openRec openRec openRec
-    split <;> grind
+    . simp [openRec]
+      rw [<- lcAt_iff_LC]
+      grind
+    . simp [openRec, open']
+      grind

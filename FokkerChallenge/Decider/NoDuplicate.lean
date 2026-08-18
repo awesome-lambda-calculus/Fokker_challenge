@@ -238,8 +238,7 @@ theorem xi_preserves_fvar {R}:  r_preserves_fvar_subset (Xi R) ->
                     unfold no_duplicate at hnd
                     simp at hnd
                     unfold open' at ih
-                    rw [count_fvar_openRec_distrib] at ih
-                    rw [count_fvar_openRec_distrib] at ih
+                    rw [count_fvar_openRec_distrib, count_fvar_openRec_distrib] at ih
                     have h: count_fvar x (fvar y) = 0 := by unfold count_fvar
                                                             grind
                     rw [h] at ih
