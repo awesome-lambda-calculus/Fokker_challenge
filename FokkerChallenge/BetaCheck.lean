@@ -145,13 +145,11 @@ theorem betaCheckF_sound : ∀ (n : ℕ) (S T : Term String), betaCheckF n S T =
       | .abs a, .abs b =>
           simp only [betaCheckF] at h
           have hstep := ih _ _ h
-          have hcl := Xi.abs_close (R := Beta) (fun _ _ hab => Beta.regular hab)
-            (fun _ _ hab y w hw => hab.subst y hw)
-            (freshOf (max (maxNameLen a) (maxNameLen b))) hstep
-          rwa [@close_open String (fun p q => Classical.propDecidable (p = q)) _ a
-                (freshOf_notMem_fv _ (le_max_left _ _)) 0,
-              @close_open String (fun p q => Classical.propDecidable (p = q)) _ b
-                (freshOf_notMem_fv _ (le_max_right _ _)) 0] at hcl
+          have hcl := FullBeta.step_abs_close (x:=(freshOf (max (maxNameLen a) (maxNameLen b)))) hstep
+          rw [<- open_close, <- open_close] at hcl
+          grind
+          grind [freshOf_notMem_fv _ (le_max_right _ _)]
+          grind [freshOf_notMem_fv _ (le_max_left _ _)]
       | .app f u, .bvar _ => exact redexCheck_sound (by simpa [betaCheckF] using h)
       | .app f u, .fvar _ => exact redexCheck_sound (by simpa [betaCheckF] using h)
       | .app f u, .abs _ => exact redexCheck_sound (by simpa [betaCheckF] using h)

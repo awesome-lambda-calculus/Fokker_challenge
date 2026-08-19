@@ -189,7 +189,7 @@ theorem no_reduction_to_Hn_with_depth_bound_closedunderapp (fs)
               apply genfinset_subset ?_ hl
               grind
 
-theorem isNamedOfXY_not_basis (fs)
+theorem isNamedOfXY_not_basises (fs)
   (hl : ∀ t ∈ fs, isNamedOfXY t) : not_basises fs := by
   have h : ∃ l : List _, List.Forall₂ (Relation.ReflTransGen FullBeta) l fs /\
                          ∀ t ∈ l, ClosedUnderAppBool abs_two_vars_are_enough t := by
@@ -205,3 +205,7 @@ theorem isNamedOfXY_not_basis (fs)
   intros t ht steps
   obtain ⟨M, h1, h2⟩ := genfinset_forall2 hl (by grind) _ ht
   exact h M h1 (.trans (FullBetaEta.from_beta _ _ h2) steps)
+
+theorem isNamedOfXY_not_basis {t} (ht : isNamedOfXY t) : not_basis t := by
+  apply isNamedOfXY_not_basises
+  grind

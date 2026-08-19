@@ -1,4 +1,4 @@
-import RequestProject.DeBruijnParse
+import FokkerChallenge.DeBruijnParse
 
 /-!
 # Notation for de Bruijn terms
@@ -9,7 +9,9 @@ plain constructor expression, so statements about it can be checked by the
 kernel without ever reducing string operations.
 -/
 
-namespace LambdaLN
+namespace Cslib
+
+namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
 open Lean Elab Term Meta
 
@@ -35,5 +37,3 @@ private def elabDbTerm : TermElab := fun stx _ => do
 
 example : (db! "λ(λ12)0") = Term.abs (Term.app (Term.abs (Term.app (Term.bvar 1)
     (Term.bvar 2))) (Term.bvar 0)) := rfl
-
-end LambdaLN

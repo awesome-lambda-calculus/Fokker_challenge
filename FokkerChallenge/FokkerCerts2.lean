@@ -1,5 +1,5 @@
-import RequestProject.BetaCheck
-import RequestProject.DBNotation
+import FokkerChallenge.BetaCheck
+import FokkerChallenge.DBNotation
 
 /-!
 # Certificates for the terms of `undecided_terms.json` (part 2 of 4)
@@ -9,6 +9,10 @@ starting at a term nameable with the two variable names `x`, `y` and ending at
 `T`.  The certificates were produced by the search of
 `RequestProject.LiftSearch` and are checked here by the kernel.
 -/
+
+namespace Cslib
+
+namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
 
 /-- Certificates for terms 102–202 of `undecided_terms.json`. -/

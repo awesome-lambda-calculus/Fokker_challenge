@@ -5,6 +5,15 @@ import FokkerChallenge.GenTerms
 import FokkerChallenge.FamousCombinator
 import FokkerChallenge.DeBruijnParse
 import FokkerChallenge.NameOk
+import FokkerChallenge.BetaCheck
+import FokkerChallenge.DBNotation
+import FokkerChallenge.FokkerCerts1
+import FokkerChallenge.FokkerCerts2
+import FokkerChallenge.FokkerCerts3
+import FokkerChallenge.FokkerCerts4
+import FokkerChallenge.BetaNamableClosure
+import FokkerChallenge.LiftSearch
+import FokkerChallenge.FokkerUndecided
 import FokkerChallenge.EnhancedCslib.Basic
 import FokkerChallenge.EnhancedCslib.CountBvar
 import FokkerChallenge.EnhancedCslib.CountFvar
