@@ -112,7 +112,7 @@ theorem redexCheck_sound {f u T : Term String} (h : redexCheck f u T = true) :
       simp only [redexCheck, Bool.and_eq_true, beq_iff_eq] at h
       obtain ⟨⟨hB, hu⟩, hT⟩ := h
       subst hT
-      exact Xi.base (Beta.beta (lc_of_lcAt (t := .abs B) hB) (lc_of_lcAt hu))
+      exact Xi.base (Beta.beta (by rw [<- lcAt_iff_LC]; grind) (by rw [<- lcAt_iff_LC]; grind))
 
 /-- `betaCheckF n S T` checks that `S` β-reduces to `T` in one step, using `n`
 as fuel (`n` bounds the depth of the position of the contracted redex).  The
@@ -160,9 +160,9 @@ theorem betaCheckF_sound : ∀ (n : ℕ) (S T : Term String), betaCheckF n S T =
           rcases h with h | h | h
           · exact redexCheck_sound h
           · obtain ⟨⟨rfl, hf⟩, hu⟩ := h
-            exact Xi.appL (lc_of_lcAt hf) (ih _ _ hu)
+            exact Xi.appL (by rw [<- lcAt_iff_LC]; grind) (ih _ _ hu)
           · obtain ⟨⟨rfl, hu⟩, hf⟩ := h
-            exact Xi.appR (lc_of_lcAt hu) (ih _ _ hf)
+            exact Xi.appR (by rw [<- lcAt_iff_LC]; grind) (ih _ _ hf)
 
 /-- `betaCheck S T` checks that `S` β-reduces to `T` in one step. -/
 def betaCheck (S T : Term String) : Bool := betaCheckF S.size S T
