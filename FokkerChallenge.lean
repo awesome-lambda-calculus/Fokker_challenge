@@ -3,6 +3,8 @@
 import FokkerChallenge.Basic
 import FokkerChallenge.GenTerms
 import FokkerChallenge.FamousCombinator
+import FokkerChallenge.DeBruijnParse
+import FokkerChallenge.NameOk
 import FokkerChallenge.EnhancedCslib.Basic
 import FokkerChallenge.EnhancedCslib.CountBvar
 import FokkerChallenge.EnhancedCslib.CountFvar
