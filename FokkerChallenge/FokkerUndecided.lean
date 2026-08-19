@@ -101,4 +101,4 @@ theorem not_basis_of_closed_lc_small_fokker_size (M : Term String)
     . exact not_reaches_omega h
     . exact only_one_var_used_not_reaches_S h
     . exact isNamedOfXY_not_basis h
-    . sorry
+    . exact BetaReductOfNamable_not_basis (fokkerUndecided_betaReductOfNamable  _ h)

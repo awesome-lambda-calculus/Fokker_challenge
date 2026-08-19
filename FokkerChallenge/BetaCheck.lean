@@ -1,5 +1,6 @@
 import FokkerChallenge.NameOk
 import FokkerChallenge.DeBruijnParse
+import FokkerChallenge.TwoVarsAreNotEnough.Final
 
 /-!
 # A certified checker for β-reduction steps between closed de Bruijn terms

@@ -52,45 +52,6 @@ combination of such blocks.
 
 /-! ## From `isNamedOfXY` to a named term -/
 
-/-- If `namedOf` succeeds on the empty context then the constraint system of the
-term is solvable, i.e. the term is nameable. -/
-theorem namableXY_of_namedOf : ∀ (t : Term String) (u : NTerm),
-    namedOf [] t = some u → namableXY t = true := by
-  intro t
-  induction t with
-  | bvar i => intro u h; simp [namedOf] at h
-  | fvar x => intro u h; simp [namedOf] at h
-  | abs t' _ =>
-      intro u h
-      simp only [namedOf] at h
-      split at h
-      · simp at h
-      · next L hL =>
-          simp only [List.length_nil, Nat.zero_add] at hL
-          simp only [namableXY, constraints]
-          rw [hL]
-          rfl
-  | app a b iha ihb =>
-      intro u h
-      simp only [namedOf] at h
-      split at h
-      · next u1 u2 h1 h2 =>
-          have hn1 := iha u1 h1
-          have hn2 := ihb u2 h2
-          obtain ⟨L₁, hL₁⟩ := Option.isSome_iff_exists.1 hn1
-          obtain ⟨L₂, hL₂⟩ := Option.isSome_iff_exists.1 hn2
-          have e₁ : L₁ = [] := by
-            rcases L₁ with _ | ⟨p, ps⟩
-            · rfl
-            · exact absurd (constraints_key_lt a 0 _ hL₁ p.1 p.2 (by simp)) (by omega)
-          have e₂ : L₂ = [] := by
-            rcases L₂ with _ | ⟨p, ps⟩
-            · rfl
-            · exact absurd (constraints_key_lt b 0 _ hL₂ p.1 p.2 (by simp)) (by omega)
-          subst e₁; subst e₂
-          simp [namableXY, constraints, hL₁, hL₂, compatible]
-      · simp at h
-
 /-- `isNamedOfXY t` implies that `t` is the image of a closed named term over
 the two names `x`, `y`. -/
 theorem exists_named_of_isNamedOfXY {t : Term String} (h : isNamedOfXY t = true) :

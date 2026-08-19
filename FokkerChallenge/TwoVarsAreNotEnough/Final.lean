@@ -209,3 +209,8 @@ theorem isNamedOfXY_not_basises (fs)
 theorem isNamedOfXY_not_basis {t} (ht : isNamedOfXY t) : not_basis t := by
   apply isNamedOfXY_not_basises
   grind
+
+theorem namableXY_not_basis {t} (ht : namableXY t) : not_basis t := by
+  apply isNamedOfXY_not_basis
+  rw [<- isNamedOfXY_eq_namableXY] at ht
+  grind

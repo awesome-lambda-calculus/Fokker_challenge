@@ -655,6 +655,106 @@ def NTerm.usesOnlyXY : NTerm → Bool
 def isNamedOfXY (t : Term String) : Bool :=
   (namedOf? t).any NTerm.usesOnlyXY
 
+/-- If `namedOf` succeeds on the empty context then the constraint system of the
+term is solvable, i.e. the term is nameable. -/
+theorem namableXY_of_namedOf : ∀ (t : Term String) (u : NTerm),
+    namedOf [] t = some u → namableXY t = true := by
+  intro t
+  induction t with
+  | bvar i => intro u h; simp [namedOf] at h
+  | fvar x => intro u h; simp [namedOf] at h
+  | abs t' _ =>
+      intro u h
+      simp only [namedOf] at h
+      split at h
+      · simp at h
+      · next L hL =>
+          simp only [List.length_nil, Nat.zero_add] at hL
+          simp only [namableXY, constraints]
+          rw [hL]
+          rfl
+  | app a b iha ihb =>
+      intro u h
+      simp only [namedOf] at h
+      split at h
+      · next u1 u2 h1 h2 =>
+          have hn1 := iha u1 h1
+          have hn2 := ihb u2 h2
+          obtain ⟨L₁, hL₁⟩ := Option.isSome_iff_exists.1 hn1
+          obtain ⟨L₂, hL₂⟩ := Option.isSome_iff_exists.1 hn2
+          have e₁ : L₁ = [] := by
+            rcases L₁ with _ | ⟨p, ps⟩
+            · rfl
+            · exact absurd (constraints_key_lt a 0 _ hL₁ p.1 p.2 (by simp)) (by omega)
+          have e₂ : L₂ = [] := by
+            rcases L₂ with _ | ⟨p, ps⟩
+            · rfl
+            · exact absurd (constraints_key_lt b 0 _ hL₂ p.1 p.2 (by simp)) (by omega)
+          subst e₁; subst e₂
+          simp [namableXY, constraints, hL₁, hL₂, compatible]
+      · simp at h
+
+/-- If the constraint system of `t` is solvable then `namedOf` really produces a
+named term over the two names `"x"`, `"y"`. -/
+theorem namedOf_isSome_of_constraints : ∀ (t : Term String) (ctx : List String),
+    (∀ v ∈ ctx, v = "x" ∨ v = "y") → (constraints t ctx.length).isSome →
+      ∃ u : NTerm, namedOf ctx t = some u ∧ u.usesOnlyXY = true := by
+  intro t
+  induction t with
+  | bvar i =>
+      intro ctx hctx h
+      simp only [constraints] at h
+      split at h
+      · next hlt =>
+          obtain ⟨w, hw⟩ : ∃ w, ctx[i]? = some w := ⟨_, List.getElem?_eq_getElem hlt⟩
+          refine ⟨.var w, by simp [namedOf, hw], ?_⟩
+          have := hctx w (List.mem_of_getElem? hw)
+          rcases this with h1 | h1 <;> simp [NTerm.usesOnlyXY, h1]
+      · simp at h
+  | fvar x => intro ctx _ h; simp [constraints] at h
+  | abs t ih =>
+      intro ctx hctx h
+      simp only [constraints, Option.isSome_map] at h
+      obtain ⟨L, hL⟩ := Option.isSome_iff_exists.1 h
+      have hname := chooseName_mem hctx L
+      have hctx' : ∀ v ∈ chooseName ctx L :: ctx, v = "x" ∨ v = "y" := by
+        intro v hv
+        rcases List.mem_cons.1 hv with rfl | hv
+        · exact hname
+        · exact hctx v hv
+      obtain ⟨u, hu, hxy⟩ := ih (chooseName ctx L :: ctx) hctx' (by simp [hL])
+      refine ⟨.abs (chooseName ctx L) u, ?_, ?_⟩
+      · simp only [namedOf, hL, hu]
+        rfl
+      · rcases hname with h1 | h1 <;> simp [NTerm.usesOnlyXY, h1, hxy]
+  | app a b iha ihb =>
+      intro ctx hctx h
+      simp only [constraints] at h
+      split at h
+      · next L₁ L₂ h₁ h₂ =>
+          obtain ⟨u1, hu1, hx1⟩ := iha ctx hctx (by simp [h₁])
+          obtain ⟨u2, hu2, hx2⟩ := ihb ctx hctx (by simp [h₂])
+          exact ⟨.app u1 u2, by simp [namedOf, hu1, hu2], by simp [NTerm.usesOnlyXY, hx1, hx2]⟩
+      · simp at h
+
+/-- The boolean check `isNamedOfXY` agrees with the decision procedure
+`namableXY`. -/
+theorem isNamedOfXY_eq_namableXY (t : Term String) : isNamedOfXY t = namableXY t := by
+  cases h : namableXY t with
+  | false =>
+      by_cases h' : isNamedOfXY t = true
+      · rw [isNamedOfXY] at h'
+        cases hn : namedOf? t with
+        | none => rw [hn] at h'; simp at h'
+        | some u =>
+            rw [namableXY_of_namedOf t u hn] at h; exact absurd h (by simp)
+      · simpa using h'
+  | true =>
+      obtain ⟨u, hu, hxy⟩ :=
+        namedOf_isSome_of_constraints t [] (by simp) (by simpa [namableXY] using h)
+      simp [isNamedOfXY, namedOf?, hu, hxy]
+
+
 /-! ### Examples -/
 
 section Examples

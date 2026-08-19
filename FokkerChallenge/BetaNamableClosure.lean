@@ -172,3 +172,12 @@ theorem not_betaConv_of_betaReductOfNamable
   obtain ⟨S, hS, hconv⟩ := exists_namableXY_betaConv hCcl
   intro hCU
   exact hU S hS (Relation.EqvGen.trans _ _ _ hconv hCU)
+
+theorem BetaReductOfNamable_not_basis {M} (hm : BetaReductOfNamable M) : not_basis M := by
+  have := BetaReductOfNamable.lc hm
+  obtain ⟨S, hm, steps⟩ := hm
+  obtain ⟨N, hlc, hfv, hm⟩ := namableXY_not_basis hm
+  refine ⟨N, hlc, hfv, ?_⟩
+  intros t ht steps
+  obtain ⟨s, hs, h⟩ := genfinset_forall2_of_lc (l1:=[S]) (l2:=[M]) (hn:=ht) (.cons (by grind) .nil) (genfinset_lc ht (by grind))
+  apply hm s hs (.trans (FullBetaEta.from_beta _ _ h)  steps)
