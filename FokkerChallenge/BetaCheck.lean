@@ -1,7 +1,5 @@
-import RequestProject.NameOk
-import RequestProject.SubstRed
-import RequestProject.TakahashiSupport
-import RequestProject.DeBruijnParse
+import FokkerChallenge.NameOk
+import FokkerChallenge.DeBruijnParse
 
 /-!
 # A certified checker for β-reduction steps between closed de Bruijn terms
@@ -26,27 +24,19 @@ the two bodies.  Hence, at the point where a redex is contracted, all terms
 involved are locally closed and `openRec 0 M B` is the honest contractum.
 -/
 
-namespace LambdaLN
+namespace Cslib
 
-open Term
+namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
 /-! ## Deciding local closure -/
 
-/-- `lcAt d t` checks that `t` has no dangling de Bruijn index when it is placed
-under `d` binders. -/
-def lcAt : ℕ → Term String → Bool
-  | d, .bvar i => decide (i < d)
-  | _, .fvar _ => true
-  | d, .abs t => lcAt (d + 1) t
-  | d, .app a b => lcAt d a && lcAt d b
-
 theorem lc_openMany_of_lcAt : ∀ (t : Term String) (env : List (String × String)),
-    lcAt env.length t = true → LC (openMany 0 env t) := by
+    LcAt env.length t = true → LC (openMany 0 env t) := by
   intro t
   induction t with
   | bvar i =>
       intro env h
-      simp only [lcAt, decide_eq_true_eq] at h
+      simp only [LcAt, decide_eq_true_eq] at h
       obtain ⟨p, hp⟩ : ∃ p, env[i]? = some p :=
         ⟨env[i]'h, by simp [List.getElem?_eq_getElem h]⟩
       have := openMany_bvar_lt env 0 i p hp
@@ -56,23 +46,19 @@ theorem lc_openMany_of_lcAt : ∀ (t : Term String) (env : List (String × Strin
   | fvar x => intro env _; simpa using LC.fvar x
   | abs t ih =>
       intro env h
-      simp only [lcAt] at h
+      simp only [LcAt] at h
       rw [openMany_abs]
       refine LC.abs ∅ _ (fun x _ => ?_)
       have hcomm := openRec_openMany env x 0 1 (by omega) t
-      simp only [hpow_def]
+      unfold open'
       rw [hcomm]
       have := ih ((x, "x") :: env) (by simpa using h)
       simpa [openMany] using this
   | app a b iha ihb =>
       intro env h
-      simp only [lcAt, Bool.and_eq_true] at h
+      simp only [LcAt, Bool.and_eq_true] at h
       rw [openMany_app]
       exact LC.app (iha env h.1) (ihb env h.2)
-
-/-- `lcAt 0 t` is a sound test for local closure. -/
-theorem lc_of_lcAt {t : Term String} (h : lcAt 0 t = true) : LC t := by
-  simpa [openMany] using lc_openMany_of_lcAt t [] h
 
 /-! ## Computing a fresh variable -/
 
@@ -113,7 +99,7 @@ theorem freshOf_notMem_fv (inst : DecidableEq String) {t : Term String} {n : ℕ
 /-- Check that contracting the redex `app f u` at the root yields `T`. -/
 def redexCheck (f u T : Term String) : Bool :=
   match f with
-  | .abs B => lcAt 1 B && lcAt 0 u && (T == openRec 0 u B)
+  | .abs B => LcAt 1 B && LcAt 0 u && (T == openRec 0 u B)
   | _ => false
 
 theorem redexCheck_sound {f u T : Term String} (h : redexCheck f u T = true) :
@@ -139,7 +125,7 @@ def betaCheckF : ℕ → Term String → Term String → Bool
                    (openRec 0 (.fvar (freshOf (max (maxNameLen a) (maxNameLen b)))) b)
   | n + 1, .app f u, .app f' u' =>
       redexCheck f u (.app f' u') ||
-        ((f == f' && lcAt 0 f && betaCheckF n u u') || (u == u' && lcAt 0 u && betaCheckF n f f'))
+        ((f == f' && LcAt 0 f && betaCheckF n u u') || (u == u' && LcAt 0 u && betaCheckF n f f'))
   | _ + 1, .app f u, T => redexCheck f u T
   | _ + 1, _, _ => false
 
@@ -194,7 +180,7 @@ def betaChainCheck : List (Term String) → Bool
   | a :: b :: r => betaCheck a b && betaChainCheck (b :: r)
 
 theorem betaChainCheck_sound : ∀ (l : List (Term String)) (S T : Term String),
-    l.head? = some S → l.getLast? = some T → betaChainCheck l = true → FullBetaStar S T := by
+    l.head? = some S → l.getLast? = some T → betaChainCheck l = true → S ↠βᶠ T := by
   intro l
   induction l with
   | nil => intro S T h; simp at h
@@ -219,7 +205,7 @@ theorem betaChainCheck_sound : ∀ (l : List (Term String)) (S T : Term String),
 /-- `BetaReductOfNamable T` says that the closed term `T` is a β-reduct of a term
 that can be named using only the two variable names `x` and `y`. -/
 def BetaReductOfNamable (T : Term String) : Prop :=
-  ∃ S, namableXY S = true ∧ FullBetaStar S T
+  ∃ S, namableXY S = true ∧ S ↠βᶠ T
 
 /-- A nameable term is trivially a β-reduct of a nameable term. -/
 theorem betaReductOfNamable_of_namableXY {T : Term String} (h : namableXY T = true) :
@@ -269,4 +255,3 @@ theorem betaReductOfNamable_of_entriesOK {es : List (Term String × List (Term S
   obtain ⟨p, hp, rfl⟩ := hT
   simp only [entriesOK, List.all_eq_true] at h
   exact betaReductOfNamable_of_certifies (h p hp)
-end LambdaLN
