@@ -206,6 +206,38 @@ that can be named using only the two variable names `x` and `y`. -/
 def BetaReductOfNamable (T : Term String) : Prop :=
   ∃ S, namableXY S = true ∧ S ↠βᶠ T
 
+theorem BetaReductOfNamable.lc {T : Term String} (h : BetaReductOfNamable T) : LC T := by
+  obtain ⟨S, hS, hred⟩ := h
+  cases FullBeta.steps_lc_or_rfl hred <;> grind [lc_of_namableXY hS]
+
+theorem BetaReductOfNamable.app {A B : Term String}
+    (hA : BetaReductOfNamable A) (hB : BetaReductOfNamable B) :
+    BetaReductOfNamable (Term.app A B) := by
+  obtain ⟨SA, hSA, hA'⟩ := hA
+  obtain ⟨SB, hSB, hB'⟩ := hB
+  refine ⟨Term.app SA SB, namableXY_app hSA hSB, ?_⟩
+  have hLCA : LC A := by cases FullBeta.steps_lc_or_rfl hA' <;> grind [lc_of_namableXY hSA]
+  have step₁ : (Term.app SA SB) ↠βᶠ (Term.app A SB) := FullBeta.redex_app_l_cong hA' (lc_of_namableXY hSB)
+  have step₂ : (Term.app A SB) ↠βᶠ (Term.app A B) := FullBeta.redex_app_r_cong hB' hLCA
+  exact step₁.trans step₂
+
+theorem BetaReductOfNamable_not_basis {M} (hm : BetaReductOfNamable M) : not_basis M := by
+  have := BetaReductOfNamable.lc hm
+  obtain ⟨S, hm, steps⟩ := hm
+  obtain ⟨N, hlc, hfv, hm⟩ := namableXY_not_basis hm
+  refine ⟨N, hlc, hfv, ?_⟩
+  intros t ht steps
+  obtain ⟨s, hs, h⟩ := genfinset_forall2_of_lc (l1:=[S]) (l2:=[M]) (hn:=ht) (.cons (by grind) .nil) (genfinset_lc ht (by grind))
+  apply hm s hs (.trans (FullBetaEta.from_beta _ _ h)  steps)
+
+/-- Every applicative combination of terms of the class stays in the class. -/
+theorem BetaReductOfNamable.closedUnderApp {t : Term String}
+    (h : ClosedUnderApp BetaReductOfNamable t) : BetaReductOfNamable t := by
+  induction h with
+  | base hb => exact hb
+  | app _ _ iha ihb => exact iha.app ihb
+
+
 /-- A nameable term is trivially a β-reduct of a nameable term. -/
 theorem betaReductOfNamable_of_namableXY {T : Term String} (h : namableXY T = true) :
     BetaReductOfNamable T :=

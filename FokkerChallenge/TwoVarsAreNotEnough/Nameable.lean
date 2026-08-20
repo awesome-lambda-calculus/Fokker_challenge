@@ -117,9 +117,41 @@ def constraints : Term String → ℕ → Option (List (ℕ × Bool))
       | some L₁, some L₂ => if compatible L₁ L₂ then some (L₁ ++ L₂) else none
       | _, _ => none
 
+theorem lcAt_of_constraints : ∀ (t : Term String) (d : ℕ) (L : List (ℕ × Bool)),
+    constraints t d = some L → LcAt d t = true := by
+  intro t
+  induction t with
+  | bvar i =>
+      intro d L h
+      simp only [constraints] at h
+      split at h
+      · simpa [LcAt] using by assumption
+      · simp at h
+  | fvar x => intro d L h; simp [constraints] at h
+  | abs t ih =>
+      intro d L h
+      simp only [constraints, Option.map_eq_some_iff] at h
+      obtain ⟨L', hL', _⟩ := h
+      simpa [LcAt] using ih (d + 1) L' hL'
+  | app a b iha ihb =>
+      intro d L h
+      simp only [constraints] at h
+      split at h
+      · rename_i L₁ L₂ h₁ h₂
+        simp only [LcAt, Bool.and_eq_true]
+        exact ⟨iha d L₁ h₁, ihb d L₂ h₂⟩
+      · simp at h
+
+
 /-- `namableXY t` decides whether the locally nameless term `t` is the image of a
 closed named lambda term using only the two variable names `"x"` and `"y"`. -/
 def namableXY (t : Term String) : Bool := (constraints t 0).isSome
+
+theorem lc_of_namableXY {t : Term String} (h : namableXY t = true) : LC t := by
+  simp only [namableXY, Option.isSome_iff_exists] at h
+  obtain ⟨L, hL⟩ := h
+  rw [<- lcAt_iff_LC]
+  grind [lcAt_of_constraints t 0 L hL]
 
 /-! ## Correctness -/
 
@@ -753,6 +785,61 @@ theorem isNamedOfXY_eq_namableXY (t : Term String) : isNamedOfXY t = namableXY t
       obtain ⟨u, hu, hxy⟩ :=
         namedOf_isSome_of_constraints t [] (by simp) (by simpa [namableXY] using h)
       simp [isNamedOfXY, namedOf?, hu, hxy]
+
+theorem constraints_mem_lt : ∀ (t : Term String) (d : ℕ) (L : List (ℕ × Bool)),
+    constraints t d = some L → ∀ p ∈ L, p.1 + 1 < d := by
+  intro t
+  induction t with
+  | bvar i =>
+      intro d L h p hp
+      simp only [constraints] at h
+      split at h
+      · rename_i hlt
+        simp only [Option.some.injEq] at h
+        subst h
+        rcases mem_bvarConstr (m := p.1) (b := p.2) (by simpa using hp) with ⟨_, he⟩ | ⟨_, he⟩ <;>
+          omega
+      · simp at h
+  | fvar x => intro d L h; simp [constraints] at h
+  | abs t ih =>
+      intro d L h p hp
+      simp only [constraints, Option.map_eq_some_iff] at h
+      obtain ⟨L', hL', rfl⟩ := h
+      have : (p.1 + 1, p.2) ∈ L' := mem_shiftConstr.1 (by simpa using hp)
+      have := ih (d + 1) L' hL' _ this
+      simpa using by omega
+  | app a b iha ihb =>
+      intro d L h p hp
+      simp only [constraints] at h
+      split at h
+      · rename_i L₁ L₂ h₁ h₂
+        split at h
+        · simp only [Option.some.injEq] at h
+          subst h
+          rcases List.mem_append.1 hp with hp | hp
+          · exact iha d L₁ h₁ p hp
+          · exact ihb d L₂ h₂ p hp
+        · simp at h
+      · simp at h
+
+/-- A term that is nameable with two names carries no constraint at the top
+level. -/
+theorem constraints_zero_nil {t : Term String} {L : List (ℕ × Bool)}
+    (h : constraints t 0 = some L) : L = [] := by
+  match L with
+  | [] => rfl
+  | p :: r => exact absurd (constraints_mem_lt t 0 _ h p (by simp)) (by omega)
+
+/-- Nameability with two names is closed under application. -/
+theorem namableXY_app {a b : Term String} (ha : namableXY a = true) (hb : namableXY b = true) :
+    namableXY (app a b) = true := by
+  simp only [namableXY, Option.isSome_iff_exists] at ha hb ⊢
+  obtain ⟨L₁, h₁⟩ := ha
+  obtain ⟨L₂, h₂⟩ := hb
+  have e₁ := constraints_zero_nil h₁
+  have e₂ := constraints_zero_nil h₂
+  subst e₁; subst e₂
+  exact ⟨[], by simp [constraints, h₁, h₂, compatible]⟩
 
 
 /-! ### Examples -/
