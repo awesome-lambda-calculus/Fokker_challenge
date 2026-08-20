@@ -93,7 +93,7 @@ theorem openMany_bvar_lt : ∀ (env : List (String × String)) (k i : ℕ) (p : 
           simp only [List.getElem?_cons_succ] at h
           have hne : ¬ (k + (i + 1) = k) := by omega
           have := ih (k + 1) i p h
-          simp only [openMany, openRec, ite_eq_right hne]
+          simp only [openMany, openRec]
           rw [show k + (i + 1) = k + 1 + i by omega]
           grind
 
@@ -105,7 +105,7 @@ theorem openMany_bvar_ge : ∀ (env : List (String × String)) (k i : ℕ),
   | cons e es ih =>
       intro k i h
       have hne : ¬ (i = k) := by simp at h; omega
-      simp only [openMany, openRec, ite_eq_right hne]
+      simp only [openMany, openRec]
       grind
 
 /-! ## The locally nameless nameability predicate -/

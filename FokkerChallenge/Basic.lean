@@ -15,7 +15,7 @@ def fokker_size : (Term String) -> Nat
 
 @[scoped grind =]
 theorem fokker_size_openrec {x M}: (i: Nat) -> (openRec i (fvar x) M).fokker_size = M.fokker_size := by
-  induction M with (unfold openRec fokker_size; grind)
+  induction M <;> grind
 
 end Term
 
