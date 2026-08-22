@@ -17,6 +17,10 @@ root = "FokkerChallenge.EncoderDecoder.Encode"
 name = "decode"
 root = "FokkerChallenge.EncoderDecoder.Decode"
 
+[[lean_exe]]
+name = "blc"
+root = "Blc"
+
 [[require]]
 name = "cslib"
 git = "https://github.com/awesome-lambda-calculus/cslib"
