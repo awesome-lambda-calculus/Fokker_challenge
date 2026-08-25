@@ -56,3 +56,7 @@ import FokkerChallenge.TwoVarsAreNotEnough.Nameable
 import FokkerChallenge.TwoVarsAreNotEnough.TwoVarBlocks
 import FokkerChallenge.BLCTotal
 import FokkerChallenge.BLCEnum
+
+import FokkerChallenge.Decider.RigidHead
+import FokkerChallenge.Decider.TailNotVar
+import FokkerChallenge.Undecided64

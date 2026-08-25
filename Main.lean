@@ -12,6 +12,9 @@ def main : IO Unit := do
   if expected_nil ≠ [] then
       IO.eprintln "error"
 
+  let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.tailOk t)
+  let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.rigid t)
+
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.has_beta_redex t)
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.has_eta_redex t)
 
