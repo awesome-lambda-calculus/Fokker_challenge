@@ -93,7 +93,6 @@ theorem abs_two_vars_are_enough_lc {t} (h: abs_two_vars_are_enough t) : t.LC := 
   split at h <;> grind
 
 
-axiom BetaAt.step_fv {M N: Term String} {i} : BetaAt i M N -> N.fv ⊆ M.fv
 
 
 @[scoped grind]

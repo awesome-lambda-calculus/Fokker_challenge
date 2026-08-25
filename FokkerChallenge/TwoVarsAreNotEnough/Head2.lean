@@ -23,7 +23,6 @@ namespace Cslib
 
 namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
-axiom BetaAt.unique {M N Q: Term String} {i} : BetaAt i M N -> BetaAt i M Q -> N = Q
 
 @[reduction_sys "𝒽"]
 inductive HeadReduction2 : Term String → Term String → Prop

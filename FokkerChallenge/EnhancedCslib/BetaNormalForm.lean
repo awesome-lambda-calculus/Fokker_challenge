@@ -130,7 +130,6 @@ theorem has_beta_redex_equiv_full_beta {M : Term String} :
 theorem normal_fullBeta_iff_no_beta_redex {N}: (N.has_beta_redex = false \/ ¬ N.LC) <-> Relation.Normal FullBeta N := by grind [has_beta_redex_equiv_full_beta]
 
 
-axiom betanormal_iff {M : Term String} : BetaNormal M <-> Relation.Normal FullBeta M
 
 theorem normal_app (t : Term String) (hlc : t.LC) (habs: ¬ IsAbs t) (hfv : t.fv = ∅) : ¬t.BetaNormal := by
   induction t with cases hlc
@@ -138,11 +137,11 @@ theorem normal_app (t : Term String) (hlc : t.LC) (habs: ¬ IsAbs t) (hfv : t.fv
   | fvar _ => unfold fv at hfv
               simp at hfv
   | app a _ ihl _ =>  by_cases a.IsAbs
-                      . grind [BetaNormal, countRedexes]
+                      . grind
                       . specialize ihl (by grind) (by grind) (by grind)
                         intro h
-                        apply BetaNormal.app_inv at h
-                        grind [BetaNormal, countRedexes]
+                        rw [BetaNormal.app_inv] at h
+                        grind
 
 end LambdaCalculus.LocallyNameless.Untyped.Term
 
