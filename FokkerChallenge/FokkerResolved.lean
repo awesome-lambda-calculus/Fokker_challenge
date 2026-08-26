@@ -9,9 +9,13 @@ import FokkerChallenge.FokkerCerts5
 import FokkerChallenge.FokkerCerts6
 import FokkerChallenge.FokkerCerts7
 import FokkerChallenge.FokkerCerts8
+import FokkerChallenge.FokkerCerts9
 import FokkerChallenge.Decider.NoDuplicate
 import FokkerChallenge.Decider.EveryBvarUsed
 import FokkerChallenge.Decider.OnlyOneVarUsed
+import FokkerChallenge.Decider.ArgNotVar
+import FokkerChallenge.Decider.RigidHead
+import FokkerChallenge.Decider.TailNotVar
 import FokkerChallenge.TwoVarsAreNotEnough.Final
 
 /-!
@@ -44,7 +48,8 @@ namespace LambdaCalculus.LocallyNameless.Untyped.Term
 /-- The certificates for all 402 terms of `undecided_terms.json`. -/
 def fokkerUndecidedCerts : List (Term String × List (Term String)) :=
   fokkerCerts1 ++ fokkerCerts2 ++ fokkerCerts3 ++ fokkerCerts4 ++
-  fokkerCerts5 ++ fokkerCerts6 ++ fokkerCerts7 ++ fokkerCerts8
+  fokkerCerts5 ++ fokkerCerts6 ++ fokkerCerts7 ++ fokkerCerts8 ++
+  fokkerCerts9
 
 /-- The 402 terms of `undecided_terms.json`. -/
 def fokkerUndecidedTerms : List (Term String) := fokkerUndecidedCerts.map Prod.fst
@@ -56,10 +61,11 @@ theorem fokkerUndecidedTerms_length : fokkerUndecidedTerms.length = 402 := by
 -/
 
 theorem fokkerUndecidedCerts_ok : entriesOK fokkerUndecidedCerts = true := by
-  rw [fokkerUndecidedCerts, entriesOK_append, entriesOK_append, entriesOK_append,
-  entriesOK_append, entriesOK_append, entriesOK_append, entriesOK_append,
+  rw [fokkerUndecidedCerts,
+    entriesOK_append, entriesOK_append, entriesOK_append, entriesOK_append,
+    entriesOK_append, entriesOK_append, entriesOK_append, entriesOK_append,
     fokkerCerts1_ok, fokkerCerts2_ok, fokkerCerts3_ok, fokkerCerts4_ok,
-    fokkerCerts5_ok, fokkerCerts6_ok, fokkerCerts7_ok, fokkerCerts8_ok]
+    fokkerCerts5_ok, fokkerCerts6_ok, fokkerCerts7_ok, fokkerCerts8_ok, fokkerCerts9_ok]
   rfl
 
 /-- **Every term of `undecided_terms.json` is a β-reduct of a term that can be
@@ -96,17 +102,20 @@ theorem fokkerUndecided_not_onePointBasis
     not_betaConv_of_betaReductOfNamable (fokkerUndecided_betaReductOfNamable A hA) hU hC
 
 theorem mem_terms_fokker_lt_7_iff (M : Term String)
-     (hm : M ∈ terms_fokker_lt_7) :
-     (M.every_bvar_used || M.no_duplicate || M.isNamedOfXY || M ∈ fokkerUndecidedTerms) = true := by
+  (hm : M ∈ terms_fokker_lt_7) :
+  (M.every_bvar_used || M.no_duplicate || M.isNamedOfXY || M.tailOk || M.rigid || M.argOk || M ∈ fokkerUndecidedTerms) = true := by
      native_decide +revert
 
 theorem not_basis_of_closed_lc_small_fokker_size (M : Term String)
     (hm : M.LC ∧ M.fv = ∅ ∧ M.fokker_size < 7) : not_basis M := by
     rw [closed_lc_iff_mem_gen_terms] at hm
     apply mem_terms_fokker_lt_7_iff at hm
-    have h : M.every_bvar_used \/ M.no_duplicate \/ M.isNamedOfXY \/ M ∈ fokkerUndecidedTerms := by grind
-    rcases h with h|h|h|h
+    have h : M.every_bvar_used \/ M.no_duplicate \/ M.isNamedOfXY \/ M.tailOk \/ M.rigid \/ M.argOk \/ M ∈ fokkerUndecidedTerms := by grind
+    rcases h with h|h|h|h|h|h|h
     . exact not_reaches_K h
     . exact not_reaches_omega h
     . exact isNamedOfXY_not_basis h
+    . exact tailOk_not_basis h
+    . exact rigid_not_basis h
+    . exact argOk_not_basis h
     . exact BetaReductOfNamable_not_basis (fokkerUndecided_betaReductOfNamable  _ h)

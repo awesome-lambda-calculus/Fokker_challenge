@@ -16,7 +16,6 @@ def main : IO Unit := do
   let terms := terms.filter (fun t => t ∉ Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.fokkerUndecidedTerms)
 
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.has_beta_redex t)
-  let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.has_eta_redex t)
 
   let len := terms.length
   IO.println s!"{len} undecided"
