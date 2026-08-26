@@ -13,7 +13,7 @@ import FokkerChallenge.FokkerCerts3
 import FokkerChallenge.FokkerCerts4
 import FokkerChallenge.BetaNamableClosure
 import FokkerChallenge.LiftSearch
-import FokkerChallenge.FokkerUndecided
+import FokkerChallenge.FokkerResolved
 import FokkerChallenge.EnhancedCslib.Basic
 import FokkerChallenge.EnhancedCslib.CountBvar
 import FokkerChallenge.EnhancedCslib.CountFvar
@@ -43,6 +43,9 @@ import FokkerChallenge.Decider.NoDuplicate
 import FokkerChallenge.Decider.EveryBvarUsed
 import FokkerChallenge.Decider.All0
 import FokkerChallenge.Decider.OnlyOneVarUsed
+import FokkerChallenge.Decider.ArgNotVar
+import FokkerChallenge.Decider.RigidHead
+import FokkerChallenge.Decider.TailNotVar
 import FokkerChallenge.EncoderDecoder.Basic
 import FokkerChallenge.GenFinite.LA0L1
 import FokkerChallenge.TwoVarsAreNotEnough.Basic
@@ -54,9 +57,6 @@ import FokkerChallenge.TwoVarsAreNotEnough.Final
 import FokkerChallenge.TwoVarsAreNotEnough.Subterms
 import FokkerChallenge.TwoVarsAreNotEnough.Nameable
 import FokkerChallenge.TwoVarsAreNotEnough.TwoVarBlocks
-import FokkerChallenge.BLCTotal
-import FokkerChallenge.BLCEnum
-
-import FokkerChallenge.Decider.RigidHead
-import FokkerChallenge.Decider.TailNotVar
+import FokkerChallenge.BLC.BLCTotal
+import FokkerChallenge.BLC.BLCEnum
 import FokkerChallenge.Undecided64

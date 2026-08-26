@@ -1,4 +1,4 @@
-import FokkerChallenge.BLCTotal
+import FokkerChallenge.BLC.BLCTotal
 
 /-!
 # Enumerating the terms with a short binary code

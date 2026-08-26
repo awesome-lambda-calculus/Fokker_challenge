@@ -19,7 +19,7 @@ root = "FokkerChallenge.EncoderDecoder.Decode"
 
 [[lean_exe]]
 name = "blc"
-root = "Blc"
+root = "FokkerChallenge.BLC.Blc"
 
 [[require]]
 name = "cslib"
