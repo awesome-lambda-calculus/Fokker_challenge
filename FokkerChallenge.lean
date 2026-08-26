@@ -59,4 +59,5 @@ import FokkerChallenge.TwoVarsAreNotEnough.Nameable
 import FokkerChallenge.TwoVarsAreNotEnough.TwoVarBlocks
 import FokkerChallenge.BLC.BLCTotal
 import FokkerChallenge.BLC.BLCEnum
+import FokkerChallenge.BLC.BLCResolved
 import FokkerChallenge.Undecided64
