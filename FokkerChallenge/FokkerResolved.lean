@@ -5,6 +5,10 @@ import FokkerChallenge.FokkerCerts1
 import FokkerChallenge.FokkerCerts2
 import FokkerChallenge.FokkerCerts3
 import FokkerChallenge.FokkerCerts4
+import FokkerChallenge.FokkerCerts5
+import FokkerChallenge.FokkerCerts6
+import FokkerChallenge.FokkerCerts7
+import FokkerChallenge.FokkerCerts8
 import FokkerChallenge.Decider.NoDuplicate
 import FokkerChallenge.Decider.EveryBvarUsed
 import FokkerChallenge.Decider.OnlyOneVarUsed
@@ -39,18 +43,23 @@ namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
 /-- The certificates for all 402 terms of `undecided_terms.json`. -/
 def fokkerUndecidedCerts : List (Term String × List (Term String)) :=
-  fokkerCerts1 ++ fokkerCerts2 ++ fokkerCerts3 ++ fokkerCerts4
+  fokkerCerts1 ++ fokkerCerts2 ++ fokkerCerts3 ++ fokkerCerts4 ++
+  fokkerCerts5 ++ fokkerCerts6 ++ fokkerCerts7 ++ fokkerCerts8
 
 /-- The 402 terms of `undecided_terms.json`. -/
 def fokkerUndecidedTerms : List (Term String) := fokkerUndecidedCerts.map Prod.fst
 
+/-
 theorem fokkerUndecidedTerms_length : fokkerUndecidedTerms.length = 402 := by
   simp only [fokkerUndecidedTerms, fokkerUndecidedCerts, List.length_map, List.length_append]
   rfl
+-/
 
 theorem fokkerUndecidedCerts_ok : entriesOK fokkerUndecidedCerts = true := by
   rw [fokkerUndecidedCerts, entriesOK_append, entriesOK_append, entriesOK_append,
-    fokkerCerts1_ok, fokkerCerts2_ok, fokkerCerts3_ok, fokkerCerts4_ok]
+  entriesOK_append, entriesOK_append, entriesOK_append, entriesOK_append,
+    fokkerCerts1_ok, fokkerCerts2_ok, fokkerCerts3_ok, fokkerCerts4_ok,
+    fokkerCerts5_ok, fokkerCerts6_ok, fokkerCerts7_ok, fokkerCerts8_ok]
   rfl
 
 /-- **Every term of `undecided_terms.json` is a β-reduct of a term that can be

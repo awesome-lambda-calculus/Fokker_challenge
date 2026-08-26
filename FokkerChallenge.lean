@@ -11,6 +11,10 @@ import FokkerChallenge.FokkerCerts1
 import FokkerChallenge.FokkerCerts2
 import FokkerChallenge.FokkerCerts3
 import FokkerChallenge.FokkerCerts4
+import FokkerChallenge.FokkerCerts5
+import FokkerChallenge.FokkerCerts6
+import FokkerChallenge.FokkerCerts7
+import FokkerChallenge.FokkerCerts8
 import FokkerChallenge.BetaNamableClosure
 import FokkerChallenge.LiftSearch
 import FokkerChallenge.FokkerResolved

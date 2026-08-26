@@ -17,7 +17,9 @@ namespace Cslib
 
 namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
+/-
 theorem mem_terms_blc_lt_26_iff (M : Term String)
      (hm : M ∈ termsUpTo String 26) :
      (M.every_bvar_used || M.no_duplicate || M.isNamedOfXY || M.tailOk || M.rigid || M.argOk || M ∈ fokkerUndecidedTerms) = true := by
      native_decide +revert
+-/
