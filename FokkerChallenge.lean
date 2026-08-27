@@ -51,6 +51,7 @@ import FokkerChallenge.Decider.OnlyOneVarUsed
 import FokkerChallenge.Decider.ArgNotVar
 import FokkerChallenge.Decider.RigidHead
 import FokkerChallenge.Decider.TailNotVar
+import FokkerChallenge.Decider.CompositiveEffect
 import FokkerChallenge.EncoderDecoder.Basic
 import FokkerChallenge.GenFinite.LA0L1
 import FokkerChallenge.TwoVarsAreNotEnough.Basic

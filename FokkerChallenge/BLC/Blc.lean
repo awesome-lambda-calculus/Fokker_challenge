@@ -11,6 +11,7 @@ def main : IO Unit := do
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.tailOk t)
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.rigid t)
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.argOk t)
+  let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.properClosedNoParens t)
 
   let terms := terms.filter (fun t => Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.size t >= 7)
   let terms := terms.filter (fun t => t ∉ Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.fokkerUndecidedTerms)
