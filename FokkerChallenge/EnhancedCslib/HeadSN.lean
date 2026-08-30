@@ -1,9 +1,9 @@
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Basic
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LcAt
+import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.EtaPostpone
 import FokkerChallenge.EnhancedCslib.HeadRed
 import FokkerChallenge.EnhancedCslib.InternalPar
 import FokkerChallenge.EnhancedCslib.StarSeq
-import FokkerChallenge.Basic
 
 namespace Cslib
 
@@ -180,3 +180,50 @@ theorem no_infinite_head_reduction {M : Term Var} (h : HasHNF M)
     False := by
   obtain ⟨P, hP, hnfP⟩ := hasHNF_iff_headStepStar_headNF.mp h
   exact  HeadSn.no_seq (headTerminating_of_headStepStar_headNF hP hnfP) f hf0 hf
+
+/-- A generic divergence criterion: if `P` is a set of terms from each of which head
+reduction reaches, in at least one step, another element of `P`, then no term that head
+reduces to an element of `P` has a head normal form. -/
+theorem not_hasHNF_of_reaches {P : Term String → Prop}
+    (hP : ∀ M, P M → ∃ N, Relation.TransGen HeadStep M N ∧ P N)
+    {M N : Term String} (h : HeadStepStar M N) (hN : P N) : ¬ HasHNF M := by
+  have key : ∀ {A : Term String}, Relation.SN HeadStep A →
+      ∀ B, HeadStepStar A B → ¬ P B := by
+    intro A hacc
+    induction hacc with
+    | intro A _ ih =>
+        intro B hAB hB
+        obtain ⟨B', hstep, hB'⟩ := hP B hB
+        obtain ⟨y, hy, hy'⟩ :=
+          Relation.TransGen.head'_iff.mp (Relation.TransGen.trans_right hAB hstep)
+        exact ih y hy B' hy' hB'
+  intro hHNF
+  obtain ⟨Q, hQ, hnfQ⟩ := hasHNF_iff_headStepStar_headNF.mp hHNF
+  exact key (headTerminating_of_headStepStar_headNF hQ hnfQ) N h hN
+
+theorem headStepStar_to_normal {M N P : Term String} (h1 : HeadStepStar M N) :
+    HeadStepStar M P → Relation.Normal HeadStep P → HeadStepStar N P := by
+  induction h1 using Relation.ReflTransGen.head_induction_on with
+  | refl => intro h _; exact h
+  | head hstep _ ih =>
+      intro h2 hn
+      rcases Relation.ReflTransGen.cases_head h2 with rfl | ⟨y, hy, hy2⟩
+      · exact absurd ⟨_, hstep⟩ hn
+      · exact ih (by rwa [HeadStep.deterministic hstep hy]) hn
+
+theorem hasHNF_of_headStepStar {M N : Term String} (h : HeadStepStar M N) (hM : HasHNF M) :
+    HasHNF N := by
+  obtain ⟨P, hP, hnfP⟩ := hasHNF_iff_headStepStar_headNF.mp hM
+  exact ⟨P, (headStepStar_to_normal h hP hnfP.no_headStep).toFullBetaStar, hnfP⟩
+
+/-- A term with a βη-normal form has a head normal form. -/
+theorem hasHNF_of_normalizable {M : Term String} (hM : LC M)
+    (h : Relation.Normalizable FullBetaEta M) : HasHNF M := by
+  obtain ⟨W, hW, hnW⟩ := (hasBetaEtaNF_iff_hasBetaNF M).mpr h
+  have hlcW : LC W := by
+    rcases FullBeta.steps_lc_or_rfl hW with ⟨_, h⟩ | rfl
+    exacts [h, hM]
+  exact ⟨W, hW, (headNF_iff_no_headStep hlcW).mpr (BetaNF.no_headStep hnW)⟩
+
+theorem not_hasHNF_of_headStepStar {M N : Term String} (h : HeadStepStar M N)
+    (hN : ¬ HasHNF N) : ¬ HasHNF M := fun hM => hN (hasHNF_of_headStepStar h hM)

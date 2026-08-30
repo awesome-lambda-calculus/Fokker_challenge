@@ -19,6 +19,11 @@ import FokkerChallenge.FokkerCerts9
 import FokkerChallenge.BetaNamableClosure
 import FokkerChallenge.LiftSearch
 import FokkerChallenge.FokkerResolved
+import FokkerChallenge.Undecided8HNF
+import FokkerChallenge.NotBasisLamLam201
+import FokkerChallenge.NotBasisLamLam102
+import FokkerChallenge.NotBasisLamLamLam0Lam201
+import FokkerChallenge.NotBasisLamLamLam0Lam102
 import FokkerChallenge.EnhancedCslib.Basic
 import FokkerChallenge.EnhancedCslib.CountBvar
 import FokkerChallenge.EnhancedCslib.CountFvar
@@ -44,6 +49,7 @@ import FokkerChallenge.EnhancedCslib.AbsN
 import FokkerChallenge.EnhancedCslib.HeadNFSpineBeta
 import FokkerChallenge.EnhancedCslib.HeadNFSpineEta
 import FokkerChallenge.EnhancedCslib.GenFinset
+import FokkerChallenge.EnhancedCslib.HeadSN
 import FokkerChallenge.Decider.NoDuplicate
 import FokkerChallenge.Decider.EveryBvarUsed
 import FokkerChallenge.Decider.All0

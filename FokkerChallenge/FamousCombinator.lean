@@ -5,6 +5,12 @@ namespace Cslib
 
 namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
+def I : Term String := abs (bvar 0)
+
+theorem normal_Icomb : Relation.Normal FullBetaEta I := by
+  rw [← normal_fullBetaEta_iff_no_beta_eta_redex]; decide
+
+
 /-
   K = λx y. x
 -/
