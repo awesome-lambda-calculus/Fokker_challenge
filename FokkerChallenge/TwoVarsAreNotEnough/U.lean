@@ -4,22 +4,10 @@ import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.ListFullBeta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaConfluence
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LeftmostReduction
 import Cslib.Foundations.Data.HasFresh
-import FokkerChallenge.Basic
-import FokkerChallenge.FamousCombinator
-import FokkerChallenge.EnhancedCslib.Basic
-import FokkerChallenge.EnhancedCslib.FlipApp
-import FokkerChallenge.EnhancedCslib.LeftMost
-import FokkerChallenge.EnhancedCslib.BetaNormalForm
-import FokkerChallenge.EnhancedCslib.Closedunderapp
-import FokkerChallenge.EnhancedCslib.List
-import FokkerChallenge.EnhancedCslib.ReflTransGenWithSteps
-import FokkerChallenge.EnhancedCslib.HeadRed
 import FokkerChallenge.TwoVarsAreNotEnough.Basic
 import FokkerChallenge.TwoVarsAreNotEnough.Head2
 import FokkerChallenge.TwoVarsAreNotEnough.Unroll
 import Mathlib.Data.Finset.Basic
-import Mathlib.Data.Finset.Insert
-import Mathlib.Data.Finset.Union
 
 namespace Cslib
 

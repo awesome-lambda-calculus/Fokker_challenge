@@ -15,9 +15,6 @@ import FokkerChallenge.EnhancedCslib.List
 import FokkerChallenge.EnhancedCslib.ReflTransGenWithSteps
 import FokkerChallenge.EnhancedCslib.HeadRed
 import FokkerChallenge.TwoVarsAreNotEnough.Basic
-import Mathlib.Data.Finset.Basic
-import Mathlib.Data.Finset.Insert
-import Mathlib.Data.Finset.Union
 
 namespace Cslib
 
