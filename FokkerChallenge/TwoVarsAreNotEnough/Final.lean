@@ -124,9 +124,9 @@ theorem no_reduction_to_Hn_with_depth_bound_U {n M}
       right
       grind
 
-theorem no_reduction_to_Hn_with_depth_bound (fs)
-  (hl : ∀ t ∈ fs, t.abs_two_vars_are_enough) : not_basises fs := by
-  refine ⟨H ((((fs.map depth).max?).getD 0) + 1), H.LC, H_fv, ?_⟩
+theorem no_reduction_to_Hn_with_depth_bound_nf (fs)
+  (hl : ∀ t ∈ fs, t.abs_two_vars_are_enough) : not_basises_nf fs := by
+  refine ⟨H ((((fs.map depth).max?).getD 0) + 1), H.LC, H_fv, normal_H, ?_⟩
   intros M hm steps
   generalize hi : ((fs.map depth).max?).getD 0 = n
   rw [hi] at steps
@@ -157,13 +157,17 @@ theorem no_reduction_to_Hn_with_depth_bound (fs)
   rw [hi] at *
   grind
 
-theorem no_reduction_to_Hn_with_depth_bound_closedunderapp (fs)
-  (hl : ∀ t ∈ fs, ClosedUnderAppBool abs_two_vars_are_enough t) : not_basises fs := by
-  obtain ⟨M, hlc, hfv, h⟩ := no_reduction_to_Hn_with_depth_bound (fs.flatMap subterms) (by grind [subterms_closedunderappbool])
-  refine ⟨M, hlc, hfv, ?_⟩
+theorem no_reduction_to_Hn_with_depth_bound (fs)
+  (hl : ∀ t ∈ fs, t.abs_two_vars_are_enough) : not_basises fs :=
+  not_basises_of_nf (no_reduction_to_Hn_with_depth_bound_nf fs hl)
+
+theorem no_reduction_to_Hn_with_depth_bound_closedunderapp_nf (fs)
+  (hl : ∀ t ∈ fs, ClosedUnderAppBool abs_two_vars_are_enough t) : not_basises_nf fs := by
+  obtain ⟨M, hlc, hfv, hnf, h⟩ := no_reduction_to_Hn_with_depth_bound_nf (fs.flatMap subterms) (by grind [subterms_closedunderappbool])
+  refine ⟨M, hlc, hfv, hnf, ?_⟩
   intros t g steps
   apply h t ?_ steps
-  clear steps h hlc hfv
+  clear steps h hlc hfv hnf
   induction g with
   | app _ _ _ _ => grind
   | base g => specialize hl _ g
@@ -171,8 +175,12 @@ theorem no_reduction_to_Hn_with_depth_bound_closedunderapp (fs)
               apply genfinset_subset ?_ hl
               grind
 
-theorem isNamedOfXY_not_basises (fs)
-  (hl : ∀ t ∈ fs, isNamedOfXY t) : not_basises fs := by
+theorem no_reduction_to_Hn_with_depth_bound_closedunderapp (fs)
+  (hl : ∀ t ∈ fs, ClosedUnderAppBool abs_two_vars_are_enough t) : not_basises fs :=
+  not_basises_of_nf (no_reduction_to_Hn_with_depth_bound_closedunderapp_nf fs hl)
+
+theorem isNamedOfXY_not_basises_nf (fs)
+  (hl : ∀ t ∈ fs, isNamedOfXY t) : not_basises_nf fs := by
   have h : ∃ l : List _, List.Forall₂ (Relation.ReflTransGen FullBeta) l fs /\
                          ∀ t ∈ l, ClosedUnderAppBool abs_two_vars_are_enough t := by
     induction fs with
@@ -182,11 +190,19 @@ theorem isNamedOfXY_not_basises (fs)
         obtain ⟨s, _, _⟩ := exists_block_combination_betaStar head (by grind)
         refine ⟨s :: l, .cons (by assumption) (by assumption), by grind⟩
   obtain ⟨l, hl, _⟩ := h
-  obtain ⟨y, hlc, hfv, h⟩ := no_reduction_to_Hn_with_depth_bound_closedunderapp l (by grind)
-  refine ⟨y, hlc, hfv, ?_⟩
+  obtain ⟨y, hlc, hfv, hnf, h⟩ := no_reduction_to_Hn_with_depth_bound_closedunderapp_nf l (by grind)
+  refine ⟨y, hlc, hfv, hnf, ?_⟩
   intros t ht steps
   obtain ⟨M, h1, h2⟩ := genfinset_forall2 hl (by grind) _ ht
   exact h M h1 (.trans (FullBetaEta.from_beta _ _ h2) steps)
+
+theorem isNamedOfXY_not_basises (fs)
+  (hl : ∀ t ∈ fs, isNamedOfXY t) : not_basises fs :=
+  not_basises_of_nf (isNamedOfXY_not_basises_nf fs hl)
+
+theorem isNamedOfXY_not_basis_nf {t} (ht : isNamedOfXY t) : not_basises_nf [t] := by
+  apply isNamedOfXY_not_basises_nf
+  grind
 
 theorem isNamedOfXY_not_basis {t} (ht : isNamedOfXY t) : not_basis t := by
   apply isNamedOfXY_not_basises

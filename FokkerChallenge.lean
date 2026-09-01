@@ -17,6 +17,7 @@ import FokkerChallenge.FokkerCerts7
 import FokkerChallenge.FokkerCerts8
 import FokkerChallenge.FokkerCerts9
 import FokkerChallenge.BetaNamableClosure
+import FokkerChallenge.BetaReducesToNamable
 import FokkerChallenge.LiftSearch
 import FokkerChallenge.FokkerResolved
 import FokkerChallenge.Undecided8HNF

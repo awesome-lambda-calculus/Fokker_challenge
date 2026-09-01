@@ -21,6 +21,23 @@ def not_basises (atoms : List (Term String)) : Prop :=
 @[simp, scoped grind unfold]
 def not_basis (atom : Term String) : Prop := not_basises [atom]
 
+/-- A strengthening of `not_basises`: the unreachable target can moreover be
+chosen βη-normal.  This is what makes the property transferable along
+βη-reduction of the atoms (see `not_basis_of_betaStar_namableXY`). -/
+def not_basises_nf (atoms : List (Term String)) : Prop :=
+  ∃ y, y.LC ∧ y.fv = ∅ ∧ Relation.Normal FullBetaEta y ∧
+    ∀ t, GenFinset atoms t → t ↠βηᶠ y → False
+
+/-- `not_basises_nf` is a strengthening of `not_basises`. -/
+theorem not_basises_of_nf {atoms : List (Term String)} (h : not_basises_nf atoms) :
+    not_basises atoms := by
+  obtain ⟨y, hlc, hfv, -, h⟩ := h
+  exact ⟨y, hlc, hfv, h⟩
+
+/-- `not_basis_nf` is a strengthening of `not_basis`. -/
+theorem not_basis_of_nf {atom : Term String} (h : not_basises_nf [atom]) : not_basis atom :=
+  not_basises_of_nf h
+
 theorem genfinset_depth {fs M} (h : GenFinset fs M) :
    M.depth <= ((fs.map depth).max?).getD 0 := by
   induction h with

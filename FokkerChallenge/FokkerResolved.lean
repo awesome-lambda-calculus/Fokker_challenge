@@ -103,15 +103,14 @@ theorem fokkerUndecided_not_onePointBasis
 
 theorem mem_terms_fokker_lt_7_iff (M : Term String)
   (hm : M ∈ terms_fokker_lt_7) :
-  (M.every_bvar_used || M.no_duplicate || M.isNamedOfXY || M.tailOk || M.rigid || M.argOk || M ∈ fokkerUndecidedTerms) = true := by
+  M.every_bvar_used \/ M.no_duplicate \/ M.isNamedOfXY \/ M.tailOk \/ M.rigid \/ M.argOk \/ M ∈ fokkerUndecidedTerms := by
      native_decide +revert
 
 theorem not_basis_of_closed_lc_small_fokker_size (M : Term String)
     (hm : M.LC ∧ M.fv = ∅ ∧ M.fokker_size < 7) : not_basis M := by
     rw [closed_lc_iff_mem_gen_terms] at hm
     apply mem_terms_fokker_lt_7_iff at hm
-    have h : M.every_bvar_used \/ M.no_duplicate \/ M.isNamedOfXY \/ M.tailOk \/ M.rigid \/ M.argOk \/ M ∈ fokkerUndecidedTerms := by grind
-    rcases h with h|h|h|h|h|h|h
+    rcases hm with h|h|h|h|h|h|h
     . exact not_reaches_K h
     . exact not_reaches_omega h
     . exact isNamedOfXY_not_basis h
