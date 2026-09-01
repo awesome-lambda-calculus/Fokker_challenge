@@ -77,6 +77,47 @@ namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
 namespace LamLamLam0Lam201
 
+/-- `X = λλλ0(λ201) = λx y z. z (λw. y w z)`. -/
+def Xc : Term String := db! "λλλ0(λ201)"
+
+/-- The body of `X`, i.e. `X A` for any `A` (the first argument is discarded). -/
+def Xc1 : Term String := db! "λλ0(λ201)"
+
+/-- `X A B = λz. z (λw. B w z)`. -/
+def Xc2 (B : Term String) : Term String :=
+  .abs (.app (.bvar 0) (.abs (.app (.app B (.bvar 0)) (.bvar 1))))
+
+theorem lc_Xc : LC Xc := by rw [← lcAt_iff_LC]; decide
+
+theorem lc_Xc1 : LC Xc1 := by rw [← lcAt_iff_LC]; decide
+
+theorem headStep_Xc {A : Term String} (hA : LC A) : HeadStep (.app Xc A) Xc1 :=
+  HeadStep.beta lc_Xc hA
+
+theorem headStep_Xc1 {B : Term String} (hB : LC B) : HeadStep (.app Xc1 B) (Xc2 B) :=
+  HeadStep.beta lc_Xc1 hB
+
+theorem lc_Xc2 {B : Term String} (hB : LC B) : LC (Xc2 B) := by
+  refine .abs ∅ _ (fun x _ => ?_)
+  simp only [open', openRec]
+  rw [open_lc 1 (fvar x) B hB]
+  refine .app (.fvar x) (.abs ∅ _ (fun y _ => ?_))
+  simp only [open', openRec]
+  rw [open_lc 0 (fvar y) B hB]
+  exact .app (.app hB (.fvar y)) (.fvar x)
+
+theorem headStep_Xc2 {B C : Term String} (hB : LC B) (hC : LC C) :
+    HeadStep (.app (Xc2 B) C) (.app C (pairT B C)) := by
+  have h := HeadStep.beta (M := (.app (.bvar 0) (.abs (.app (.app B (.bvar 0)) (.bvar 1)))))
+    (N := C) (lc_Xc2 hB) hC
+  have he : (Term.app (.bvar 0) (.abs (.app (.app B (.bvar 0)) (.bvar 1)))) ^ C
+      = .app C (pairT B C) := by
+    simp only [open', openRec, pairT]
+    rw [open_lc 1 C B hB]
+    simp
+  rwa [he] at h
+
+
 /-! ## Generalities -/
 
 theorem lc_apps {M : Term String} (hM : LC M) :

@@ -11,13 +11,11 @@ def main : IO Unit := do
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.argOk t)
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.properClosedNoParens t)
 
-  let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.isNamedOfXY t)
+  let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.closedNodeTwoVars t)
 
   let expected_nil := terms.filter (fun t => Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.all0_no_fvar_inside_abs t)
   if expected_nil ≠ [] then
       IO.eprintln "error"
-
-  let terms := terms.filter (fun t => t ∉ Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.fokkerUndecidedTerms)
 
   let len := terms.length
   IO.println s!"{len} undecided"

@@ -45,32 +45,161 @@ We use lean4 to formalize that all smaller closed term can't be basis.
 
 Our proof is based on [cslib](https://github.com/leanprover/cslib).
 
-Currently we focus on normal forms.
-When all normal forms are checked, we will turn to non normal forms.
+## Status
 
+**Both search spaces we set out to clear are now completely closed, for arbitrary
+terms (not just normal forms).** The library builds with `lake build` and contains
+no `sorry` / `admit`, and no `axiom` declarations of its own.
 
-## What we are going to do 
-There are still 886 non-trival cases undecided:
+The two headline theorems are
+
+* `not_basis_of_closed_lc_small_fokker_size`
+  (`FokkerChallenge/FokkerResolved.lean`)
+
+  ```lean
+  theorem not_basis_of_closed_lc_small_fokker_size (M : Term String)
+      (hm : M.LC ∧ M.fv = ∅ ∧ M.fokker_size < 7) : not_basis M
+  ```
+
+  Every closed, locally closed term of Fokker size at most 6 — the 5420 terms
+  enumerated by `terms_fokker_lt_7` — fails to be a one-point basis. Together
+  with Meredith's basis this says
+  that the minimal Fokker size of a one-point basis is exactly 7 (the fact that
+  the size-7 term *is* a basis is not formalized here).
+
+* `not_basis_of_closed_lc_small_blc`
+  (`FokkerChallenge/BLC/BLCResolved.lean`)
+
+  ```lean
+  theorem not_basis_of_closed_lc_small_blc (M : Term String)
+      (hm : M.fv = ∅ ∧ M.blcT.length < 26) (h_lc : M.LC) : not_basis M
+  ```
+
+  Every closed, locally closed term whose binary-lambda-calculus code[^9] is
+  shorter than 26 bits — 33382 terms, out of the 360965 de Bruijn terms of that
+  code length — fails to be a one-point basis.
+
+Here `not_basis M` is the strong statement (`FokkerChallenge/EnhancedCslib/GenFinset.lean`)
+that there is a closed, locally closed term `y` such that *no* applicative
+combination of `M` βη-reduces to `y`:
+
+```lean
+def not_basises (atoms : List (Term String)) : Prop :=
+  ∃ y, y.LC ∧ y.fv = ∅ ∧ ∀ t, GenFinset atoms t → t ↠βηᶠ y → False
+
+def not_basis (atom : Term String) : Prop := not_basises [atom]
+```
+
+Both classification theorems rely on `native_decide` for the one enumeration
+step that dispatches the whole search space to the deciders below
+(`mem_terms_fokker_lt_7_iff`, `mem_terms_blc_lt_26_iff`); apart from that they use
+only `propext`, `Classical.choice` and `Quot.sound`. Every individual decider and
+every certificate check is verified by the kernel.
+
+The two executables re-run the corresponding filters outside the kernel:
 
 ```
 $ lake exe fokker_challenge
+0 undecided
+[]
 
-886 undecided
+$ lake exe blc
+4 undecided
+[λλλ0 (λ1 0 2), λλλ0 (λ2 0 1), λλ0 (λλ1 0 2), λλ0 (λλ2 0 1)]
 ```
 
-We might prove them one by one, or discover new deciders.
+The four terms reported by `lake exe blc` are the ones with no generic decider;
+each has its own dedicated proof file (see below), so the Lean classification
+covers them too.
 
-See issues to startup
+## How it is proved
+
+The classification splits the search space into a handful of decidable classes,
+each handled by a reusable criterion, plus a short list of hand-proved terms.
+
+| criterion | file | idea |
+| --- | --- | --- |
+| `every_bvar_used` → `not_reaches_K` | `Decider/EveryBvarUsed.lean` | free/bound variable use is preserved, so `K` is unreachable |
+| `no_duplicate` → `not_reaches_omega` | `Decider/NoDuplicate.lean` | non-duplicating terms cannot build `Ω` |
+| `only_one_var_used` → `only_one_var_used_not_reaches_S` | `Decider/OnlyOneVarUsed.lean` | a term using at most one variable per block cannot build `S` |
+| `all0_no_fvar_inside_abs` → `all0_no_fvar_inside_abs_not_reaches_S` | `Decider/All0.lean` | degenerate variable usage, `S` unreachable |
+| `argOk` → `argOk_not_basis` | `Decider/ArgNotVar.lean` | shape of the arguments along the spine |
+| `rigid` → `rigid_not_basis` | `Decider/RigidHead.lean` | every abstraction block `λx₁…x_s. z M₁…M_k` has `k ≥ 1` and head `z` the innermost binder |
+| `tailOk` → `tailOk_not_basis` | `Decider/TailNotVar.lean` | every block has `k ≥ 1` arguments with a non-variable last argument (hence no η-redex) |
+| `noCompositive`, `properClosedNoParens` | `Decider/CompositiveEffect.lean` | Curry's "no compositive effect": such terms cannot build `B` |
+| `isNamedOfXY` → `isNamedOfXY_not_basis` | `TwoVarsAreNotEnough/*` | terms nameable with only two variable names, following Statman's *two variables are not enough*[^3]; proved here without extra hypotheses |
+| `closedNodeTwoVars` → `closedNodeTwoVars_not_basis` | `Decider/TwoVarsPerNode.lean` | at most two variables are used at every node of the term tree; the unused binders are then created by β-steps from `K`, so the term is a β-reduct of a two-name term |
+| `BetaReductOfNamable` → `BetaReductOfNamable_not_basis` | `BetaCheck.lean`, `BetaNamableClosure.lean` | certificate: the term is a β-reduct of a two-name term |
+| `not_basis_of_betaStar_namableXY` | `BetaReducesToNamable.lean` | certificate: the term β-reduces *to* a two-name term |
+
+Each decider follows the same scheme: a Boolean test that holds of the term, is
+preserved by β- and η-steps and by application, and fails for the target term
+(`K`, `Ω`, `B`, …); hence no applicative combination of a term passing the test
+can βη-reduce to that target.
+
+The certificate-driven criteria are checked by kernel computation on explicit
+lists: 785 terms in `fokkerUndecidedCerts`
+(`FokkerCerts1.lean` … `FokkerCerts9.lean`, assembled in `FokkerResolved.lean`)
+and 16 terms in `fokkerUpdatedOpenCerts` (`BLC/BLCResolved.lean`).
+
+`closedNodeTwoVars` generalises the first of these certificate lists.  Its proof
+is constructive: `namify t` β-expands every unused binder `λ_.M` of `t` into
+`K M`, and the resulting term is nameable with two names
+(`isNamedOfXY_namify_and_betaStar`).  `FokkerCertsTwoVarsPerNode.lean` checks the
+criterion against `FokkerCerts1.lean` … `FokkerCerts9.lean`: 757 of the 785
+certificates are subsumed by it — and for 384 of them `namify` even reproduces
+literally the certificate found by the search — while the 28 exceptions, listed in
+`fokkerCertsNotNodeTwoVars`, are precisely the terms with a node using three
+variables; they still rely on their search certificates.
+
+Four terms resist every generic criterion and get individual proofs:
+
+* `λλ0(λλ102)` — `NotBasisLamLam102.lean`
+* `λλ0(λλ201)` — `NotBasisLamLam201.lean`
+* `λλλ0(λ102)` — `NotBasisLamLamLam0Lam102.lean`
+* `λλλ0(λ201)` — `NotBasisLamLamLam0Lam201.lean`
+
+For the first two the reachable βη-normal forms are classified completely — there
+are exactly three, and every other applicative combination is unsolvable — so
+neither `I` nor `K` is reachable. For the last two an explicit head-reduction
+machine shows that no applicative combination βη-reduces to `I`. The supporting
+head-reduction and divergence machinery lives in `Undecided8HNF.lean` and
+`EnhancedCslib/Head*.lean`.
+
+`FokkerChallenge/EnhancedCslib/` collects the general λ-calculus theory the proofs
+needed and that was not available upstream: βη normal forms, head reduction and
+head strong normalization, η-spines, parallel reduction, and the `GenFinset`
+closure of a set of atoms under application.
+
+## Building
+
+```
+lake exe cache get   # Mathlib cache, pulled in via cslib
+lake build
+lake exe fokker_challenge
+lake exe blc
+```
+
+The `native_decide` steps in the two classification theorems are memory hungry;
+building `FokkerChallenge.BLC.BLCResolved` is the slowest part of the build.
 
 ## Next step
 
-1. Verify "Two vars are not enough", which will cover 78 terms
-2. Filter terms always terminate
-3. Filter terms always diverge
-4. Find more deciders
-5. Not sure
+1. ~~Verify "Two vars are not enough"~~ — done, `TwoVarsAreNotEnough/Final.lean`
+2. ~~Clear all closed terms of Fokker size < 7~~ — done
+3. ~~Clear all closed terms with BLC code < 26 bits~~ — done
+4. Push the BLC bound past 26 bits, which needs deciders covering terms with more
+   applications
+5. Filter terms that always terminate / always diverge
+6. Formalize that Meredith's `λλλ1(λ1)(20)` *is* a one-point basis, which would
+   turn the results above into a complete "the minimum is 7" statement
+7. Find more deciders
 
 See [our website](https://awesome-lambda-calculus.github.io/Fokker_challenge) for details.
+
+`REMAINING14.md` is an older, explicitly unverified exploration note about
+invariant candidates that were tried and refuted; it describes an earlier
+snapshot of the development and is kept only as a source of ideas.
 
 
 ## 🤝 Contributing
@@ -79,9 +208,10 @@ This is a collaborative proof project — contributions are highly welcome!
 
 Ways to contribute:
 
-- Prove one or more of the undecided terms
+- Extend the classification beyond the bounds above
 - Improve automated deciders (termination, divergence, normalization, etc.)
 - Write new tactics or lemmas
+- Replace the two `native_decide` enumeration steps by kernel-checked proofs
 - Improve documentation and visualizations
 - Review formalizations
 
@@ -110,11 +240,11 @@ We have thousands of terms that require individual analysis, so an intuitive enc
 Based on BLC[^9], our encoding algorithm is
 
 ```
-encode(λM) = L encode(M)
+encode(λM) = L encode(M)
 
-encode(M N) = A encode(M) encode(N)
+encode(M N) = A encode(M) encode(N)
 
-encode(i) = i
+encode(i) = i
 ```
 
 ```
@@ -140,6 +270,11 @@ lake exe decode LA0L1_is_not_basis                                              
 decoded: (λ0 (λ1), [_, I, S, _, N, O, T, _, B, A, S, I, S])
 ```
 
+The actual bit code of a term is `blcT` (`FokkerChallenge/BLC/BLCTotal.lean`),
+and `termsUpTo Var N` (`FokkerChallenge/BLC/BLCEnum.lean`) enumerates exactly the
+terms without free variables whose code is shorter than `N` bits
+(`mem_termsUpTo`), which is what the 26-bit classification quantifies over.
+
 ### References
 
 [^1]: Legrand, Remi. "A basis result in combinatory logic." The Journal of symbolic logic 53.4 (1988): 1224-1226.
@@ -153,4 +288,3 @@ decoded: (λ0 (λ1), [_, I, S, _, N, O, T, _, B, A, S, I, S])
 [^9]: https://tromp.github.io/cl/Binary_lambda_calculus.html
 [^10]: http://frox25.no-ip.org/~mtve/wiki/LambdaOnePoint.html 
 [^11]: https://github.com/tromp/AIT/blob/master/ait/minbase.lam
-

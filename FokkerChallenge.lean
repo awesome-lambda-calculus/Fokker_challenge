@@ -7,15 +7,6 @@ import FokkerChallenge.DeBruijnParse
 import FokkerChallenge.NameOk
 import FokkerChallenge.BetaCheck
 import FokkerChallenge.DBNotation
-import FokkerChallenge.FokkerCerts1
-import FokkerChallenge.FokkerCerts2
-import FokkerChallenge.FokkerCerts3
-import FokkerChallenge.FokkerCerts4
-import FokkerChallenge.FokkerCerts5
-import FokkerChallenge.FokkerCerts6
-import FokkerChallenge.FokkerCerts7
-import FokkerChallenge.FokkerCerts8
-import FokkerChallenge.FokkerCerts9
 import FokkerChallenge.BetaNamableClosure
 import FokkerChallenge.BetaReducesToNamable
 import FokkerChallenge.LiftSearch
@@ -28,7 +19,6 @@ import FokkerChallenge.NotBasisLamLamLam0Lam102
 import FokkerChallenge.EnhancedCslib.Basic
 import FokkerChallenge.EnhancedCslib.CountBvar
 import FokkerChallenge.EnhancedCslib.CountFvar
-import FokkerChallenge.EnhancedCslib.AbsMustExists
 import FokkerChallenge.EnhancedCslib.Fmt
 import FokkerChallenge.EnhancedCslib.BetaNormalForm
 import FokkerChallenge.EnhancedCslib.EtaNormalForm
@@ -59,8 +49,8 @@ import FokkerChallenge.Decider.ArgNotVar
 import FokkerChallenge.Decider.RigidHead
 import FokkerChallenge.Decider.TailNotVar
 import FokkerChallenge.Decider.CompositiveEffect
+import FokkerChallenge.Decider.TwoVarsPerNode
 import FokkerChallenge.EncoderDecoder.Basic
-import FokkerChallenge.GenFinite.LA0L1
 import FokkerChallenge.TwoVarsAreNotEnough.Basic
 import FokkerChallenge.TwoVarsAreNotEnough.Head2
 import FokkerChallenge.TwoVarsAreNotEnough.Unroll
