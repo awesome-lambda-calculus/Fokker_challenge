@@ -164,7 +164,7 @@ For the first two the reachable βη-normal forms are classified completely — 
 are exactly three, and every other applicative combination is unsolvable — so
 neither `I` nor `K` is reachable. For the last two an explicit head-reduction
 machine shows that no applicative combination βη-reduces to `I`. The supporting
-head-reduction and divergence machinery lives in `Undecided8HNF.lean` and
+head-reduction and divergence machinery lives in `PairT.lean` and
 `EnhancedCslib/Head*.lean`.
 
 `FokkerChallenge/EnhancedCslib/` collects the general λ-calculus theory the proofs

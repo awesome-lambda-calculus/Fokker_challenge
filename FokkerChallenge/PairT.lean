@@ -84,15 +84,6 @@ theorem headStep_pairT {B C U : Term String} (hB : LC B) (hC : LC C) (hU : LC U)
 
 /-! ## Lifting a head step through a stack of arguments -/
 
-theorem headStep_apps {M M' : Term String} (h : HeadStep M M') (hM : ¬ M.IsAbs)
-    (Γ : List (Term String)) (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (multiApp M Γ) (multiApp M' Γ) := by
-  induction Γ generalizing M M' with
-  | nil => exact h
-  | cons a Γ ih =>
-      refine ih (HeadStep.app hM h (hΓ a (by simp))) (by rintro ⟨⟩) ?_
-      intro t ht
-      exact hΓ t (by simp [ht])
-
 /-! ## The two machine rules -/
 
 /-- `⟨B,C⟩ U Γ ⭢h B U C Γ`. -/
@@ -101,13 +92,6 @@ theorem headStep_pairT_apps {B C U : Term String} (hB : LC B) (hC : LC C) (hU : 
     HeadStep (multiApp (pairT B C) (U :: Γ)) (multiApp B (U :: C :: Γ)) :=
   headStep_apps (headStep_pairT hB hC hU) (by rintro ⟨⟩) Γ hΓ
 
-/-- `M` has no head normal form, and neither has `M` applied to any stack of arguments. -/
-def NoHNFStack (M : Term String) : Prop :=
-  ∀ Γ : List (Term String), (∀ t ∈ Γ, LC t) → ¬ HasHNF (multiApp M Γ)
-
-/-- `M` βη-reduces to a term which, with any stack of arguments, has no head normal
-form. -/
-def Bad (M : Term String) : Prop := ∃ M', M ↠βηᶠ M' ∧ LC M' ∧ NoHNFStack M'
 
 end Term
 

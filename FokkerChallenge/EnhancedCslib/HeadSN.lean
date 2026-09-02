@@ -1,5 +1,4 @@
-import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Basic
-import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LcAt
+import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.MultiApp
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.EtaPostpone
 import FokkerChallenge.EnhancedCslib.HeadRed
 import FokkerChallenge.EnhancedCslib.InternalPar
@@ -227,3 +226,20 @@ theorem hasHNF_of_normalizable {M : Term String} (hM : LC M)
 
 theorem not_hasHNF_of_headStepStar {M N : Term String} (h : HeadStepStar M N)
     (hN : ¬ HasHNF N) : ¬ HasHNF M := fun hM => hN (hasHNF_of_headStepStar h hM)
+
+theorem headStep_apps {M M' : Term String} (h : HeadStep M M') (hM : ¬ M.IsAbs)
+    (Γ : List (Term String)) (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (multiApp M Γ) (multiApp M' Γ) := by
+  induction Γ generalizing M M' with
+  | nil => exact h
+  | cons a Γ ih =>
+      refine ih (HeadStep.app hM h (hΓ a (by simp))) (by rintro ⟨⟩) ?_
+      intro t ht
+      exact hΓ t (by simp [ht])
+
+/-- `M` has no head normal form, and neither has `M` applied to any stack of arguments. -/
+def NoHNFStack (M : Term String) : Prop :=
+  ∀ Γ : List (Term String), (∀ t ∈ Γ, LC t) → ¬ HasHNF (multiApp M Γ)
+
+/-- `M` βη-reduces to a term which, with any stack of arguments, has no head normal
+form. -/
+def Bad (M : Term String) : Prop := ∃ M', M ↠βηᶠ M' ∧ LC M' ∧ NoHNFStack M'

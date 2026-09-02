@@ -1,4 +1,4 @@
-import FokkerChallenge.Undecided8HNF
+import FokkerChallenge.PairT
 import FokkerChallenge.BetaCheck
 
 /-!

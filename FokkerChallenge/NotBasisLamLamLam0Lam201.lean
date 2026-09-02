@@ -1,4 +1,4 @@
-import FokkerChallenge.Undecided8HNF
+import FokkerChallenge.PairT
 import FokkerChallenge.BetaCheck
 import FokkerChallenge.FamousCombinator
 
@@ -19,7 +19,7 @@ This file settles it in the negative: **no applicative combination of `X` βη-r
 ## The machine
 
 The basic head reductions of `X` are already established in
-`FokkerChallenge.Undecided8HNF`.  Writing `X₁ = λ y z. z (λw. y w z)` (`Xc1`),
+`FokkerChallenge.PairT`.  Writing `X₁ = λ y z. z (λw. y w z)` (`Xc1`),
 `F B = λz. z (λw. B w z)` (`Xc2`) and `⟨B,C⟩ = λw. B w C` (`pairT`), they read
 
 ```

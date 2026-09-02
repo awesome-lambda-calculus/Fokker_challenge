@@ -11,7 +11,7 @@ import FokkerChallenge.BetaNamableClosure
 import FokkerChallenge.BetaReducesToNamable
 import FokkerChallenge.LiftSearch
 import FokkerChallenge.FokkerResolved
-import FokkerChallenge.Undecided8HNF
+import FokkerChallenge.PairT
 import FokkerChallenge.NotBasisLamLam201
 import FokkerChallenge.NotBasisLamLam102
 import FokkerChallenge.NotBasisLamLamLam0Lam201
