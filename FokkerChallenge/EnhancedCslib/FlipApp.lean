@@ -2,7 +2,7 @@ import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Basic
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBeta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullEta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.EtaPostpone
-import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.ListFullBeta
+import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.MultiApp
 import FokkerChallenge.EnhancedCslib.EtaSpineOpenFv
 import FokkerChallenge.EnhancedCslib.AbsN
 
@@ -29,15 +29,6 @@ lemma flip_app_fv {M} {Ns : List (Term String)}:
     | cons head tail ih =>
       simp [flip]
       specialize @ih (head.app M)
-      grind
-
-lemma multiapp_fv {M} {Ns : List (Term String)}:
-  (Ns.foldl app M).fv = (Ns.map fv).foldl Union.union M.fv := by
-    induction Ns generalizing M with
-    | nil => grind
-    | cons head tail ih =>
-      simp
-      specialize @ih (M.app head)
       grind
 
 lemma app_lcat {M i} {l : List (Term String)}:
@@ -111,7 +102,7 @@ lemma beta_step_preserve_fvar_apps {x M} {l: List (Term String)}
                 grind
 -/
 
-lemma listfullBeta_exists (P : Term String -> Prop) (Ns : List (Term String))
+lemma MultiApp_exists (P : Term String -> Prop) (Ns : List (Term String))
   (h_lc : ∀ M ∈ Ns, LC M)
   (h : ∀ t ∈ Ns, ∃ t', t ↠βᶠ t' /\ P t') :
   ∃ Ns', Ns ↠lβᶠ Ns' /\ ∀ t ∈ Ns', P t := by

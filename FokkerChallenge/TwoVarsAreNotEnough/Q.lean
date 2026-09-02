@@ -1,7 +1,7 @@
 
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Basic
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LcAt
-import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.ListFullBeta
+import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.MultiApp
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaConfluence
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LeftmostReduction
 import Cslib.Foundations.Data.HasFresh
@@ -218,7 +218,7 @@ theorem step_closedUnderApp_unroll_q {M N}
           subst f
           cases unroll_fvar_or_combinator (by grind) h4 with | base h3 => cases h3 with
           | inl => grind
-          | inr =>  have hl := listfullBeta_exists (fun t => "x" ∉ t.fv) l ?_ ?_
+          | inr =>  have hl := MultiApp_exists (fun t => "x" ∉ t.fv) l ?_ ?_
                     . obtain ⟨Ns, hl, _⟩ := hl
                       specialize h_contain_x (Ns.foldl app f'.abs.abs) (FullBetaEta.from_beta _ _ (steps_multiApp_r hl (by grind)))
                       have hf : f'.abs.abs.fv = ∅ := by grind

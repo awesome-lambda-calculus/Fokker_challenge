@@ -1,6 +1,6 @@
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Basic
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LcAt
-import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.ListFullBeta
+import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.MultiApp
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaConfluence
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LeftmostReduction
 import Cslib.Foundations.Data.HasFresh
@@ -83,6 +83,7 @@ theorem no_reduction_to_Hn_with_depth_bound_U {n M}
             obtain ⟨l, i, _, h2steps, hw⟩ := exists_head_reduction_to_fvar_app (.app (.app (closedunderapp_derive2 U_le_fvar_or_combinator _ hz) (by grind)) (by grind)) (by rw [exists_beta_normal_fvar_app_of_beta_eta]; apply betaeta_nf_fvar) steps
             have g := steps_multiApp_l_union (Ns := List.replicate i (fvar "y")) steps (by grind)
             have heq : (List.foldl app ((fvar "x").app ((fvar "y").app (fvar "y"))) (List.replicate i (fvar "y"))) = (List.foldl app (fvar "x") (((fvar "y").app (fvar "y")) :: List.replicate i (fvar "y"))) := by grind
+            unfold multiApp at g
             rw [heq] at g
             obtain ⟨_, hq, _⟩ := steps_closedUnderApp_unroll_q (M := Z["x" := fvar "z"]["y" := fvar "z"]) (closedunderapp_derive2 U_le_fvar_or_combinator _ hz) ⟨beta_eta_spline_contain_x g, closedunderapp_multiapp_cons (by grind) (by grind), closedunderapp_multiapp_cons (by grind) (.app (.app (closedunderapp_derive2 U_le_fvar_or_combinator _ (by assumption)) (by grind)) (by grind))⟩ _ h2steps
             apply FullBetaEta.steps_fv at hw
@@ -106,6 +107,7 @@ theorem no_reduction_to_Hn_with_depth_bound_U {n M}
       obtain ⟨l, i, _, h2steps, hw⟩ := exists_head_reduction_to_fvar_app (.app (.app (closedunderapp_derive2 U_le_fvar_or_combinator _ hz) (by grind)) (by grind)) (by rw [exists_beta_normal_fvar_app_of_beta_eta]; apply normal_H) steps
       have g := steps_multiApp_l_union (Ns := List.replicate i (fvar "y")) steps (by grind)
       have heq : (List.foldl app ((fvar "x").app ((fvar "y").app (H n))) (List.replicate i (fvar "y"))) = (List.foldl app (fvar "x") ( ((fvar "y").app (H n)) :: List.replicate i (fvar "y"))) := by grind
+      unfold multiApp at g
       rw [heq] at g
       obtain ⟨_, hq, _⟩ := steps_closedUnderApp_unroll_q (M := Z["x" := fvar "z"]["y" := fvar "z"]) (closedunderapp_derive2 U_le_fvar_or_combinator _ hz) ⟨beta_eta_spline_contain_x g, closedunderapp_multiapp_cons (by grind) (by grind), closedunderapp_multiapp_cons (by grind) (.app (.app (closedunderapp_derive2 U_le_fvar_or_combinator _ (by assumption)) (by grind)) (by grind))⟩ _ h2steps
       apply FullBetaEta.steps_fv at hw
@@ -136,6 +138,7 @@ theorem no_reduction_to_Hn_with_depth_bound_nf (fs)
   have : ClosedUnderApp fvar_or_combinator M := closedunderapp_derive (fun t h => by grind [hl _ h]) _ hm
   have g := steps_multiApp_l_union (Ns := List.replicate i (fvar "y")) steps (by grind)
   have heq : (List.foldl app ((fvar "x").app ((fvar "y").app (H n))) (List.replicate i (fvar "y"))) = (List.foldl app (fvar "x") ( ((fvar "y").app (H n)) :: List.replicate i (fvar "y"))) := by grind
+  unfold multiApp at g
   rw [heq] at g
   obtain ⟨_, hq, _⟩ := steps_closedUnderApp_unroll_q (M := M) (by grind) ⟨beta_eta_spline_contain_x g, closedunderapp_multiapp_cons (by grind) (by grind), closedunderapp_multiapp_cons (by grind) (.app (.app (by grind) (by grind)) (by grind))⟩ _ h
   apply FullBetaEta.steps_fv at hn
