@@ -154,24 +154,24 @@ theorem headStep_flipT {M P : Term String} (hM : LC M) (hP : LC P) :
 /-! ## Head steps with a stack of arguments -/
 
 theorem headStep_T0_apps {M : Term String} (hM : LC M) (Γ : List (Term String))
-    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (apps T0 (M :: Γ)) (apps T1 Γ) :=
+    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (multiApp T0 (M :: Γ)) (multiApp T1 Γ) :=
   headStep_apps (headStep_T0 hM) (by rintro ⟨⟩) Γ hΓ
 
 theorem headStep_T1_apps {M : Term String} (hM : LC M) (Γ : List (Term String))
-    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (apps T1 (M :: Γ)) (apps M (flipT M :: Γ)) :=
+    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (multiApp T1 (M :: Γ)) (multiApp M (flipT M :: Γ)) :=
   headStep_apps (headStep_T1 hM) (by rintro ⟨⟩) Γ hΓ
 
 theorem headStep_T2_apps {M : Term String} (hM : LC M) (Γ : List (Term String))
-    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (apps T2 (M :: Γ)) (apps M (flipT M :: T1 :: Γ)) :=
+    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (multiApp T2 (M :: Γ)) (multiApp M (flipT M :: T1 :: Γ)) :=
   headStep_apps (headStep_T2 hM) (by rintro ⟨⟩) Γ hΓ
 
 theorem headStepStar_flipT_apps {M P Q : Term String} (hM : LC M) (hP : LC P) (hQ : LC Q)
     (Γ : List (Term String)) (hΓ : ∀ t ∈ Γ, LC t) :
-    HeadStepStar (apps (flipT M) (P :: Q :: Γ)) (apps M (Q :: P :: Γ)) := by
-  have h1 : HeadStep (apps (flipT M) (P :: Q :: Γ)) (apps (pairT M P) (Q :: Γ)) :=
+    HeadStepStar (multiApp (flipT M) (P :: Q :: Γ)) (multiApp M (Q :: P :: Γ)) := by
+  have h1 : HeadStep (multiApp (flipT M) (P :: Q :: Γ)) (multiApp (pairT M P) (Q :: Γ)) :=
     headStep_apps (headStep_flipT hM hP) (by rintro ⟨⟩) (Q :: Γ)
       (by intro t ht; rcases List.mem_cons.mp ht with rfl | ht; exacts [hQ, hΓ t ht])
-  have h2 : HeadStep (apps (pairT M P) (Q :: Γ)) (apps M (Q :: P :: Γ)) :=
+  have h2 : HeadStep (multiApp (pairT M P) (Q :: Γ)) (multiApp M (Q :: P :: Γ)) :=
     headStep_apps (headStep_pairT hM hP hQ) (by rintro ⟨⟩) Γ hΓ
   exact .head h1 (.single h2)
 
@@ -180,7 +180,7 @@ theorem headStepStar_flipT_apps {M P Q : Term String} (hM : LC M) (hP : LC P) (h
 /-- The diverging states: `flipⁿ T₁` applied to `flipⁱ T₁`, `flipʲ T₁` and an arbitrary
 stack, with `i, j ≥ 2`. -/
 def divState (a i j : ℕ) (Γ : List (Term String)) : Term String :=
-  apps (flipN a T1) (flipN i T1 :: flipN j T1 :: Γ)
+  multiApp (flipN a T1) (flipN i T1 :: flipN j T1 :: Γ)
 
 /-- The predicate cutting out the diverging states. -/
 def DivSt (M : Term String) : Prop :=
@@ -203,10 +203,10 @@ theorem DivSt.transGen {M : Term String} (h : DivSt M) :
   | succ a =>
       refine ⟨divState a j i Γ, ?_, ⟨a, j, i, Γ, hj, hi, hΓ, rfl⟩⟩
       have h1 : HeadStep (divState (a + 1) i j Γ)
-          (apps (pairT (flipN a T1) (flipN i T1)) (flipN j T1 :: Γ)) :=
+          (multiApp (pairT (flipN a T1) (flipN i T1)) (flipN j T1 :: Γ)) :=
         headStep_apps (headStep_flipT (lc_flipN a lc_T1) (lc_flipN i lc_T1)) (by rintro ⟨⟩)
           (flipN j T1 :: Γ) hlcΓ
-      have h2 : HeadStep (apps (pairT (flipN a T1) (flipN i T1)) (flipN j T1 :: Γ))
+      have h2 : HeadStep (multiApp (pairT (flipN a T1) (flipN i T1)) (flipN j T1 :: Γ))
           (divState a j i Γ) :=
         headStep_apps (headStep_pairT (lc_flipN a lc_T1) (lc_flipN i lc_T1)
           (lc_flipN j lc_T1)) (by rintro ⟨⟩) Γ hΓ
@@ -224,28 +224,28 @@ theorem not_hasHNF_of_divSt {M N : Term String} (h : HeadStepStar M N) (hN : Div
 /-- The entry into the diverging states: `T₂ T₁ Γ` head reduces in eight steps to the
 diverging state `T₁ ⟨⟨T₁⟩⟩ ⟨⟨T₁⟩⟩ Γ`. -/
 theorem headStepStar_T2T1 (Γ : List (Term String)) (hΓ : ∀ t ∈ Γ, LC t) :
-    HeadStepStar (apps (.app T2 T1) Γ) (divState 0 2 2 Γ) := by
+    HeadStepStar (multiApp (.app T2 T1) Γ) (divState 0 2 2 Γ) := by
   have hlc1 : LC (flipN 1 T1) := lc_flipN 1 lc_T1
   have hlc2 : LC (flipN 2 T1) := lc_flipN 2 lc_T1
   have hΓ1 : ∀ t ∈ (T1 :: Γ), LC t := by
     intro t ht; rcases List.mem_cons.mp ht with rfl | ht; exacts [lc_T1, hΓ t ht]
   have hΓ2 : ∀ t ∈ (flipN 2 T1 :: Γ), LC t := by
     intro t ht; rcases List.mem_cons.mp ht with rfl | ht; exacts [hlc2, hΓ t ht]
-  have s1 : HeadStep (apps T2 (T1 :: Γ)) (apps T1 (flipN 1 T1 :: T1 :: Γ)) :=
+  have s1 : HeadStep (multiApp T2 (T1 :: Γ)) (multiApp T1 (flipN 1 T1 :: T1 :: Γ)) :=
     headStep_T2_apps lc_T1 Γ hΓ
-  have s2 : HeadStep (apps T1 (flipN 1 T1 :: T1 :: Γ))
-      (apps (flipN 1 T1) (flipN 2 T1 :: T1 :: Γ)) :=
+  have s2 : HeadStep (multiApp T1 (flipN 1 T1 :: T1 :: Γ))
+      (multiApp (flipN 1 T1) (flipN 2 T1 :: T1 :: Γ)) :=
     headStep_T1_apps hlc1 (T1 :: Γ) hΓ1
-  have s3 : HeadStepStar (apps (flipN 1 T1) (flipN 2 T1 :: T1 :: Γ))
-      (apps T1 (T1 :: flipN 2 T1 :: Γ)) :=
+  have s3 : HeadStepStar (multiApp (flipN 1 T1) (flipN 2 T1 :: T1 :: Γ))
+      (multiApp T1 (T1 :: flipN 2 T1 :: Γ)) :=
     headStepStar_flipT_apps lc_T1 hlc2 lc_T1 Γ hΓ
-  have s4 : HeadStep (apps T1 (T1 :: flipN 2 T1 :: Γ))
-      (apps T1 (flipN 1 T1 :: flipN 2 T1 :: Γ)) :=
+  have s4 : HeadStep (multiApp T1 (T1 :: flipN 2 T1 :: Γ))
+      (multiApp T1 (flipN 1 T1 :: flipN 2 T1 :: Γ)) :=
     headStep_T1_apps lc_T1 (flipN 2 T1 :: Γ) hΓ2
-  have s5 : HeadStep (apps T1 (flipN 1 T1 :: flipN 2 T1 :: Γ))
-      (apps (flipN 1 T1) (flipN 2 T1 :: flipN 2 T1 :: Γ)) :=
+  have s5 : HeadStep (multiApp T1 (flipN 1 T1 :: flipN 2 T1 :: Γ))
+      (multiApp (flipN 1 T1) (flipN 2 T1 :: flipN 2 T1 :: Γ)) :=
     headStep_T1_apps hlc1 (flipN 2 T1 :: Γ) hΓ2
-  have s6 : HeadStepStar (apps (flipN 1 T1) (flipN 2 T1 :: flipN 2 T1 :: Γ))
+  have s6 : HeadStepStar (multiApp (flipN 1 T1) (flipN 2 T1 :: flipN 2 T1 :: Γ))
       (divState 0 2 2 Γ) :=
     headStepStar_flipT_apps lc_T1 hlc2 hlc2 Γ hΓ
   exact (((((Relation.ReflTransGen.single s1).tail s2).trans s3).tail s4).tail s5).trans s6
@@ -262,13 +262,13 @@ theorem noHNFStack_T1T2 : NoHNFStack (.app T1 T2) := by
   intro Γ hΓ
   have hlc1 : LC (flipT T2) := lc_flipT lc_T2
   have hlc2 : LC (flipT (flipT T2)) := lc_flipT hlc1
-  have s1 : HeadStep (apps T1 (T2 :: Γ)) (apps T2 (flipT T2 :: Γ)) :=
+  have s1 : HeadStep (multiApp T1 (T2 :: Γ)) (multiApp T2 (flipT T2 :: Γ)) :=
     headStep_T1_apps lc_T2 Γ hΓ
-  have s2 : HeadStep (apps T2 (flipT T2 :: Γ))
-      (apps (flipT T2) (flipT (flipT T2) :: T1 :: Γ)) :=
+  have s2 : HeadStep (multiApp T2 (flipT T2 :: Γ))
+      (multiApp (flipT T2) (flipT (flipT T2) :: T1 :: Γ)) :=
     headStep_T2_apps hlc1 Γ hΓ
-  have s3 : HeadStepStar (apps (flipT T2) (flipT (flipT T2) :: T1 :: Γ))
-      (apps T2 (T1 :: flipT (flipT T2) :: Γ)) :=
+  have s3 : HeadStepStar (multiApp (flipT T2) (flipT (flipT T2) :: T1 :: Γ))
+      (multiApp T2 (T1 :: flipT (flipT T2) :: Γ)) :=
     headStepStar_flipT_apps lc_T2 hlc2 lc_T1 Γ hΓ
   have hΓ' : ∀ t ∈ (flipT (flipT T2) :: Γ), LC t := by
     intro t ht; rcases List.mem_cons.mp ht with rfl | ht; exacts [hlc2, hΓ t ht]
@@ -283,13 +283,13 @@ theorem noHNFStack_T2T2 : NoHNFStack (.app T2 T2) := by
   have hlc2 : LC (flipT (flipT T2)) := lc_flipT hlc1
   have hΓ1 : ∀ t ∈ (T1 :: Γ), LC t := by
     intro t ht; rcases List.mem_cons.mp ht with rfl | ht; exacts [lc_T1, hΓ t ht]
-  have s1 : HeadStep (apps T2 (T2 :: Γ)) (apps T2 (flipT T2 :: T1 :: Γ)) :=
+  have s1 : HeadStep (multiApp T2 (T2 :: Γ)) (multiApp T2 (flipT T2 :: T1 :: Γ)) :=
     headStep_T2_apps lc_T2 Γ hΓ
-  have s2 : HeadStep (apps T2 (flipT T2 :: T1 :: Γ))
-      (apps (flipT T2) (flipT (flipT T2) :: T1 :: T1 :: Γ)) :=
+  have s2 : HeadStep (multiApp T2 (flipT T2 :: T1 :: Γ))
+      (multiApp (flipT T2) (flipT (flipT T2) :: T1 :: T1 :: Γ)) :=
     headStep_T2_apps hlc1 (T1 :: Γ) hΓ1
-  have s3 : HeadStepStar (apps (flipT T2) (flipT (flipT T2) :: T1 :: T1 :: Γ))
-      (apps T2 (T1 :: flipT (flipT T2) :: T1 :: Γ)) :=
+  have s3 : HeadStepStar (multiApp (flipT T2) (flipT (flipT T2) :: T1 :: T1 :: Γ))
+      (multiApp T2 (T1 :: flipT (flipT T2) :: T1 :: Γ)) :=
     headStepStar_flipT_apps lc_T2 hlc2 lc_T1 (T1 :: Γ) hΓ1
   have hΓ' : ∀ t ∈ (flipT (flipT T2) :: T1 :: Γ), LC t := by
     intro t ht

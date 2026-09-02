@@ -121,7 +121,7 @@ theorem headStep_Xc2 {B C : Term String} (hB : LC B) (hC : LC C) :
 /-! ## Generalities -/
 
 theorem lc_apps {M : Term String} (hM : LC M) :
-    ∀ Γ : List (Term String), (∀ t ∈ Γ, LC t) → LC (apps M Γ)
+    ∀ Γ : List (Term String), (∀ t ∈ Γ, LC t) → LC (multiApp M Γ)
   | [], _ => hM
   | a :: Γ, h =>
       lc_apps (.app hM (h a (by simp))) Γ (fun t ht => h t (by simp [ht]))
@@ -138,16 +138,16 @@ theorem hasHNF_Xc : HasHNF Xc :=
 /-! ## Head steps with a stack of arguments -/
 
 theorem headStep_Xc_apps {A : Term String} (hA : LC A) (Γ : List (Term String))
-    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (apps Xc (A :: Γ)) (apps Xc1 Γ) :=
+    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (multiApp Xc (A :: Γ)) (multiApp Xc1 Γ) :=
   headStep_apps (headStep_Xc hA) (by rintro ⟨⟩) Γ hΓ
 
 theorem headStep_Xc1_apps {B : Term String} (hB : LC B) (Γ : List (Term String))
-    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (apps Xc1 (B :: Γ)) (apps (Xc2 B) Γ) :=
+    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (multiApp Xc1 (B :: Γ)) (multiApp (Xc2 B) Γ) :=
   headStep_apps (headStep_Xc1 hB) (by rintro ⟨⟩) Γ hΓ
 
 theorem headStep_Xc2_apps {B C : Term String} (hB : LC B) (hC : LC C)
     (Γ : List (Term String)) (hΓ : ∀ t ∈ Γ, LC t) :
-    HeadStep (apps (Xc2 B) (C :: Γ)) (apps C (pairT B C :: Γ)) :=
+    HeadStep (multiApp (Xc2 B) (C :: Γ)) (multiApp C (pairT B C :: Γ)) :=
   headStep_apps (headStep_Xc2 hB hC) (by rintro ⟨⟩) Γ hΓ
 
 /-! ## The classes of admissible heads and arguments -/
@@ -210,7 +210,7 @@ admissible arguments are required before `F P`. -/
 def DivSt (M : Term String) : Prop :=
   ∃ (H B P : Term String) (Δ Γ : List (Term String)),
     ROk H ∧ QOk B ∧ (∀ t ∈ Δ, QOk t) ∧ ROk P ∧ (∀ t ∈ Γ, LC t) ∧
-      (H = Xc → Δ ≠ []) ∧ M = apps H (B :: (Δ ++ Xc2 P :: Γ))
+      (H = Xc → Δ ≠ []) ∧ M = multiApp H (B :: (Δ ++ Xc2 P :: Γ))
 
 /-- Either a diverging state, or an already known term without head normal form. -/
 def DivOrStuck (M : Term String) : Prop := DivSt M ∨ (LC M ∧ ¬ HasHNF M)
@@ -249,7 +249,7 @@ theorem divOrStuck_step : ∀ M, DivOrStuck M →
         cases Δ with
         | nil => exact absurd rfl (hne rfl)
         | cons a l => exact ⟨a, l, rfl⟩
-      refine ⟨apps Xc1 (B' :: (Δ' ++ Xc2 P :: Γ)), Relation.TransGen.single ?_, Or.inl ?_⟩
+      refine ⟨multiApp Xc1 (B' :: (Δ' ++ Xc2 P :: Γ)), Relation.TransGen.single ?_, Or.inl ?_⟩
       · exact headStep_Xc_apps hlcB _ (by simpa using hlcTail)
       · exact ⟨Xc1, B', P, Δ', Γ, .t1, hΔ B' (by simp), fun t ht => hΔ t (by simp [ht]),
           hP, hΓ, by intro h; exact absurd h (by decide), rfl⟩
@@ -263,7 +263,7 @@ theorem divOrStuck_step : ∀ M, DivOrStuck M →
   | t1 =>
       cases Δ with
       | cons B' Δ' =>
-          refine ⟨apps (Xc2 B) (B' :: (Δ' ++ Xc2 P :: Γ)), Relation.TransGen.single ?_,
+          refine ⟨multiApp (Xc2 B) (B' :: (Δ' ++ Xc2 P :: Γ)), Relation.TransGen.single ?_,
             Or.inl ?_⟩
           · exact headStep_Xc1_apps hlcB _ (by simpa using hlcTail)
           · exact ⟨Xc2 B, B', P, Δ', Γ, .fa (ROk_of_QOk hB), hΔ B' (by simp),
@@ -275,28 +275,28 @@ theorem divOrStuck_step : ∀ M, DivOrStuck M →
           have hlcU : LC U := lc_pairT hlcB (lc_Xc2 hlcP)
           set W : Term String := pairT P U
           have hlcW : LC W := lc_pairT hlcP hlcU
-          have s1 : HeadStep (apps Xc1 (B :: (Xc2 P :: Γ))) (apps (Xc2 B) (Xc2 P :: Γ)) :=
+          have s1 : HeadStep (multiApp Xc1 (B :: (Xc2 P :: Γ))) (multiApp (Xc2 B) (Xc2 P :: Γ)) :=
             headStep_Xc1_apps hlcB _ (by simpa using hlcTail)
-          have s2 : HeadStep (apps (Xc2 B) (Xc2 P :: Γ)) (apps (Xc2 P) (U :: Γ)) :=
+          have s2 : HeadStep (multiApp (Xc2 B) (Xc2 P :: Γ)) (multiApp (Xc2 P) (U :: Γ)) :=
             headStep_Xc2_apps hlcB (lc_Xc2 hlcP) Γ hΓ
-          have s3 : HeadStep (apps (Xc2 P) (U :: Γ)) (apps U (W :: Γ)) :=
+          have s3 : HeadStep (multiApp (Xc2 P) (U :: Γ)) (multiApp U (W :: Γ)) :=
             headStep_Xc2_apps hlcP hlcU Γ hΓ
-          have s4 : HeadStep (apps U (W :: Γ)) (apps B (W :: Xc2 P :: Γ)) :=
+          have s4 : HeadStep (multiApp U (W :: Γ)) (multiApp B (W :: Xc2 P :: Γ)) :=
             headStep_pairT_apps hlcB (lc_Xc2 hlcP) hlcW Γ hΓ
-          refine ⟨apps B (W :: ([] ++ Xc2 P :: Γ)), ?_, Or.inl ?_⟩
+          refine ⟨multiApp B (W :: ([] ++ Xc2 P :: Γ)), ?_, Or.inl ?_⟩
           · simpa using (((Relation.TransGen.single s1).tail s2).tail s3).tail s4
           · exact ⟨B, W, P, [], Γ, ROk_of_QOk hB, .ga hP (.ga (ROk_of_QOk hB) (.fa hP)),
               by simp, hP, hΓ, fun he => absurd he hB.ne_Xc, rfl⟩
   | @fa _ M hM =>
       have hlcM : LC M := lc_of_AOk hM
-      refine ⟨apps B (pairT M B :: (Δ ++ Xc2 P :: Γ)), Relation.TransGen.single ?_, Or.inl ?_⟩
+      refine ⟨multiApp B (pairT M B :: (Δ ++ Xc2 P :: Γ)), Relation.TransGen.single ?_, Or.inl ?_⟩
       · exact headStep_Xc2_apps hlcM hlcB _ hlcTail
       · exact ⟨B, pairT M B, P, Δ, Γ, ROk_of_QOk hB, .ga hM hB, hΔ, hP, hΓ,
           fun he => absurd he hB.ne_Xc, rfl⟩
   | @ga _ M N hM hN =>
       have hlcM : LC M := lc_of_AOk hM
       have hlcN : LC N := lc_of_AOk hN
-      refine ⟨apps M (B :: (N :: Δ ++ Xc2 P :: Γ)), Relation.TransGen.single ?_, Or.inl ?_⟩
+      refine ⟨multiApp M (B :: (N :: Δ ++ Xc2 P :: Γ)), Relation.TransGen.single ?_, Or.inl ?_⟩
       · exact headStep_pairT_apps hlcM hlcN hlcB _ hlcTail
       · exact ⟨M, B, P, N :: Δ, Γ, hM, hB, by
           intro t ht
@@ -320,11 +320,11 @@ theorem noHNFStack_Xc2_Xc2 {A P : Term String} (hA : QOk A) (hP : ROk P) :
   have hlcU : LC U := lc_pairT hlcA (lc_Xc2 hlcP)
   set W : Term String := pairT P U
   have hlcW : LC W := lc_pairT hlcP hlcU
-  have s1 : HeadStep (apps (Xc2 A) (Xc2 P :: Γ)) (apps (Xc2 P) (U :: Γ)) :=
+  have s1 : HeadStep (multiApp (Xc2 A) (Xc2 P :: Γ)) (multiApp (Xc2 P) (U :: Γ)) :=
     headStep_Xc2_apps hlcA (lc_Xc2 hlcP) Γ hΓ
-  have s2 : HeadStep (apps (Xc2 P) (U :: Γ)) (apps U (W :: Γ)) :=
+  have s2 : HeadStep (multiApp (Xc2 P) (U :: Γ)) (multiApp U (W :: Γ)) :=
     headStep_Xc2_apps hlcP hlcU Γ hΓ
-  have s3 : HeadStep (apps U (W :: Γ)) (apps A (W :: Xc2 P :: Γ)) :=
+  have s3 : HeadStep (multiApp U (W :: Γ)) (multiApp A (W :: Xc2 P :: Γ)) :=
     headStep_pairT_apps hlcA (lc_Xc2 hlcP) hlcW Γ hΓ
   refine not_hasHNF_of_headStepStar
     (((Relation.ReflTransGen.single s1).tail s2).tail s3) (divSt_not_hasHNF ?_)
@@ -375,19 +375,19 @@ theorem betaStar_Xc2Xc_Xc2 {P : Term String} (hP : LC P) :
   have hlcU : LC U := lc_pairT lc_Xc (lc_Xc2 hP)
   set W : Term String := pairT P U
   have hlcW : LC W := lc_pairT hP hlcU
-  have s1 : HeadStep (apps (Xc2 Xc) (Xc2 P :: [])) (apps (Xc2 P) (U :: [])) :=
+  have s1 : HeadStep (multiApp (Xc2 Xc) (Xc2 P :: [])) (multiApp (Xc2 P) (U :: [])) :=
     headStep_Xc2_apps lc_Xc (lc_Xc2 hP) [] (by simp)
-  have s2 : HeadStep (apps (Xc2 P) (U :: [])) (apps U (W :: [])) :=
+  have s2 : HeadStep (multiApp (Xc2 P) (U :: [])) (multiApp U (W :: [])) :=
     headStep_Xc2_apps hP hlcU [] (by simp)
-  have s3 : HeadStep (apps U (W :: [])) (apps Xc (W :: Xc2 P :: [])) :=
+  have s3 : HeadStep (multiApp U (W :: [])) (multiApp Xc (W :: Xc2 P :: [])) :=
     headStep_pairT_apps lc_Xc (lc_Xc2 hP) hlcW [] (by simp)
-  have s4 : HeadStep (apps Xc (W :: Xc2 P :: [])) (apps Xc1 (Xc2 P :: [])) :=
+  have s4 : HeadStep (multiApp Xc (W :: Xc2 P :: [])) (multiApp Xc1 (Xc2 P :: [])) :=
     headStep_Xc_apps hlcW _ (by intro t ht; simp at ht; exact ht ▸ lc_Xc2 hP)
-  have s5 : HeadStep (apps Xc1 (Xc2 P :: [])) (apps (Xc2 (Xc2 P)) []) :=
+  have s5 : HeadStep (multiApp Xc1 (Xc2 P :: [])) (multiApp (Xc2 (Xc2 P)) []) :=
     headStep_Xc1_apps (lc_Xc2 hP) [] (by simp)
   have := (((((Relation.ReflTransGen.single s1.toFullBeta).tail s2.toFullBeta).tail
     s3.toFullBeta).tail s4.toFullBeta).tail s5.toFullBeta)
-  simpa [apps] using this
+  simpa [multiApp] using this
 
 /-! ## The invariant -/
 

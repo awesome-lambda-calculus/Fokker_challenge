@@ -1,3 +1,4 @@
+import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.MultiApp
 import FokkerChallenge.DBNotation
 import FokkerChallenge.EnhancedCslib.HeadSN
 import FokkerChallenge.EnhancedCslib.GenFinset
@@ -62,14 +63,6 @@ namespace LambdaCalculus.LocallyNameless.Untyped.Term
 /-- `⟨B,C⟩ = λw. B w C`. -/
 def pairT (B C : Term String) : Term String := .abs (.app (.app B (.bvar 0)) C)
 
-/-- `apps M [A₁, …, Aₖ] = M A₁ … Aₖ`. -/
-def apps (M : Term String) (Γ : List (Term String)) : Term String :=
-  Γ.foldl app M
-
-theorem apps_append (M : Term String) (Γ Δ : List (Term String)) :
-    apps M (Γ ++ Δ) = apps (apps M Γ) Δ := by
-  simp [apps, List.foldl_append]
-
 /-! ## Local closure -/
 
 theorem lc_pairT {B C : Term String} (hB : LC B) (hC : LC C) : LC (pairT B C) := by
@@ -92,7 +85,7 @@ theorem headStep_pairT {B C U : Term String} (hB : LC B) (hC : LC C) (hU : LC U)
 /-! ## Lifting a head step through a stack of arguments -/
 
 theorem headStep_apps {M M' : Term String} (h : HeadStep M M') (hM : ¬ M.IsAbs)
-    (Γ : List (Term String)) (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (apps M Γ) (apps M' Γ) := by
+    (Γ : List (Term String)) (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (multiApp M Γ) (multiApp M' Γ) := by
   induction Γ generalizing M M' with
   | nil => exact h
   | cons a Γ ih =>
@@ -105,12 +98,12 @@ theorem headStep_apps {M M' : Term String} (h : HeadStep M M') (hM : ¬ M.IsAbs)
 /-- `⟨B,C⟩ U Γ ⭢h B U C Γ`. -/
 theorem headStep_pairT_apps {B C U : Term String} (hB : LC B) (hC : LC C) (hU : LC U)
     (Γ : List (Term String)) (hΓ : ∀ t ∈ Γ, LC t) :
-    HeadStep (apps (pairT B C) (U :: Γ)) (apps B (U :: C :: Γ)) :=
+    HeadStep (multiApp (pairT B C) (U :: Γ)) (multiApp B (U :: C :: Γ)) :=
   headStep_apps (headStep_pairT hB hC hU) (by rintro ⟨⟩) Γ hΓ
 
 /-- `M` has no head normal form, and neither has `M` applied to any stack of arguments. -/
 def NoHNFStack (M : Term String) : Prop :=
-  ∀ Γ : List (Term String), (∀ t ∈ Γ, LC t) → ¬ HasHNF (apps M Γ)
+  ∀ Γ : List (Term String), (∀ t ∈ Γ, LC t) → ¬ HasHNF (multiApp M Γ)
 
 /-- `M` βη-reduces to a term which, with any stack of arguments, has no head normal
 form. -/

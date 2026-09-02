@@ -110,7 +110,7 @@ theorem lc_Yc2 {B : Term String} (hB : LC B) : LC (Yc2 B) := by
   exact .app (.app (.fvar x) (.fvar y)) hB
 
 theorem lc_apps {M : Term String} (hM : LC M) :
-    ∀ Γ : List (Term String), (∀ t ∈ Γ, LC t) → LC (apps M Γ)
+    ∀ Γ : List (Term String), (∀ t ∈ Γ, LC t) → LC (multiApp M Γ)
   | [], _ => hM
   | a :: Γ, h =>
       lc_apps (.app hM (h a (by simp))) Γ (fun t ht => h t (by simp [ht]))
@@ -146,16 +146,16 @@ theorem headStep_Yc2 {B C : Term String} (hB : LC B) (hC : LC C) :
 /-! ## Head steps with a stack of arguments -/
 
 theorem headStep_Yc_apps {A : Term String} (hA : LC A) (Γ : List (Term String))
-    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (apps Yc (A :: Γ)) (apps Yc1 Γ) :=
+    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (multiApp Yc (A :: Γ)) (multiApp Yc1 Γ) :=
   headStep_apps (headStep_Yc hA) (by rintro ⟨⟩) Γ hΓ
 
 theorem headStep_Yc1_apps {B : Term String} (hB : LC B) (Γ : List (Term String))
-    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (apps Yc1 (B :: Γ)) (apps (Yc2 B) Γ) :=
+    (hΓ : ∀ t ∈ Γ, LC t) : HeadStep (multiApp Yc1 (B :: Γ)) (multiApp (Yc2 B) Γ) :=
   headStep_apps (headStep_Yc1 hB) (by rintro ⟨⟩) Γ hΓ
 
 theorem headStep_Yc2_apps {B C : Term String} (hB : LC B) (hC : LC C)
     (Γ : List (Term String)) (hΓ : ∀ t ∈ Γ, LC t) :
-    HeadStep (apps (Yc2 B) (C :: Γ)) (apps C (pairT C B :: Γ)) :=
+    HeadStep (multiApp (Yc2 B) (C :: Γ)) (multiApp C (pairT C B :: Γ)) :=
   headStep_apps (headStep_Yc2 hB hC) (by rintro ⟨⟩) Γ hΓ
 
 /-! ## The diverging states -/
@@ -175,7 +175,7 @@ theorem lc_of_Chain {P W : Term String} (hP : LC P) (h : Chain P W) : LC W := by
 first argument `W` is a `Chain P` pair, and `Γ` is an arbitrary stack. -/
 def DivSt (M : Term String) : Prop :=
   ∃ (P H W : Term String) (Γ : List (Term String)),
-    LC P ∧ (H = Yc2 P ∨ Chain P H) ∧ Chain P W ∧ (∀ t ∈ Γ, LC t) ∧ M = apps H (W :: Γ)
+    LC P ∧ (H = Yc2 P ∨ Chain P H) ∧ Chain P W ∧ (∀ t ∈ Γ, LC t) ∧ M = multiApp H (W :: Γ)
 
 /-- **Every diverging state head reduces, in at least one step, to a diverging state.** -/
 theorem divSt_step : ∀ M, DivSt M → ∃ N, Relation.TransGen HeadStep M N ∧ DivSt N := by
@@ -183,18 +183,18 @@ theorem divSt_step : ∀ M, DivSt M → ∃ N, Relation.TransGen HeadStep M N �
   have hlcW : LC W := lc_of_Chain hP hW
   rcases hH with rfl | hHchain
   · -- head `G P`: the argument `W` becomes the head and a new link is added
-    refine ⟨apps W (pairT W P :: Γ), Relation.TransGen.single (headStep_Yc2_apps hP hlcW Γ hΓ),
+    refine ⟨multiApp W (pairT W P :: Γ), Relation.TransGen.single (headStep_Yc2_apps hP hlcW Γ hΓ),
       ?_⟩
     exact ⟨P, W, pairT W P, Γ, hP, Or.inr hW, .step hW hP, hΓ, rfl⟩
   · -- head a `Chain P` pair: the pair rule peels one link off the head
     cases hHchain with
     | @base N hN =>
-        refine ⟨apps (Yc2 P) (W :: N :: Γ),
+        refine ⟨multiApp (Yc2 P) (W :: N :: Γ),
           Relation.TransGen.single (headStep_pairT_apps (lc_Yc2 hP) hN hlcW Γ hΓ), ?_⟩
         refine ⟨P, Yc2 P, W, N :: Γ, hP, Or.inl rfl, hW, ?_, rfl⟩
         intro t ht; rcases List.mem_cons.mp ht with rfl | ht; exacts [hN, hΓ t ht]
     | @step W' N hW' hN =>
-        refine ⟨apps W' (W :: N :: Γ),
+        refine ⟨multiApp W' (W :: N :: Γ),
           Relation.TransGen.single
             (headStep_pairT_apps (lc_of_Chain hP hW') hN hlcW Γ hΓ), ?_⟩
         refine ⟨P, W', W, N :: Γ, hP, Or.inr hW', hW, ?_, rfl⟩
