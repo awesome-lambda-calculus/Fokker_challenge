@@ -228,7 +228,7 @@ theorem BetaReductOfNamable_not_basis {M} (hm : BetaReductOfNamable M) : not_bas
   refine ⟨N, hlc, hfv, ?_⟩
   intros t ht steps
   obtain ⟨s, hs, h⟩ := genfinset_forall2_of_lc (l1:=[S]) (l2:=[M]) (hn:=ht) (.cons (by grind) .nil) (genfinset_lc ht (by grind))
-  apply hm s hs (.trans (FullBetaEta.from_beta _ _ h)  steps)
+  apply hm s hs (.trans (Relation.ReflTransGen.mono le_sup_left _ _ h)  steps)
 
 /-- Every applicative combination of terms of the class stays in the class. -/
 theorem BetaReductOfNamable.closedUnderApp {t : Term String}

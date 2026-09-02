@@ -401,10 +401,10 @@ theorem betaStar_C3_T2 : C3 ↠βᶠ T2 :=
 
 /-- **`T₁ T₁ ↠βη T₂`.** -/
 theorem betaEtaStar_T1T1 : (Term.app T1 T1) ↠βηᶠ T2 := by
-  refine .trans (FullBetaEta.from_beta _ _ betaStar_T1T1_C1) ?_
+  refine .trans (Relation.ReflTransGen.mono le_sup_left _ _ betaStar_T1T1_C1) ?_
   refine .trans (Relation.ReflTransGen.single (Or.inr fullEta_C1_C2)) ?_
   refine .trans (Relation.ReflTransGen.single (Or.inr fullEta_C2_C3)) ?_
-  exact FullBetaEta.from_beta _ _ betaStar_C3_T2
+  exact Relation.ReflTransGen.mono le_sup_left _ _ betaStar_C3_T2
 
 /-- The two-step β-reduction `T₂ T₀ ↠β T₁ T₁`. -/
 def chainT2T0 : List (Term String) :=
@@ -420,15 +420,15 @@ theorem betaStar_T2T0 : (Term.app T2 T0) ↠βᶠ (Term.app T1 T1) :=
 
 /-- **`T₂ T₀ ↠βη T₂`.** -/
 theorem betaEtaStar_T2T0 : (Term.app T2 T0) ↠βηᶠ T2 :=
-  .trans (FullBetaEta.from_beta _ _ betaStar_T2T0) betaEtaStar_T1T1
+  .trans (Relation.ReflTransGen.mono le_sup_left _ _ betaStar_T2T0) betaEtaStar_T1T1
 
 /-- **`T₁ T₀ ↠βη T₁`.** -/
 theorem betaEtaStar_T1T0 : (Term.app T1 T0) ↠βηᶠ T1 :=
-  FullBetaEta.from_beta _ _ betaStar_T1T0
+  Relation.ReflTransGen.mono le_sup_left _ _ betaStar_T1T0
 
 /-- **`T₀ M ↠βη T₁`** for every locally closed `M`. -/
 theorem betaEtaStar_T0_app {M : Term String} (hM : LC M) : (Term.app T0 M) ↠βηᶠ T1 :=
-  FullBetaEta.from_beta _ _ (betaStar_T0_app hM)
+  Relation.ReflTransGen.mono le_sup_left _ _ (betaStar_T0_app hM)
 
 /-! ## The invariant -/
 

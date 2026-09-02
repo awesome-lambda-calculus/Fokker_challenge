@@ -93,7 +93,7 @@ theorem beta_eta_steps_preserve_fvar_apps {x : String} {M : Term String}
   | tail _ h ih =>  obtain ⟨l', _, ih⟩ := ih
                     subst_vars
                     cases h with
-          | inl h =>  obtain ⟨l, h, g⟩ := beta_steps_preserve_fvar_apps (.single h)
-                      exact ⟨_, h, forall₂_trans ih (forall₂_sub FullBetaEta.from_beta g)⟩
-          | inr h =>  obtain ⟨l, h, g⟩ := eta_steps_preserve_fvar_apps (.single h)
-                      exact ⟨_, h, forall₂_trans ih (forall₂_sub FullBetaEta.from_eta g)⟩
+      | inl h =>  obtain ⟨l, h, g⟩ := beta_steps_preserve_fvar_apps (.single h)
+                  exact ⟨_, h, forall₂_trans ih (forall₂_sub (Relation.ReflTransGen.mono le_sup_left) g)⟩
+      | inr h =>  obtain ⟨l, h, g⟩ := eta_steps_preserve_fvar_apps (.single h)
+                  exact ⟨_, h, forall₂_trans ih (forall₂_sub (Relation.ReflTransGen.mono le_sup_right) g)⟩

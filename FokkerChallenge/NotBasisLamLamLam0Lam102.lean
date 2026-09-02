@@ -274,25 +274,25 @@ theorem good_app {M N : Term String} (hlcN : LC N) (hM : Good M) (hN : Good N) :
   have hlcV : LC V := lc_of_Val hV
   rcases hV with rfl | rfl | ⟨A, hA, rfl⟩
   · -- `V = Y`: the argument is discarded
-    exact Or.inl ⟨Yc1, .trans hstep (FullBetaEta.from_beta _ _ (betaStar_Yc_app hlcN)),
+    exact Or.inl ⟨Yc1, .trans hstep (Relation.ReflTransGen.mono le_sup_left _ _ (betaStar_Yc_app hlcN)),
       Or.inr (Or.inl rfl)⟩
   · -- `V = Y₁`
     rcases hN with ⟨W, hNW, hW⟩ | ⟨N', hNs, hlcN', hnoN'⟩
     · refine Or.inl ⟨Yc2 W, ?_, Or.inr (Or.inr ⟨W, lc_of_Val hW, rfl⟩)⟩
       exact .trans (.trans hstep (FullBetaEta.steps_app_r_cong hNW lc_Yc1))
-        (FullBetaEta.from_beta _ _ (betaStar_Yc1_app (lc_of_Val hW)))
+        (Relation.ReflTransGen.mono le_sup_left _ _ (betaStar_Yc1_app (lc_of_Val hW)))
     · refine Or.inl ⟨Yc2 N', ?_, Or.inr (Or.inr ⟨N', hlcN', rfl⟩)⟩
       exact .trans (.trans hstep (FullBetaEta.steps_app_r_cong hNs lc_Yc1))
-        (FullBetaEta.from_beta _ _ (betaStar_Yc1_app hlcN'))
+        (Relation.ReflTransGen.mono le_sup_left _ _ (betaStar_Yc1_app hlcN'))
   · -- `V = G A`
     rcases hN with ⟨W, hNW, hW⟩ | ⟨N', hNs, hlcN', hnoN'⟩
     · have hstep2 : Term.app M N ↠βηᶠ Term.app (Yc2 A) W :=
         .trans hstep (FullBetaEta.steps_app_r_cong hNW hlcV)
       rcases hW with rfl | rfl | ⟨P, hP, rfl⟩
-      · exact Or.inl ⟨Yc1, .trans hstep2 (FullBetaEta.from_beta _ _ (betaStar_Yc2_Yc hA)),
+      · exact Or.inl ⟨Yc1, .trans hstep2 (Relation.ReflTransGen.mono le_sup_left _ _ (betaStar_Yc2_Yc hA)),
           Or.inr (Or.inl rfl)⟩
       · exact Or.inl ⟨Yc2 (pairT Yc1 A),
-          .trans hstep2 (FullBetaEta.from_beta _ _ (betaStar_Yc2_Yc1 hA)),
+          .trans hstep2 (Relation.ReflTransGen.mono le_sup_left _ _ (betaStar_Yc2_Yc1 hA)),
           Or.inr (Or.inr ⟨pairT Yc1 A, lc_pairT lc_Yc1 hA, rfl⟩)⟩
       · exact Or.inr ⟨Term.app (Yc2 A) (Yc2 P), hstep2, .app hlcV (lc_Yc2 hP),
           noHNFStack_Yc2_Yc2 hA hP⟩
@@ -325,10 +325,10 @@ theorem val_not_betaEtaStar_I {V : Term String} (hV : Val V) : ¬ (V ↠βηᶠ 
   · exact absurd (normal_Yc1.reflTransGen_eq h) (by decide)
   · -- `G A · Y ↠β Y₁`, while `I · Y ↠β Y`
     have h1 : (Term.app (Yc2 A) Yc) ↠βηᶠ Yc1 :=
-      FullBetaEta.from_beta _ _ (betaStar_Yc2_Yc hA)
+      Relation.ReflTransGen.mono le_sup_left _ _ (betaStar_Yc2_Yc hA)
     have h2 : (Term.app (Yc2 A) Yc) ↠βηᶠ Yc := by
       refine .trans (FullBetaEta.steps_app_l_cong h lc_Yc) ?_
-      refine FullBetaEta.from_beta _ _ (Relation.ReflTransGen.single ?_)
+      refine Relation.ReflTransGen.mono le_sup_left _ _ (Relation.ReflTransGen.single ?_)
       have hI : HeadStep (Term.app I Yc) Yc := by
         have h := HeadStep.beta (M := Term.bvar 0) (N := Yc)
           (by rw [← lcAt_iff_LC]; decide) lc_Yc
@@ -362,10 +362,10 @@ theorem val_not_betaEtaStar_K {V : Term String} (hV : Val V) : ¬ (V ↠βηᶠ 
   · exact absurd (normal_Yc1.reflTransGen_eq h) (by decide)
   · -- `G A · Y ↠β Y₁`, while `K · Y ↠β λ_. Y`
     have h1 : (Term.app (Yc2 A) Yc) ↠βηᶠ Yc1 :=
-      FullBetaEta.from_beta _ _ (betaStar_Yc2_Yc hA)
+      Relation.ReflTransGen.mono le_sup_left _ _ (betaStar_Yc2_Yc hA)
     have h2 : (Term.app (Yc2 A) Yc) ↠βηᶠ Term.abs Yc :=
       .trans (FullBetaEta.steps_app_l_cong h lc_Yc)
-        (FullBetaEta.from_beta _ _ (Relation.ReflTransGen.single hKY.toFullBeta))
+        (Relation.ReflTransGen.mono le_sup_left _ _ (Relation.ReflTransGen.single hKY.toFullBeta))
     obtain ⟨Z, hZ1, hZ2⟩ := confluent_beta_eta h1 h2
     exact absurd ((normal_Yc1.reflTransGen_eq hZ1).trans (hnormalKY.reflTransGen_eq hZ2).symm)
       (by decide)

@@ -178,7 +178,7 @@ theorem step_closedUnderApp_unroll_q {M N}
     obtain ⟨h_contain_x, ih, _⟩ := h
     refine ⟨?_, ?_, HeadReduction2_preserver_fvar_or_combinator (by assumption) step⟩
     . intros _ steps
-      apply h_contain_x _ (.trans (FullBetaEta.from_beta _ _ (HeadReduction2.step_2_beta step (Q_lc_closed (by grind) _ ih))) steps)
+      apply h_contain_x _ (.trans (Relation.ReflTransGen.mono le_sup_left _ _ (HeadReduction2.step_2_beta step (Q_lc_closed (by grind) _ ih))) steps)
     . obtain ⟨l, f, h3, h4, h5⟩ := closedunderapp_multiapp ih
       rcases h4 with h4|h4|⟨h4, h6⟩
       . subst_vars
@@ -220,7 +220,7 @@ theorem step_closedUnderApp_unroll_q {M N}
           | inl => grind
           | inr =>  have hl := MultiApp_exists (fun t => "x" ∉ t.fv) l ?_ ?_
                     . obtain ⟨Ns, hl, _⟩ := hl
-                      specialize h_contain_x (Ns.foldl app f'.abs.abs) (FullBetaEta.from_beta _ _ (steps_multiApp_r hl (by grind)))
+                      specialize h_contain_x (Ns.foldl app f'.abs.abs) (Relation.ReflTransGen.mono le_sup_left _ _ (steps_multiApp_r hl (by grind)))
                       have hf : f'.abs.abs.fv = ∅ := by grind
                       rw [multiapp_fv, hf] at h_contain_x
                       generalize heq : (∅ : Finset String) = fs

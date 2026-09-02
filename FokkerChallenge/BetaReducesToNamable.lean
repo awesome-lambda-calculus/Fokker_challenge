@@ -59,7 +59,7 @@ theorem not_basis_of_betaStar_namableXY {M S : Term String} (hstar : M ↠βᶠ 
   refine ⟨y, hylc, hyfv, ?_⟩
   intro t ht steps
   obtain ⟨s, hs, hts⟩ := genfinset_single_betaStar hstar hlcM ht
-  obtain ⟨Z, hz1, hz2⟩ := confluent_beta_eta steps (FullBetaEta.from_beta _ _ hts)
+  obtain ⟨Z, hz1, hz2⟩ := confluent_beta_eta steps (Relation.ReflTransGen.mono le_sup_left _ _ hts)
   have hZ := Relation.Normal.reflTransGen_eq hynf hz1
   subst hZ
   exact hy s hs hz2

@@ -79,7 +79,7 @@ theorem forall₂_trans {α : Type _} {R : α → α → Prop} {l₁ l₂ l₃ :
       | cons hbc hrest => exact List.Forall₂.cons (hab.trans hbc) (ih hrest)
 
 theorem forall₂_sub {α : Type _} {R1 R2 : α → α → Prop} {l₁ l₂ : List α}
-    (h : R1  ≤  R2)
+    (h : R1 ≤ R2)
     (h₁ : List.Forall₂ R1 l₁ l₂) :
           List.Forall₂ R2 l₁ l₂  := by
   induction h₁ with
