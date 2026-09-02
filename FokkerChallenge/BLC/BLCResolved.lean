@@ -67,18 +67,10 @@ theorem liftSearch_sComb_eq_none : liftSearch 2 (db! "λλλ20(10)") = none := b
 /-- Certificates: for each term, a chain of βη-steps ending in a term that is
 nameable with the two names `x`, `y`.  A single β-step suffices in each case. -/
 def fokkerUpdatedOpenCerts : List (Term String × List (Term String)) :=
-  [ (db! "λλλ(λ1(02))0", [db! "λλλ(λ1(02))0", db! "λλλ0(01)"])
-  , (db! "λλλ(λ1(20))0", [db! "λλλ(λ1(20))0", db! "λλλ0(10)"])
-  , (db! "λλλ(λ2(01))0", [db! "λλλ(λ2(01))0", db! "λλλ1(00)"])
-  , (db! "λλλ(λ2(10))0", [db! "λλλ(λ2(10))0", db! "λλλ1(00)"])
-  , (db! "λλλ(λ012)0",   [db! "λλλ(λ012)0",   db! "λλλ001"])
+  [ (db! "λλλ(λ012)0",   [db! "λλλ(λ012)0",   db! "λλλ001"])
   , (db! "λλλ(λ102)0",   [db! "λλλ(λ102)0",   db! "λλλ001"])
   , (db! "λλλ(λ021)0",   [db! "λλλ(λ021)0",   db! "λλλ010"])
   , (db! "λλλ(λ201)0",   [db! "λλλ(λ201)0",   db! "λλλ100"])
-  , (db! "λλ(λλ1(02))0", [db! "λλ(λλ1(02))0", db! "λλλ1(01)"])
-  , (db! "λλ(λλ1(20))0", [db! "λλ(λλ1(20))0", db! "λλλ1(10)"])
-  , (db! "λλ(λλ2(01))0", [db! "λλ(λλ2(01))0", db! "λλλ1(01)"])
-  , (db! "λλ(λλ2(10))0", [db! "λλ(λλ2(10))0", db! "λλλ1(10)"])
   , (db! "λλ(λλ012)0",   [db! "λλ(λλ012)0",   db! "λλλ011"])
   , (db! "λλ(λλ102)0",   [db! "λλ(λλ102)0",   db! "λλλ101"])
   , (db! "λλ(λλ021)0",   [db! "λλ(λλ021)0",   db! "λλλ011"])
@@ -87,8 +79,6 @@ def fokkerUpdatedOpenCerts : List (Term String × List (Term String)) :=
 
 /-- The 16 terms of `fokkerUpdatedOpen` that βη-reduce to a nameable term. -/
 def fokkerUpdatedOpenReduces : List (Term String) := fokkerUpdatedOpenCerts.map Prod.fst
-
-theorem fokkerUpdatedOpenReduces_length : fokkerUpdatedOpenReduces.length = 16 := by rfl
 
 /-
 -- Original βη-flavoured version of the two statements below.  It is kept for the

@@ -19,3 +19,9 @@ inductive IsFvar {Var} : Term Var → Prop
 @[scoped grind]
 inductive IsBvar {Var} : Term Var → Prop
 | bvar (i : Nat) : IsBvar (Term.bvar i)
+
+/-- Is the term a (bound or free) variable? -/
+def isVar : Term String → Bool
+  | .bvar _ => true
+  | .fvar _ => true
+  | _ => false

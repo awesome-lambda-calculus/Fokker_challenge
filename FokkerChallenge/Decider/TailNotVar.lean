@@ -43,12 +43,6 @@ namespace Cslib
 
 namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
-/-- Is the term a (bound or free) variable? -/
-def isVar : Term String → Bool
-  | .bvar _ => true
-  | .fvar _ => true
-  | _ => false
-
 mutual
 
 /-- `tailOk M`: every abstraction block of `M` is of the shape
