@@ -1,5 +1,7 @@
 import FokkerChallenge.BLC.BLCTotal
 import FokkerChallenge.BLC.BLCEnum
+import FokkerChallenge.BLC.BLCCertLists
+import FokkerChallenge.NativeEnum
 import FokkerChallenge.Decider.NoDuplicate
 import FokkerChallenge.Decider.EveryBvarUsed
 import FokkerChallenge.Decider.All0
@@ -24,21 +26,7 @@ namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
 set_option maxRecDepth 100000
 
-/-- The certificates for all 402 terms of `undecided_terms.json`. -/
-def fokkerUndecidedCerts : List (Term String × List (Term String)) :=
-  [
-    (db! "λλλ0(λ120)", [db! "λλλ0((λλ10)(01))", db! "λλλ0(λ120)"])
-  , (db! "λλλ0(λ210)", [db! "λλλ0((λλ10)(10))", db! "λλλ0(λ210)"])
-  , (db! "λλ(λλ120)0", [db! "λλ(λ(λλ10)(01))0", db! "λλ(λλ120)0"])
-  , (db! "λλ0(λλ120)", [db! "λλ0(λ(λλ10)(01))", db! "λλ0(λλ120)"])
-  , (db! "λλλ(λ120)0", [db! "λλλ(λλ10)(01)0", db! "λλλ(λ120)0"])
-  , (db! "λλλ(λ210)0", [db! "λλλ(λλ10)(10)0", db! "λλλ(λ210)0"])
-  , (db! "λλ0(λλ210)", [db! "λλ0(λ(λλ10)(10))", db! "λλ0(λλ210)"])
-  , (db! "λλ(λλ210)0", [db! "λλ(λ(λλ10)(10))0", db! "λλ(λλ210)0"])
-   ]
-
-/-- The 402 terms of `undecided_terms.json`. -/
-def fokkerUndecidedTerms : List (Term String) := fokkerUndecidedCerts.map Prod.fst
+-- The certificate lists themselves live in `FokkerChallenge.BLC.BLCCertLists`.
 
 theorem fokkerUndecidedCerts_ok : entriesOK fokkerUndecidedCerts = true := by decide
 
@@ -63,22 +51,6 @@ nameable with two names — as it must be, since by Statman's theorem `S` is not
 β-convertible to any two-name term. -/
 theorem liftSearch_sComb_eq_none : liftSearch 2 (db! "λλλ20(10)") = none := by
   decide
-
-/-- Certificates: for each term, a chain of βη-steps ending in a term that is
-nameable with the two names `x`, `y`.  A single β-step suffices in each case. -/
-def fokkerUpdatedOpenCerts : List (Term String × List (Term String)) :=
-  [ (db! "λλλ(λ012)0",   [db! "λλλ(λ012)0",   db! "λλλ001"])
-  , (db! "λλλ(λ102)0",   [db! "λλλ(λ102)0",   db! "λλλ001"])
-  , (db! "λλλ(λ021)0",   [db! "λλλ(λ021)0",   db! "λλλ010"])
-  , (db! "λλλ(λ201)0",   [db! "λλλ(λ201)0",   db! "λλλ100"])
-  , (db! "λλ(λλ012)0",   [db! "λλ(λλ012)0",   db! "λλλ011"])
-  , (db! "λλ(λλ102)0",   [db! "λλ(λλ102)0",   db! "λλλ101"])
-  , (db! "λλ(λλ021)0",   [db! "λλ(λλ021)0",   db! "λλλ011"])
-  , (db! "λλ(λλ201)0",   [db! "λλ(λλ201)0",   db! "λλλ101"])
-  ]
-
-/-- The 16 terms of `fokkerUpdatedOpen` that βη-reduce to a nameable term. -/
-def fokkerUpdatedOpenReduces : List (Term String) := fokkerUpdatedOpenCerts.map Prod.fst
 
 /-
 -- Original βη-flavoured version of the two statements below.  It is kept for the
@@ -109,10 +81,8 @@ theorem fokkerUpdatedOpenReduces_not_basis :
     ∀ T ∈ fokkerUpdatedOpenReduces, not_basis T :=
   not_basis_of_reducesToNamableEntriesOK fokkerUpdatedOpenCerts_ok
 
-theorem mem_terms_blc_lt_26_iff (M : Term String)
-  (hm : M ∈ termsUpTo String 26) :
-  LcAt 0 M = false \/ M.every_bvar_used \/ M.no_duplicate \/ M.closedNodeTwoVars \/ M.tailOk \/ M.rigid \/ M.argOk \/ M.properClosedNoParens \/ M ∈ fokkerUndecidedTerms \/ M ∈ fokkerUpdatedOpenCerts.map Prod.fst \/ M = db! "λλ0(λλ102)" \/ M = db! "λλ0(λλ201)" \/ M = db! "λλλ0(λ102)" \/ M = db! "λλλ0(λ201)" := by
-     native_decide +revert
+-- `mem_terms_blc_lt_26_iff`, the one `native_decide` step of this
+-- classification, now lives in `FokkerChallenge.NativeEnum`.
 
 theorem not_basis_of_closed_lc_small_blc (M : Term String)
     (hm :  M.fv = ∅ ∧ M.blcT.length < 26)

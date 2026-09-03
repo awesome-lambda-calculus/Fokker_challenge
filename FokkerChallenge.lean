@@ -10,6 +10,7 @@ import FokkerChallenge.DBNotation
 import FokkerChallenge.BetaNamableClosure
 import FokkerChallenge.BetaReducesToNamable
 import FokkerChallenge.LiftSearch
+import FokkerChallenge.NativeEnum
 import FokkerChallenge.FokkerResolved
 import FokkerChallenge.PairT
 import FokkerChallenge.NotBasisLamLam201
@@ -62,4 +63,5 @@ import FokkerChallenge.TwoVarsAreNotEnough.Nameable
 import FokkerChallenge.TwoVarsAreNotEnough.TwoVarBlocks
 import FokkerChallenge.BLC.BLCTotal
 import FokkerChallenge.BLC.BLCEnum
+import FokkerChallenge.BLC.BLCCertLists
 import FokkerChallenge.BLC.BLCResolved

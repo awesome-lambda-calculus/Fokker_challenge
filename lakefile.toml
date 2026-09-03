@@ -5,6 +5,14 @@ defaultTargets = ["fokker_challenge"]
 [[lean_lib]]
 name = "FokkerChallenge"
 
+# Statement-only file used with https://github.com/leanprover/comparator
+[[lean_lib]]
+name = "Challenge"
+
+# Proofs of the statements of `Challenge`, checked by comparator
+[[lean_lib]]
+name = "Solution"
+
 [[lean_exe]]
 name = "fokker_challenge"
 root = "Main"

@@ -1,0 +1,12 @@
+{
+    "challenge_module": "Challenge",
+    "solution_module": "Solution",
+    "theorem_names": ["fokker_challenge_size_lt_7", "fokker_challenge_blc_lt_26"],
+    "permitted_axioms": [
+        "propext",
+        "Quot.sound",
+        "Classical.choice",
+        "Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.mem_terms_fokker_lt_7_iff._native.native_decide.ax_1_1",
+        "Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.mem_terms_blc_lt_26_iff._native.native_decide.ax_1_1"
+    ]
+}

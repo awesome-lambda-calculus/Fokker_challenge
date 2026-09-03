@@ -9,6 +9,7 @@ import FokkerChallenge.Decider.RigidHead
 import FokkerChallenge.Decider.TailNotVar
 import FokkerChallenge.Decider.TwoVarsPerNode
 import FokkerChallenge.TwoVarsAreNotEnough.Final
+import FokkerChallenge.NativeEnum
 
 /-!
 # The undecided terms of the Fokker challenge are β-reducts of nameable terms
@@ -34,10 +35,8 @@ namespace Cslib
 
 namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
-theorem mem_terms_fokker_lt_7_iff (M : Term String)
-  (hm : M ∈ terms_fokker_lt_7) :
-  M.every_bvar_used \/ M.no_duplicate \/ M.closedNodeTwoVars \/ M.tailOk \/ M.rigid \/ M.argOk := by
-     native_decide +revert
+-- `mem_terms_fokker_lt_7_iff`, the one `native_decide` step of this
+-- classification, now lives in `FokkerChallenge.NativeEnum`.
 
 theorem not_basis_of_closed_lc_small_fokker_size (M : Term String)
     (hm : M.LC ∧ M.fv = ∅ ∧ M.fokker_size < 7) : not_basis M := by

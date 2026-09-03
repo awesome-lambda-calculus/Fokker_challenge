@@ -98,7 +98,8 @@ def not_basis (atom : Term String) : Prop := not_basises [atom]
 
 Both classification theorems rely on `native_decide` for the one enumeration
 step that dispatches the whole search space to the deciders below
-(`mem_terms_fokker_lt_7_iff`, `mem_terms_blc_lt_26_iff`); apart from that they use
+(`mem_terms_fokker_lt_7_iff`, `mem_terms_blc_lt_26_iff`, both isolated in
+`FokkerChallenge/NativeEnum.lean`); apart from that they use
 only `propext`, `Classical.choice` and `Quot.sound`. Every individual decider and
 every certificate check is verified by the kernel. The only other `native_decide`
 uses are the two coverage statistics over `terms_fokker_lt_7` in
@@ -288,7 +289,15 @@ lake exe blc
 ```
 
 The `native_decide` steps in the two classification theorems are memory hungry;
-building `FokkerChallenge.BLC.BLCResolved` is the slowest part of the build.
+building `FokkerChallenge.NativeEnum` is the slowest part of the build.
+
+## Independent checking
+
+The two headline theorems are packaged for
+[Comparator](https://github.com/leanprover/comparator), which checks that a
+solution proves the stated theorems, uses only permitted axioms, and is accepted
+by the Lean kernel replayed from an export file: see `Challenge.lean`,
+`Solution.lean`, `comparator-config.json` and [`COMPARATOR.md`](COMPARATOR.md).
 
 ## Next step
 
