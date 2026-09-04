@@ -1,17 +1,15 @@
-This project was edited by [Aristotle](https://aristotle.harmonic.fun).
-
-To cite Aristotle:
-- Tag @Aristotle-Harmonic on GitHub PRs/issues
-- Add as co-author to commits:
-```
-Co-authored-by: Aristotle (Harmonic) <aristotle-harmonic@harmonic.fun>
-```
-
 # Fokker_challenge
 
 The currently known smallest one-point bases[^5] for untyped lambda calculus, measured by Fokker size, have size 7.
 There are three such one-point bases of Fokker size 7.
 The first one (λx.λy.λz. y (λt.z) (x z)) was discovered by Meredith in 1963[^11]. Another two (λx.λy.λz.y z(x(λt.z))) (λx.λy.λz.x z(y(λt.z))) were found in 2022 by John Tromp[^4] and Mtv Europe[^10].
+
+| Lambda term                | De Bruijn index    | Discovered by          | Year | Fokker size | BLC size | Reference  |
+| -------------------------- | ------------------ | ---------------------- | ---: | ----------: | -------: | ---------- |
+| `λx.λy.λz. y (λt.z) (x z)` | `λλλ 1 (λ1) (2 0)` | Meredith               | 1963 |           7 |       26 | [^11]      |
+| `λx.λy.λz. y z (x (λt.z))` | `λλλ 1 0 (2 (λ1))` | John Tromp, Mtv Europe | 2022 |           7 |       26 | [^4] [^10] |
+| `λx.λy.λz. x z (y (λt.z))` | `λλλ 2 0 (1 (λ1))` | John Tromp, Mtv Europe | 2022 |           7 |       26 | [^4] [^10] |
+
 
 Take ɑ for example:
 
@@ -299,48 +297,13 @@ solution proves the stated theorems, uses only permitted axioms, and is accepted
 by the Lean kernel replayed from an export file: see `Challenge.lean`,
 `Solution.lean`, `comparator-config.json` and [`COMPARATOR.md`](COMPARATOR.md).
 
+We use `native_decide` because `decide` can cause an OutOfMemoryError (OOM).
+
 ## Next step
 
-1. ~~Verify "Two vars are not enough"~~ — done, `TwoVarsAreNotEnough/Final.lean`
-2. ~~Clear all closed terms of Fokker size < 7~~ — done
-3. ~~Clear all closed terms with BLC code < 26 bits~~ — done
-4. Push the BLC bound past 26 bits, which needs deciders covering terms with more
-   applications
-5. Filter terms that always terminate / always diverge
-6. Formalize that Meredith's `λλλ1(λ1)(20)` *is* a one-point basis, which would
-   turn the results above into a complete "the minimum is 7" statement
-7. Find more deciders
-
-See [our website](https://awesome-lambda-calculus.github.io/Fokker_challenge) for details.
-
-`REMAINING14.md` is an older, explicitly unverified exploration note about
-invariant candidates that were tried and refuted; it describes an earlier
-snapshot of the development and is kept only as a source of ideas.
-
-
-## 🤝 Contributing
-
-This is a collaborative proof project — contributions are highly welcome!
-
-Ways to contribute:
-
-- Extend the classification beyond the bounds above
-- Improve automated deciders (termination, divergence, normalization, etc.)
-- Write new tactics or lemmas
-- Replace the two `native_decide` enumeration steps by kernel-checked proofs
-- Improve documentation and visualizations
-- Review formalizations
-
-See the open issues for starter tasks.
-We especially welcome people interested in:
-
-- Lambda calculus / Combinatory logic
-- Automated theorem proving
-- AI-assisted formal mathematics
-
-### Ai usage
-
-This project is quite suitable for AI-Driven Autonomous Proof.
+1. Formalize only 3 basis of fokker size 7
+2. Formalize only 3 basis of blc size 26
+3. https://github.com/awesome-lambda-calculus/Fokker_challenge/issues/6
 
 ### Related papers
 
@@ -348,48 +311,6 @@ Only 3 papers discuss single basis: [^1] [^2] [^3]
 
 There are also some online discussion: [^6] [^7] [^8]
 
-
-## Encoding
-
-We have thousands of terms that require individual analysis, so an intuitive encoding scheme is necessary.
-
-Based on BLC[^9], our encoding algorithm is
-
-```
-encode(λM) = L encode(M)
-
-encode(M N) = A encode(M) encode(N)
-
-encode(i) = i
-```
-
-```
-cd rust-scripts
-cargo run --bin encode "λλ2 (1 2)"                                                                                                                                                     (base)
-
-def Term_LLA2A12: Term String := .abs (.abs (.app (.bvar 2) (.app (.bvar 1) (.bvar 2))))
-
-theorem LLA2A12_is_not_basis : not_basis Term_LLA2A12 := by sorry
-```
-
-```
-# Well encoded term results []
-lake exe decode LA0L1                                                                                                                                                                (base)
-
-decoded: (λ0 (λ1), [])
-```
-
-```
-# Irrelevant suffixes will be ignored
-lake exe decode LA0L1_is_not_basis                                                                                                                                                   (base)
-
-decoded: (λ0 (λ1), [_, I, S, _, N, O, T, _, B, A, S, I, S])
-```
-
-The actual bit code of a term is `blcT` (`FokkerChallenge/BLC/BLCTotal.lean`),
-and `termsUpTo Var N` (`FokkerChallenge/BLC/BLCEnum.lean`) enumerates exactly the
-terms without free variables whose code is shorter than `N` bits
-(`mem_termsUpTo`), which is what the 26-bit classification quantifies over.
 
 ### References
 
