@@ -2,6 +2,7 @@
 -- Import modules here that should be built as part of the library.
 import FokkerChallenge.Basic
 import FokkerChallenge.GenTerms
+import FokkerChallenge.GenTermsBound
 import FokkerChallenge.FamousCombinator
 import FokkerChallenge.DeBruijnParse
 import FokkerChallenge.NameOk
