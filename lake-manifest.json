@@ -5,7 +5,7 @@
    "type": "git",
    "subDir": null,
    "scope": "",
-   "rev": "0eca8be4c5cd7ca51b952e601a3d8ca9c1589029",
+   "rev": "cdec51dd4d6461f5a69ae7680d6af0fd24adfdab",
    "name": "cslib",
    "manifestFile": "lake-manifest.json",
    "inputRev": "sn_eta_step",

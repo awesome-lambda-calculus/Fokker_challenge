@@ -86,7 +86,7 @@ theorem beta_eta_star_of_beta_normal {M N : Term String} (h : Relation.Normal Fu
   | refl => grind
   | head h' h ih => cases h' with
     | inl h' => grind
-    | inr h' => exact .head h' (ih (Etastar_normal (.single h') h))
+    | inr h' => exact .head h' (ih (etastar_preserves_normal_beta (.single h') h))
 
 theorem betaeta_nf_app {M N : Term String}
   (h : ¬ M.IsAbs)
