@@ -1,4 +1,6 @@
 import FokkerChallenge.TwoVarsAreNotEnough.TwoVarBlocks
+import FokkerChallenge.DBNotation
+import FokkerChallenge.EnhancedCslib.IsDB
 
 /-!
 # A total binary lambda calculus encoder
@@ -86,36 +88,6 @@ theorem blcT_eq_nil_iff {t : Term Var} : t.blcT = [] ↔ ∃ x, t = fvar x := by
 
 /-! ## Terms without free variables -/
 
-/-- A term is a *pure de Bruijn term* if it contains no free variable. -/
-inductive IsDB : Term Var → Prop
-  /-- A bound variable is a pure de Bruijn term. -/
-  | bvar (n : ℕ) : IsDB (bvar n)
-  /-- An abstraction of a pure de Bruijn term is one. -/
-  | abs {t : Term Var} : IsDB t → IsDB (abs t)
-  /-- An application of pure de Bruijn terms is one. -/
-  | app {t u : Term Var} : IsDB t → IsDB u → IsDB (app t u)
-
-/-- Having no free variables is the same as being a pure de Bruijn term. -/
-theorem fv_eq_empty_iff_isDB [DecidableEq Var] {t : Term Var} : fv t = ∅ ↔ IsDB t := by
-  induction t with
-  | bvar n => exact ⟨fun _ => .bvar n, fun _ => rfl⟩
-  | fvar x =>
-      constructor
-      · intro h; simp [fv] at h
-      · intro h; cases h
-  | abs t ih =>
-      constructor
-      · intro h; exact .abs (ih.1 h)
-      · intro h; cases h with | abs h => exact ih.2 h
-  | app t u iht ihu =>
-      constructor
-      · intro h
-        rw [fv, Finset.union_eq_empty] at h
-        exact .app (iht.1 h.1) (ihu.1 h.2)
-      · intro h
-        cases h with
-        | app h1 h2 => rw [fv, iht.2 h1, ihu.2 h2]; simp
-
 /-- On a term without free variables the code is never empty. -/
 theorem blcT_ne_nil_of_fv_empty [DecidableEq Var] {t : Term Var} (h : fv t = ∅) :
     t.blcT ≠ [] := by
@@ -146,3 +118,16 @@ theorem blcT_not_injective :
   intro h
   have := h (fvar "x") (fvar "y") rfl
   simp at this
+
+theorem blcT_1_length :
+    (blcT (db! "λλλ((1(λ1))(20))")).length = 26 := by decide
+
+theorem blcT_2_length :
+    (blcT (db! "λλλ((10)(2(λ1)))")).length = 26 := by decide
+
+theorem blcT_3_length :
+    (blcT (db! "λλλ((20)(1(λ1)))")).length = 26 := by decide
+
+theorem blcT_1 :
+    blcT (db! "λλλ021") =  [false, false, false, false, false, false, false, true, false, true, true, false, true, true, true, false, true, true,
+  false] := by decide
