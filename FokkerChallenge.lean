@@ -5,7 +5,6 @@ import FokkerChallenge.GenTerms
 import FokkerChallenge.GenTermsBound
 import FokkerChallenge.FamousCombinator
 import FokkerChallenge.DeBruijnParse
-import FokkerChallenge.NameOk
 import FokkerChallenge.BetaCheck
 import FokkerChallenge.DBNotation
 import FokkerChallenge.BetaNamableClosure
@@ -63,6 +62,7 @@ import FokkerChallenge.TwoVarsAreNotEnough.Final
 import FokkerChallenge.TwoVarsAreNotEnough.Subterms
 import FokkerChallenge.TwoVarsAreNotEnough.Nameable
 import FokkerChallenge.TwoVarsAreNotEnough.TwoVarBlocks
+import FokkerChallenge.TwoVarsAreNotEnough.NameOk
 import FokkerChallenge.BLC.BLCTotal
 import FokkerChallenge.BLC.BLCEnum
 import FokkerChallenge.BLC.BLCCertLists

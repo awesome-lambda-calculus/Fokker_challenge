@@ -1,4 +1,5 @@
 import FokkerChallenge.BetaCheck
+import FokkerChallenge.TwoVarsAreNotEnough.NameOk
 
 /-!
 # Terms using at most two variables at every node
@@ -292,18 +293,15 @@ theorem namableXY_of_nameableNodes {t : Term String}
 
 /-! ## The β-expansion -/
 
-/-- `K = λx.λy.x`. -/
-def KTerm : Term String := .abs (.abs (.bvar 1))
-
 /-- `namify t` replaces every abstraction of `t` whose binder is unused by an
 application of `K`, which β-reduces back to it. -/
 def namify : Term String → Term String
   | .bvar i => .bvar i
   | .fvar x => .fvar x
   | .app a b => .app (namify a) (namify b)
-  | .abs M => if 0 ∈ fidx M then .abs (namify M) else .app KTerm (lowerRec 0 (namify M))
+  | .abs M => if 0 ∈ fidx M then .abs (namify M) else .app K (lowerRec 0 (namify M))
 
-@[simp] theorem fidx_KTerm : fidx KTerm = ∅ := by decide
+@[simp] theorem fidx_KTerm : fidx K = ∅ := by decide
 
 theorem fidx_namify : ∀ t : Term String, fidx (namify t) = fidx t := by
   intro t
@@ -355,11 +353,11 @@ theorem openMany_bvar_lt_base : ∀ (env : List (String × String)) (k i : ℕ),
       exact ih (k + 1) i (by omega)
 
 @[simp] theorem openMany_KTerm (k : ℕ) (env : List (String × String)) :
-    openMany k env KTerm = KTerm := by
-  simp only [KTerm, openMany_abs]
+    openMany k env K = K := by
+  simp only [K, openMany_abs]
   rw [openMany_bvar_lt_base env (k + 1 + 1) 1 (by omega)]
 
-theorem lc_KTerm : LC (KTerm : Term String) := by
+theorem lc_KTerm : LC (K : Term String) := by
   rw [← lcAt_iff_LC]
   decide
 
@@ -455,11 +453,11 @@ theorem namify_openMany_betaStar : ∀ (t : Term String) (env : List (String × 
           have := hbn j hj
           split <;> omega
         simp only [namify, ite_eq_right h0, openMany_app, openMany_KTerm, openMany_abs, hlow]
-        have hstep : FullBeta (Term.app KTerm (openMany 1 env (namify M)))
+        have hstep : FullBeta (Term.app K (openMany 1 env (namify M)))
             (Term.abs (openMany 1 env (namify M))) := by
           have hb' := Xi.base (Beta.beta (M := Term.abs (Term.bvar 1))
             (N := openMany 1 env (namify M)) lc_KTerm hlc)
-          simpa [openRec, KTerm] using hb'
+          simpa [openRec, K] using hb'
         refine Relation.ReflTransGen.head hstep ?_
         refine FullBeta.redex_abs_cong (∅ : Finset String) (fun x _ => ?_)
         show openRec 0 (fvar x) (openMany 1 env (namify M)) ↠βᶠ

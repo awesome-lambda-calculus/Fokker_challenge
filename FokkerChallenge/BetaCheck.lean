@@ -1,4 +1,3 @@
-import FokkerChallenge.NameOk
 import FokkerChallenge.DeBruijnParse
 import FokkerChallenge.TwoVarsAreNotEnough.Final
 
@@ -30,36 +29,6 @@ namespace Cslib
 namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
 /-! ## Deciding local closure -/
-
-theorem lc_openMany_of_lcAt : ∀ (t : Term String) (env : List (String × String)),
-    LcAt env.length t = true → LC (openMany 0 env t) := by
-  intro t
-  induction t with
-  | bvar i =>
-      intro env h
-      simp only [LcAt, decide_eq_true_eq] at h
-      obtain ⟨p, hp⟩ : ∃ p, env[i]? = some p :=
-        ⟨env[i]'h, by simp [List.getElem?_eq_getElem h]⟩
-      have := openMany_bvar_lt env 0 i p hp
-      simp only [Nat.zero_add] at this
-      rw [this]
-      exact LC.fvar _
-  | fvar x => intro env _; simpa using LC.fvar x
-  | abs t ih =>
-      intro env h
-      simp only [LcAt] at h
-      rw [openMany_abs]
-      refine LC.abs ∅ _ (fun x _ => ?_)
-      have hcomm := openRec_openMany env x 0 1 (by omega) t
-      unfold open'
-      rw [hcomm]
-      have := ih ((x, "x") :: env) (by simpa using h)
-      simpa [openMany] using this
-  | app a b iha ihb =>
-      intro env h
-      simp only [LcAt, Bool.and_eq_true] at h
-      rw [openMany_app]
-      exact LC.app (iha env h.1) (ihb env h.2)
 
 /-! ## Computing a fresh variable -/
 
