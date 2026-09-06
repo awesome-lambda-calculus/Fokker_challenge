@@ -170,16 +170,6 @@ theorem isCombOfVars_of_closedUnderAppBool {M : Term String}
       simp only [isCombOfVars, Bool.and_eq_true]
       exact ⟨ih₁ h.1, ih₂ h.2⟩
 
-/-- A combination of variables contains no abstraction, hence is argument-safe. -/
-theorem argOk_of_isCombOfVars {M : Term String} (h : isCombOfVars M) : argOk M := by
-  induction M with
-  | bvar i => rfl
-  | fvar y => rfl
-  | abs t => simp [isCombOfVars] at h
-  | app f a ih₁ ih₂ =>
-      simp only [isCombOfVars, Bool.and_eq_true] at h
-      simp [ih₁ h.1, ih₂ h.2]
-
 /-- A combination of variables that needs parentheses has a non-variable argument on
 its spine, so it is a legitimate block body. -/
 theorem spineOk_of_isCombOfVars {M : Term String} (h : isCombOfVars M)

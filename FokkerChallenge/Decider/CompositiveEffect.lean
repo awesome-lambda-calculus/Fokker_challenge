@@ -8,6 +8,7 @@ import FokkerChallenge.EnhancedCslib.GenFinset
 import FokkerChallenge.FamousCombinator
 import FokkerChallenge.DBNotation
 import FokkerChallenge.Decider.TailNotVar
+import FokkerChallenge.Decider.ArgNotVar
 
 /-!
 # The "compositive effect" decider
@@ -461,6 +462,16 @@ def properClosedNoParens (X : Term String) : Bool :=
 
 theorem properClosedNoParens_not_basis {X : Term String}
     (h : properClosedNoParens X) : not_basis X := by grind [noParens_not_basis]
+
+/-- A combination of variables contains no abstraction, hence is argument-safe. -/
+theorem argOk_of_isCombOfVars {M : Term String} (h : isCombOfVars M) : argOk M := by
+  induction M with
+  | bvar i => rfl
+  | fvar y => rfl
+  | abs t => simp [isCombOfVars] at h
+  | app f a ih₁ ih₂ =>
+      simp only [isCombOfVars, Bool.and_eq_true] at h
+      simp [ih₁ h.1, ih₂ h.2]
 
 end Term
 
