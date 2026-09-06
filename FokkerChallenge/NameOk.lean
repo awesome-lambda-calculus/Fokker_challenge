@@ -36,18 +36,6 @@ def openMany (k : ℕ) : List (String × String) → Term String → Term String
   | [], t => t
   | e :: es, t => openMany (k + 1) es (openRec k (fvar e.1) t)
 
-/-- Opening at two different indices with free variables commutes. -/
-theorem openRec_openRec_comm {i j : ℕ} (hij : i ≠ j) (a b : String) (t : Term String) :
-    openRec i (fvar a) (openRec j (fvar b) t) = openRec j (fvar b) (openRec i (fvar a) t) := by
-  induction t generalizing i j with
-  | bvar n =>
-      by_cases h1 : n = i <;> by_cases h2 : n = j <;> simp_all [openRec]
-      split <;> grind
-      split <;> grind
-  | fvar x => simp [openRec]
-  | abs t ih => simp [openRec, ih (by omega : i + 1 ≠ j + 1)]
-  | app t₁ t₂ ih₁ ih₂ => simp [openRec, ih₁ hij, ih₂ hij]
-
 @[simp] theorem openMany_fvar (k : ℕ) (env : List (String × String)) (x : String) :
     openMany k env (fvar x) = fvar x := by
   induction env generalizing k with
@@ -75,7 +63,7 @@ theorem openRec_openMany (env : List (String × String)) (y : String) :
   | cons e es ih =>
       intro j k hjk t
       simp only [openMany]
-      rw [ih j (k + 1) (by omega), openRec_openRec_comm (by omega : j ≠ k) y e.1 t]
+      rw [ih j (k + 1) (by omega), swap_open _ _ _ _ _ (by omega : j ≠ k) (by grind) (by grind)]
 
 theorem openMany_bvar_lt : ∀ (env : List (String × String)) (k i : ℕ) (p : String × String),
     env[i]? = some p → openMany k env (bvar (k + i)) = fvar p.1 := by
