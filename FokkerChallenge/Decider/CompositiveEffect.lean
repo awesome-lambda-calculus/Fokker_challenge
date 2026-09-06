@@ -4,6 +4,7 @@ import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullEta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaEtaConfluence
 import FokkerChallenge.Basic
 import FokkerChallenge.EnhancedCslib.Basic
+import FokkerChallenge.EnhancedCslib.OpenRec
 import FokkerChallenge.EnhancedCslib.GenFinset
 import FokkerChallenge.FamousCombinator
 import FokkerChallenge.DBNotation
@@ -76,24 +77,6 @@ theorem isClosedTerm_of {M : Term String} (hfv : M.fv = ∅) (hlc : M.LC) : isCl
 theorem openRec_of_isClosedTerm {M U : Term String} {i : ℕ} (h : isClosedTerm M) :
     M⟦i ↝ U⟧ = M :=
   lcAt_openRec_above_lcAt M U 0 i (Nat.zero_le i) (isClosedTerm_lcAt h)
-
-/-- If opening with a free variable produces a term without free variables, then the
-variable was not inserted at all. -/
-theorem openRec_fvar_eq_self_of_fv_empty {M : Term String} {x : String} :
-    ∀ i, (M⟦i ↝ Term.fvar x⟧).fv = ∅ → M⟦i ↝ Term.fvar x⟧ = M := by
-  intro i h
-  induction M generalizing i with
-  | bvar j =>
-      by_cases hij : i = j
-      · simp [openRec, hij] at h
-      · simp [openRec, hij]
-  | fvar y => rfl
-  | abs t ih =>
-      simp only [openRec, fv] at h ⊢
-      rw [ih _ h]
-  | app f a ih₁ ih₂ =>
-      simp only [openRec, fv, Finset.union_eq_empty] at h ⊢
-      rw [ih₁ _ h.1, ih₂ _ h.2]
 
 /-- Opening with a free variable does not change closedness. -/
 theorem isClosedTerm_openRec_fvar {M : Term String} {x : String} (i : ℕ) :

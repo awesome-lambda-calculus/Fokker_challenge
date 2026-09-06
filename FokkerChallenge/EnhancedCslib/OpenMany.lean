@@ -1,4 +1,3 @@
-import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Basic
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Properties
 
 namespace Cslib

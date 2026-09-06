@@ -18,6 +18,7 @@ import FokkerChallenge.NotBasisLamLam102
 import FokkerChallenge.NotBasisLamLamLam0Lam201
 import FokkerChallenge.NotBasisLamLamLam0Lam102
 import FokkerChallenge.EnhancedCslib.Basic
+import FokkerChallenge.EnhancedCslib.OpenRec
 import FokkerChallenge.EnhancedCslib.IsDB
 import FokkerChallenge.EnhancedCslib.CountBvar
 import FokkerChallenge.EnhancedCslib.CountFvar
