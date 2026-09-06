@@ -98,7 +98,7 @@ theorem not_basis_of_closed_lc_small_blc (M : Term String)
   . exact tailOk_not_basis h
   . exact rigid_not_basis h
   . exact argOk_not_basis h
-  . exact properClosedNoParens_not_basis h
+  . exact isProperBody_lc_not_basis h h_lc
   . exact BetaReductOfNamable_not_basis (fokkerUndecided_betaReductOfNamable  _ h)
   . exact fokkerUpdatedOpenReduces_not_basis _ h
   . subst M

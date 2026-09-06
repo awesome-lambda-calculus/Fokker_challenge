@@ -9,7 +9,7 @@ def main : IO Unit := do
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.tailOk t)
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.rigid t)
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.argOk t)
-  let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.properClosedNoParens t)
+  let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.is_combinator t)
 
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.closedNodeTwoVars t)
 

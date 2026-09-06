@@ -133,7 +133,7 @@ each handled by a reusable criterion, plus a short list of hand-proved terms.
 | `argOk` → `argOk_not_basis` | `Decider/ArgNotVar.lean` | shape of the arguments along the spine |
 | `rigid` → `rigid_not_basis` | `Decider/RigidHead.lean` | every abstraction block `λx₁…x_s. z M₁…M_k` has `k ≥ 1` and head `z` the innermost binder |
 | `tailOk` → `tailOk_not_basis` | `Decider/TailNotVar.lean` | every block has `k ≥ 1` arguments with a non-variable last argument (hence no η-redex) |
-| `noCompositive`, `properClosedNoParens` | `Decider/CompositiveEffect.lean` | Curry's "no compositive effect": such terms cannot build `B` |
+| `noCompositive`, `is_combinator` | `Decider/CompositiveEffect.lean` | Curry's "no compositive effect": such terms cannot build `B` |
 | `isNamedOfXY` → `isNamedOfXY_not_basis` | `TwoVarsAreNotEnough/*` | terms nameable with only two variable names, following Statman's *two variables are not enough*[^3]; proved here without extra hypotheses |
 | `closedNodeTwoVars` → `closedNodeTwoVars_not_basis` | `Decider/TwoVarsPerNode.lean` | at most two variables are used at every node of the term tree; the unused binders are then created by β-steps from `K`, so the term is a β-reduct of a two-name term — see [the section below](#the-two-variables-per-node-criterion) |
 | `BetaReductOfNamable` → `BetaReductOfNamable_not_basis` | `BetaCheck.lean`, `BetaNamableClosure.lean` | certificate: the term is a β-reduct of a two-name term |

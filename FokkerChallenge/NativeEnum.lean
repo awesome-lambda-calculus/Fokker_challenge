@@ -54,7 +54,7 @@ either is not locally closed, or passes one of the decidable criteria, or is one
 of the finitely many terms handled by a dedicated proof. -/
 theorem mem_terms_blc_lt_26_iff (M : Term String)
   (hm : M ∈ termsUpTo String 26) :
-  LcAt 0 M = false \/ M.every_bvar_used \/ M.no_duplicate \/ M.closedNodeTwoVars \/ M.tailOk \/ M.rigid \/ M.argOk \/ M.properClosedNoParens \/ M ∈ fokkerUndecidedTerms \/ M ∈ fokkerUpdatedOpenCerts.map Prod.fst \/ M = db! "λλ0(λλ102)" \/ M = db! "λλ0(λλ201)" \/ M = db! "λλλ0(λ102)" \/ M = db! "λλλ0(λ201)" := by
+  LcAt 0 M = false \/ M.every_bvar_used \/ M.no_duplicate \/ M.closedNodeTwoVars \/ M.tailOk \/ M.rigid \/ M.argOk \/ M.is_combinator \/ M ∈ fokkerUndecidedTerms \/ M ∈ fokkerUpdatedOpenCerts.map Prod.fst \/ M = db! "λλ0(λλ102)" \/ M = db! "λλ0(λλ201)" \/ M = db! "λλλ0(λ102)" \/ M = db! "λλλ0(λ201)" := by
      native_decide +revert
 
 end LambdaCalculus.LocallyNameless.Untyped.Term

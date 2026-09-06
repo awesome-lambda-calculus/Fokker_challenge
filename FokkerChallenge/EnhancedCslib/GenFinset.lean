@@ -100,3 +100,25 @@ theorem genfinset_forall2 {l1 l2 : List (Term String)}
     | base hmem => exact hlc2 _ hmem
     | app _ _ iha ihb => exact LC.app iha ihb
   exact genfinset_forall2_of_lc hl hN hn
+
+/-- A combination of `X`s maps to a combination of `X[x := C]`s. -/
+theorem gen_subst {X C t : Term String} {x : String} (h : Gen X t) :
+    Gen (X[x := C]) (t[x := C]) := by
+  induction h with
+  | base ht =>
+      rename_i a
+      have hXt : a = X := by simpa using ht
+      subst hXt
+      exact .base (by simp)
+  | app _ _ iha ihb => exact .app iha ihb
+
+/-- **Substitution reflects `not_basis`.**  If some closed term is unreachable from
+the combinations of `X[x := C]`, then it is unreachable from the combinations of `X`. -/
+theorem not_basis_of_subst {X C : Term String} {x : String} (hC : C.LC)
+    (h : not_basis (X[x := C])) : not_basis X := by
+  obtain ⟨y, hlc, hfv, hy⟩ := h
+  refine ⟨y, hlc, hfv, ?_⟩
+  intro t hgen hred
+  refine hy (t[x := C]) (gen_subst hgen) ?_
+  have hsub := FullBetaEta.steps_subst_cong_l t y C x hred hC
+  rwa [subst_fresh x y C (by simp [hfv])] at hsub
