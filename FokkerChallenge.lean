@@ -52,6 +52,7 @@ import FokkerChallenge.Decider.RigidHead
 import FokkerChallenge.Decider.TailNotVar
 import FokkerChallenge.Decider.CompositiveEffect
 import FokkerChallenge.Decider.TwoVarsPerNode
+import FokkerChallenge.Decider.CraigTheorem
 import FokkerChallenge.EncoderDecoder.Basic
 import FokkerChallenge.TwoVarsAreNotEnough.Basic
 import FokkerChallenge.TwoVarsAreNotEnough.Head2

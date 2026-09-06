@@ -353,6 +353,7 @@ def isCombOfVars : Term String → Bool
 /-- `isProperBody M`: `M` is of the shape `λ x₁ … λ x_n . E` with `E` an applicative
 combination of variables; together with closedness this is Curry's notion of a proper
 combinator. -/
+@[scoped grind]
 def isProperBody : Term String → Bool
   | .abs t => isProperBody t
   | .app f a => isCombOfVars f && isCombOfVars a
