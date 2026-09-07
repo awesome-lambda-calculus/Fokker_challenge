@@ -15,7 +15,6 @@ def main : IO Unit := do
    let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.noCompositive t)
 
   let terms := terms.filter (fun t => t ∉ Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.fokkerUndecidedTerms)
-  let terms := terms.filter (fun t => t ∉ Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.fokkerUpdatedOpenCerts.map Prod.fst)
 
 
   let len := terms.length
