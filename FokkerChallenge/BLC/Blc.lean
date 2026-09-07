@@ -12,6 +12,7 @@ def main : IO Unit := do
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.argOk t)
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.is_combinator t)
   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.closedNodeTwoVars t)
+   let terms := terms.filter (fun t => !Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.noCompositive t)
 
   let terms := terms.filter (fun t => t ∉ Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.fokkerUndecidedTerms)
   let terms := terms.filter (fun t => t ∉ Cslib.LambdaCalculus.LocallyNameless.Untyped.Term.fokkerUpdatedOpenCerts.map Prod.fst)

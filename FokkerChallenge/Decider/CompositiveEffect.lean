@@ -330,11 +330,8 @@ For a proper combinator the invariant `noCompositive` is exactly Curry's criteri
 "the body contains no parentheses". -/
 
 /-- `isCombOfVars M`: `M` is an applicative combination of variables. -/
-def isCombOfVars : Term String → Bool
-  | .bvar _ => true
-  | .fvar _ => true
-  | .app f a => isCombOfVars f && isCombOfVars a
-  | .abs _ => false
+@[scoped grind unfold]
+def isCombOfVars := ClosedUnderAppBool isVar
 
 /-- `is_combinator M`: `M` is of the shape `λ x₁ … λ x_n . E` with `E` an applicative
 combination of variables; together with closedness this is Curry's notion of a proper
@@ -373,11 +370,11 @@ theorem lcAt_eq_false_of_isCombOfVars {M : Term String} (h : isCombOfVars M)
   induction M with
   | bvar j => simp
   | fvar y => simp at hfv
-  | abs t => simp [isCombOfVars] at h
+  | abs t => grind
   | app f a ih₁ ih₂ =>
-      simp only [isCombOfVars, Bool.and_eq_true] at h
+      simp only [isCombOfVars] at h
       simp only [fv, Finset.union_eq_empty] at hfv
-      simp [ih₁ h.1 hfv.1]
+      grind
 
 theorem isClosedTerm_eq_false_of_isCombOfVars {M : Term String} (h : isCombOfVars M)
     (hfv : M.fv = ∅) : isClosedTerm M = false := by
@@ -390,13 +387,13 @@ theorem noCompositive_eq_noParens_of_isCombOfVars {M : Term String} (h : isCombO
   induction M with
   | bvar j => rfl
   | fvar y => rfl
-  | abs t => simp [isCombOfVars] at h
+  | abs t => grind
   | app f a ih₁ ih₂ =>
-      simp only [isCombOfVars, Bool.and_eq_true] at h
+      simp only [isCombOfVars] at h
       simp only [fv, Finset.union_eq_empty] at hfv
       have hargs : argSafe a = isVar a := by
-        simp [argSafe, isClosedTerm_eq_false_of_isCombOfVars h.2 hfv.2]
-      simp only [noCompositive_app, noParens_app, ih₁ h.1 hfv.1, ih₂ h.2 hfv.2, hargs]
+        simp [argSafe, isClosedTerm_eq_false_of_isCombOfVars (by grind) hfv.2]
+      simp only [noCompositive_app, noParens_app, ih₁ (by grind) hfv.1, ih₂ (by grind) hfv.2, hargs]
       cases hv : isVar a with
       | true => simp [noParens_of_isVar hv]
       | false => simp
@@ -433,6 +430,8 @@ theorem no_compositive_effect_of_combination {fs : List (Term String)}
   have hYn := noCompositive_fullBetaEta_star hXY (genFinset_noCompositive hfs hcl hX)
   rwa [noCompositive_eq_noParens hY (isClosedTerm_fv hYc)] at hYn
 
+/-
+-- useless
 /-- The decider in Curry's formulation: a closed proper combinator without compositive
 effect is not a one-point basis. -/
 theorem noParens_not_basis {X : Term String} (hproper : is_combinator X)
@@ -440,16 +439,17 @@ theorem noParens_not_basis {X : Term String} (hproper : is_combinator X)
   refine noCompositive_not_basis ?_ hcl
   rw [noCompositive_eq_noParens hproper (isClosedTerm_fv hcl)]
   exact hpar
+-/
 
 /-- A combination of variables contains no abstraction, hence is argument-safe. -/
 theorem argOk_of_isCombOfVars {M : Term String} (h : isCombOfVars M) : argOk M := by
   induction M with
   | bvar i => rfl
   | fvar y => rfl
-  | abs t => simp [isCombOfVars] at h
+  | abs t => grind
   | app f a ih₁ ih₂ =>
-      simp only [isCombOfVars, Bool.and_eq_true] at h
-      simp [ih₁ h.1, ih₂ h.2]
+      simp only [isCombOfVars] at h
+      simp [ih₁ (by grind), ih₂ (by grind)]
 
 @[scoped grind =]
 theorem isClosedTerm_I : isClosedTerm I := by decide
@@ -532,15 +532,15 @@ theorem spineOk_of_isCombOfVars {M : Term String} (h : isCombOfVars M)
   induction M with
   | bvar i => exact Bool.noConfusion hp
   | fvar y => exact Bool.noConfusion hp
-  | abs t => simp [isCombOfVars] at h
+  | abs t => grind
   | app f a ih₁ _ =>
-      simp only [isCombOfVars, Bool.and_eq_true] at h
+      simp only [isCombOfVars] at h
       simp only [noParens_app, Bool.and_eq_false_iff] at hp
       simp only [spineOk_app, Bool.and_eq_true, Bool.or_eq_true]
-      refine ⟨argOk_of_isCombOfVars h.2, ?_⟩
+      refine ⟨argOk_of_isCombOfVars (by grind), ?_⟩
       rcases hp with hf | ha
-      · exact Or.inl (ih₁ h.1 hf)
-      · exact Or.inr ⟨argOk_of_isCombOfVars h.1, by simp [ha]⟩
+      · exact Or.inl (ih₁ (by grind) hf)
+      · exact Or.inr ⟨argOk_of_isCombOfVars (by grind), by simp [ha]⟩
 
 /-- A proper combinator whose body needs parentheses is a legitimate block body. -/
 theorem spineOk_of_isProperBody {M : Term String} (h : is_combinator M)
