@@ -9,6 +9,7 @@ import FokkerChallenge.Decider.RigidHead
 import FokkerChallenge.Decider.TailNotVar
 import FokkerChallenge.Decider.CompositiveEffect
 import FokkerChallenge.Decider.TwoVarsPerNode
+import FokkerChallenge.Decider.CraigTheorem
 
 /-!
 # The two enumeration steps, checked by `native_decide`
