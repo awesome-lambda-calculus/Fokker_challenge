@@ -12,7 +12,7 @@ namespace Cslib
 
 namespace LambdaCalculus.LocallyNameless.Untyped.Term
 
-
+@[grind]
 def every_bvar_used: Term String → Bool
   | Term.bvar _ => true
   | Term.fvar _ => true
@@ -32,9 +32,7 @@ theorem K_not_every_bvar_used : every_bvar_used K = false := by
 theorem every_bvar_used_app {M N : Term String} :
   every_bvar_used M → every_bvar_used N → every_bvar_used (app M N) := by
   intro hM hN
-  unfold every_bvar_used
-  rw [hM, hN]
-  simp
+  grind
 
 /-
   All generated terms are every_bvar_used
@@ -47,8 +45,7 @@ theorem Gen_every_bvar_used {Y M : Term String} :
   | app hM hN ihM ihN =>  intro h
                           specialize ihM h
                           specialize ihN h
-                          unfold every_bvar_used
-                          simp_all
+                          grind
 
 theorem open_every_bvar_used {M} :
   (i: Nat) ->
@@ -58,27 +55,14 @@ theorem open_every_bvar_used {M} :
   LC N ->
   every_bvar_used (openRec i N M) := by
   induction M with
-  | fvar x => intros; constructor
-  | bvar n => intro _ N hN h _
-              unfold openRec
-              split
-              all_goals assumption
-  | app M1 M2 ih1 ih2 =>
-      intro i N hM hN h
-      unfold every_bvar_used at hM
-      simp at hM
-      unfold openRec
-      unfold every_bvar_used
-      simp
-      apply And.intro
-      . apply ih1 <;> tauto
-      . apply ih2 <;> tauto
+  | fvar x => grind
+  | bvar n => grind
+  | app M1 M2 ih1 ih2 => grind
   | abs M ih =>
       intro i N hM hN h
       unfold every_bvar_used at hM
       simp at hM
-      unfold openRec
-      unfold every_bvar_used
+      unfold openRec every_bvar_used
       simp
       apply And.intro
       . apply ih <;> tauto
@@ -90,26 +74,9 @@ theorem open_every_bvar_used_of_fvar (M : Term String) :
   (openRec i (fvar x) M).every_bvar_used →
   M.every_bvar_used := by
   induction M with
-  | bvar _ => intro x i g
-              unfold openRec at g
-              split at g
-              . constructor
-              . constructor
-  | fvar _ => intro x i g
-              unfold openRec at g
-              constructor
-  | app a b ha hb =>  intros x i g
-                      unfold openRec at g
-                      unfold every_bvar_used at g
-                      simp at g
-                      obtain ⟨_, _⟩ := g
-                      unfold every_bvar_used
-                      simp
-                      apply And.intro
-                      . apply ha
-                        assumption
-                      . apply hb
-                        assumption
+  | bvar _ => grind
+  | fvar _ => grind
+  | app a b ha hb => grind
   | abs _ ih =>   intros x i g
                   unfold openRec at g
                   unfold every_bvar_used at g
@@ -117,12 +84,9 @@ theorem open_every_bvar_used_of_fvar (M : Term String) :
                   obtain ⟨_, _⟩ := g
                   unfold every_bvar_used
                   simp
-                  apply And.intro
-                  . apply ih
-                    assumption
-                  . rw [<- count_bvar_openRec_fvar]
-                    assumption
-                    omega
+                  refine ⟨ih _ _ (by assumption), ?_⟩
+                  rwa [<- count_bvar_openRec_fvar]
+                  omega
 
 
 /-
@@ -141,11 +105,7 @@ theorem beta_preserves_every_bvar_used: r_preserves every_bvar_used Beta := by
 
 theorem eta_preserves_every_bvar_used: r_preserves every_bvar_used Eta := by
   intro M N h g
-  cases h
-  unfold every_bvar_used at g
-  simp at g
-  simp [every_bvar_used] at g
-  tauto
+  grind
 
 
 def r_preserves_free_vars (R : Term String → Term String → Prop) : Prop :=
@@ -154,29 +114,15 @@ def r_preserves_free_vars (R : Term String → Term String → Prop) : Prop :=
 theorem xi_preserves_free_vars {R}: r_preserves_free_vars R -> r_preserves_free_vars (Xi R) := by
   intro h9 M N h g
   induction h with
-  | base h => apply h9
-              assumption
-              assumption
-  | appL _ _ _ => unfold fv
-                  unfold every_bvar_used at g
-                  simp at g
-                  tauto
-  | appR _ _ _ => unfold fv
-                  unfold every_bvar_used at g
-                  simp at g
-                  tauto
+  | base h => apply h9 <;> assumption
+  | appL _ _ _ => grind
+  | appR _ _ _ => grind
   | abs xs h ih =>  rename_i M N
                     have h4 : ∃ x: String, x ∉ xs ∪ N.fv ∪ M.fv := by apply Finset.exists_not_mem_of_card_lt_enatCard; simp
                     obtain ⟨x, hx⟩ := h4
                     unfold fv
-                    have : ¬ x ∈ xs := by intro h
-                                          apply hx
-                                          simp_all
-                    have : (M ^ fvar x).every_bvar_used := by apply open_every_bvar_used
-                                                              unfold every_bvar_used at g
-                                                              simp at g
-                                                              all_goals tauto
-                    specialize ih x (by assumption) (by assumption)
+                    have : (M ^ fvar x).every_bvar_used := by apply open_every_bvar_used <;> grind
+                    specialize ih x (by grind) (by assumption)
                     unfold every_bvar_used at g
                     simp at g
                     rw [openRec_fv_union, openRec_fv_union] at ih
@@ -186,71 +132,30 @@ theorem xi_preserves_free_vars {R}: r_preserves_free_vars R -> r_preserves_free_
                     . rw [<- Finset.insert_subset_insert_iff]
                       apply superset_of_eq
                       rw [ih]
-                      intro h
-                      apply hx
-                      simp_all
+                      grind
                     . rw [<- Finset.insert_subset_insert_iff]
                       apply superset_of_eq
                       rw [ih]
-                      intro h
-                      apply hx
-                      simp_all
+                      grind
                     have h: count_bvar 0 N = 0 \/ count_bvar 0 N > 0 := by omega
-                    cases h
-                    any_goals assumption
-                    rename_i h1
-                    apply openRec_noop_of_count_bvar_zero at h1
-                    grind
-                    grind
+                    cases h <;> grind
 
 theorem beta_preserves_free_vars: r_preserves_free_vars Beta := by
   intro M N h g
   cases h
-  conv =>
-    left
-    unfold fv
-  conv =>
-    left
-    left
-    unfold fv
-  rw [openRec_fv_union]
-  unfold every_bvar_used at g
-  simp at g
-  obtain ⟨g, _⟩ := g
-  unfold every_bvar_used at g
-  simp at g
-  tauto
+  rw [openRec_fv_union] <;> grind
 
 theorem eta_preserves_free_vars: r_preserves_free_vars Eta := by
   intro M N h g
-  cases h
-  conv =>
-    left
-    unfold fv
-  conv =>
-    left
-    unfold fv
-  conv =>
-    left
-    right
-    unfold fv
-  simp
+  grind
 
 theorem xi_preserves_every_bvar_used {R: Term String → Term String → Prop} :
   r_preserves every_bvar_used R -> r_preserves_free_vars R → r_preserves every_bvar_used (Xi R) := by
   intro h8 h9 M N h g
   induction h with
   | base h => apply h8 <;> assumption
-  | appL a b ha =>  unfold every_bvar_used at g
-                    simp at g
-                    unfold every_bvar_used
-                    simp
-                    apply And.intro <;> tauto
-  | appR a b hb =>  unfold every_bvar_used at g
-                    simp at g
-                    unfold every_bvar_used
-                    simp
-                    apply And.intro <;> tauto
+  | appL a b ha => grind
+  | appR a b hb => grind
   | abs s h h1 =>   unfold every_bvar_used at g
                     simp at g
                     rename_i M N
@@ -258,56 +163,30 @@ theorem xi_preserves_every_bvar_used {R: Term String → Term String → Prop} :
                     obtain ⟨x, hx⟩ := h4
                     unfold every_bvar_used
                     simp
-                    apply And.intro
-                    . apply open_every_bvar_used_of_fvar _ x
-                      apply h1
-                      pick_goal 2
-                      apply open_every_bvar_used
-                      tauto
-                      constructor
-                      constructor
-                      intro h
-                      apply hx
-                      simp
-                      tauto
+                    refine ⟨open_every_bvar_used_of_fvar _ x 0 (h1 _ (by grind) ?_), ?_⟩
+                    . apply open_every_bvar_used <;> grind
                     . have g : count_bvar 0 N > 0 \/ count_bvar 0 N = 0 := by omega
                       cases g
                       any_goals assumption
                       exfalso
                       have h4 : ∃ y : String, y ∉ insert x s ∪ M.fv := by apply Finset.exists_not_mem_of_card_lt_enatCard; simp
                       obtain ⟨y, hy⟩ := h4
-                      have : y ∉ s := by
-                        intros h
-                        apply hy
-                        simp
-                        tauto
-                      have : x ∉ s := by
-                        intros h
-                        apply hx
-                        simp
-                        tauto
-                      have h4 := h x (by assumption)
-                      have h5 := h y (by assumption)
+                      have h4 := h x (by grind)
+                      have h5 := h y (by grind)
                       unfold open' at h4 h5
                       rw [@openRec_noop_of_count_bvar_zero N] at h4 h5
                       any_goals assumption
                       apply xi_preserves_free_vars at h9
                       apply h9 at h4
                       apply h9 at h5
-                      have : (M ^ fvar x).every_bvar_used := by apply open_every_bvar_used
-                                                                all_goals tauto
+                      have : (M ^ fvar x).every_bvar_used := by apply open_every_bvar_used <;> tauto
                       specialize h4 this
-                      have : (M ^ fvar y).every_bvar_used := by apply open_every_bvar_used
-                                                                all_goals tauto
+                      have : (M ^ fvar y).every_bvar_used := by apply open_every_bvar_used <;> tauto
                       specialize h5 this
                       rw [<- h5, openRec_fv_union, openRec_fv_union] at h4
                       any_goals tauto
-                      simp at h4
-                      have h : y ∈ insert x M.fv := by  rw [h4]
-                                                        simp_all
-                      simp at h
-                      apply hy
-                      simp_all
+                      have h : y ∈ insert x M.fv := by grind
+                      grind
 
 theorem fullbeta_preserves_every_bvar_used {M N} :
   FullBeta M N → every_bvar_used M → every_bvar_used N := by
@@ -350,10 +229,9 @@ theorem fullBetaEtastar_preserves_every_bvar_used {M N} :
 
 theorem not_reaches_K {X} (h: every_bvar_used X) : not_basis X := by
   exists K
-  refine ⟨?_, ?_, ?_⟩
+  refine ⟨?_, by grind [K], ?_⟩
   . rw [← lcAt_iff_LC]
     decide
-  . grind [K]
   . intros Y hgen hred
     have hlin := Gen_every_bvar_used hgen
     have hlinK := fullBetaEtastar_preserves_every_bvar_used hred (hlin h)

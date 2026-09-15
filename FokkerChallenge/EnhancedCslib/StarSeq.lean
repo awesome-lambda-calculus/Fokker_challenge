@@ -141,8 +141,7 @@ theorem StarSeq.open_star {A A' C D : Term Var} (xs : Finset Var)
     (hbody : ∀ x ∉ xs, StarSeq (A ^ Term.fvar x) (A' ^ Term.fvar x))
     (hCD : StarSeq C D) : StarSeq (A ^ C) (A' ^ D) := by
   have ⟨z, hz⟩ := fresh_exists <| free_union [fv] Var
-  have := StarSeq.subst z (hbody z (by grind)) hCD
-  grind
+  grind [StarSeq.subst z (hbody z (by grind)) hCD]
 
 /-- **Main Lemma** (Takahashi, Lemma 2.2), auxiliary form with a size bound. -/
 theorem parBeta_starSeq_aux :
@@ -150,8 +149,12 @@ theorem parBeta_starSeq_aux :
   intro n
   induction n with
   | zero =>
-      intro M N hs _
-      exact absurd hs (by cases M <;> simp [Term.size])
+      intro M N hs h
+      cases h with
+      | fvar x => exact .nil (.fvar x)
+      | app _ _ => grind
+      | abs xs _ => grind
+      | beta xs _ _ => grind
   | succ n ih =>
       intro M N hs h
       cases h with

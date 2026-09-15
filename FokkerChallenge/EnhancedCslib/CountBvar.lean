@@ -143,8 +143,7 @@ theorem count_bvar_0_of_locally_closed {N} (hn: N.LC) : (j: Nat) -> count_bvar j
                     have h4 : ∃ x : String, x ∉ L := by apply Finset.exists_not_mem_of_card_lt_enatCard; simp
                     obtain ⟨x, hx⟩ := h4
                     specialize ih x hx (j+1)
-                    rw [count_bvar_openRec_fvar] at ih
-                    assumption
+                    rwa [count_bvar_openRec_fvar] at ih
                     omega
 
 theorem count_bvar_preserved_under_open {M N} :

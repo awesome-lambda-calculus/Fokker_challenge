@@ -1,3 +1,4 @@
+import Cslib.Foundations.Relation.Confluence
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Basic
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBeta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullEta
@@ -52,7 +53,7 @@ theorem reflTransGen_iff_eqvGen_of_normal {M N : Term String}
       rw [he] at h1
       exact absurd h1 (by decide)
   exact Relation.ChurchRosser.normal_eqvGen_reflTransGen
-    (Relation.Confluent.toChurchRosser confluent_beta_eta) norm h
+    (Relation.confluent_iff_churchRosser.mp confluent_beta_eta) norm h
 
 theorem exists_beta_normal_fvar_app_of_beta_eta {Y: Term String} {x} :
   Relation.Normal FullBetaEta ((fvar x).app Y) ↔ Relation.Normal FullBetaEta Y := by

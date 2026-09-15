@@ -91,8 +91,7 @@ theorem xi_preserves_only_one_var_used {R: Term String → Term String → Prop}
                                 have g := xi_preserves_count_bvar_all_eq_0 h9 h7 _ _ h
                                 simp at g
                                 specialize g hm
-                                rw [<- openRec_bvar_all_eq_zero_of_count_bvar_eq_total] at g
-                                assumption
+                                rwa [<- openRec_bvar_all_eq_zero_of_count_bvar_eq_total] at g
                     | inr hm => obtain ⟨_, hm⟩ := hm
                                 apply openRec_noop_of_count_bvar_zero at hm
                                 pick_goal 2
