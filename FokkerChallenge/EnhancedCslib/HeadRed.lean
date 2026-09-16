@@ -249,8 +249,6 @@ theorem HeadStep.abs_fresh {M M' : Term Var} (x : Var) (hM : x ∉ M.fv) (hM' : 
     (h : HeadStep (M ^ fvar x) (M' ^ fvar x)) : HeadStep (Term.abs M) (Term.abs M') := by
   have h2 := HeadStep.abs_close x h
   rwa [<- open_close_var , <- open_close_var] at h2
-  grind
-  grind
 
 /-! ### Head normal forms are exactly the terms without a head redex -/
 
