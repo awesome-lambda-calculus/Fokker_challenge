@@ -4,12 +4,11 @@ import FokkerChallenge.BLC.BLCCertLists
 import FokkerChallenge.NativeEnum
 import FokkerChallenge.Decider.NoDuplicate
 import FokkerChallenge.Decider.EveryBvarUsed
-import FokkerChallenge.Decider.All0
 import FokkerChallenge.Decider.ArgNotVar
 import FokkerChallenge.Decider.RigidHead
 import FokkerChallenge.Decider.TailNotVar
 import FokkerChallenge.Decider.CompositiveEffect
-import FokkerChallenge.Decider.TwoVarsPerNode
+import FokkerChallenge.TwoVarsAreNotEnough.TwoVarsPerNode
 import FokkerChallenge.BetaNamableClosure
 import FokkerChallenge.BetaReducesToNamable
 import FokkerChallenge.LiftSearch

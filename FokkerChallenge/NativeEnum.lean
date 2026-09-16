@@ -8,7 +8,7 @@ import FokkerChallenge.Decider.ArgNotVar
 import FokkerChallenge.Decider.RigidHead
 import FokkerChallenge.Decider.TailNotVar
 import FokkerChallenge.Decider.CompositiveEffect
-import FokkerChallenge.Decider.TwoVarsPerNode
+import FokkerChallenge.TwoVarsAreNotEnough.TwoVarsPerNode
 import FokkerChallenge.Decider.CraigTheorem
 
 /-!

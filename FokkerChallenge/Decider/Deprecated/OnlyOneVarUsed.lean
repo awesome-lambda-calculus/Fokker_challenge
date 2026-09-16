@@ -9,6 +9,12 @@ import FokkerChallenge.Basic
 import FokkerChallenge.FamousCombinator
 import FokkerChallenge.EnhancedCslib.GenFinset
 
+/-!
+Deprecated!
+
+This decider is covered by "2 vars are not enough"
+-/
+
 namespace Cslib
 
 namespace LambdaCalculus.LocallyNameless.Untyped.Term

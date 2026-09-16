@@ -1,5 +1,5 @@
 import FokkerChallenge.DBNotation
-import FokkerChallenge.Decider.TwoVarsPerNode
+import FokkerChallenge.TwoVarsAreNotEnough.TwoVarsPerNode
 
 /-!
 # The certificate lists of the BLC classification

@@ -3,11 +3,10 @@ import FokkerChallenge.LiftSearch
 import FokkerChallenge.GenTerms
 import FokkerChallenge.Decider.NoDuplicate
 import FokkerChallenge.Decider.EveryBvarUsed
-import FokkerChallenge.Decider.OnlyOneVarUsed
 import FokkerChallenge.Decider.ArgNotVar
 import FokkerChallenge.Decider.RigidHead
 import FokkerChallenge.Decider.TailNotVar
-import FokkerChallenge.Decider.TwoVarsPerNode
+import FokkerChallenge.TwoVarsAreNotEnough.TwoVarsPerNode
 import FokkerChallenge.TwoVarsAreNotEnough.Final
 import FokkerChallenge.NativeEnum
 

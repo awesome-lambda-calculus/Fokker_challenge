@@ -46,13 +46,13 @@ import FokkerChallenge.EnhancedCslib.GenFinset
 import FokkerChallenge.EnhancedCslib.HeadSN
 import FokkerChallenge.Decider.NoDuplicate
 import FokkerChallenge.Decider.EveryBvarUsed
-import FokkerChallenge.Decider.All0
-import FokkerChallenge.Decider.OnlyOneVarUsed
+import FokkerChallenge.Decider.Deprecated.All0
+import FokkerChallenge.Decider.Deprecated.OnlyOneVarUsed
 import FokkerChallenge.Decider.ArgNotVar
 import FokkerChallenge.Decider.RigidHead
 import FokkerChallenge.Decider.TailNotVar
 import FokkerChallenge.Decider.CompositiveEffect
-import FokkerChallenge.Decider.TwoVarsPerNode
+import FokkerChallenge.TwoVarsAreNotEnough.TwoVarsPerNode
 import FokkerChallenge.Decider.CraigTheorem
 import FokkerChallenge.EncoderDecoder.Basic
 import FokkerChallenge.TwoVarsAreNotEnough.Basic
