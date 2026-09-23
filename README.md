@@ -1,4 +1,4 @@
-# Fokker_challenge
+# smallest-one-point-basis
 
 The currently known smallest one-point bases[^5] for untyped lambda calculus, measured by Fokker size, have size 7.
 There are three such one-point bases of Fokker size 7.
@@ -280,6 +280,7 @@ the kernel does not reduce.
 ## Building
 
 ```
+lake update
 lake exe cache get   # Mathlib cache, pulled in via cslib
 lake build
 lake exe fokker_challenge
@@ -303,7 +304,6 @@ We use `native_decide` because `decide` can cause an OutOfMemoryError (OOM).
 
 1. Formalize only 3 basis of fokker size 7
 2. Formalize only 3 basis of blc size 26
-3. https://github.com/awesome-lambda-calculus/Fokker_challenge/issues/6
 
 ### Related papers
 
