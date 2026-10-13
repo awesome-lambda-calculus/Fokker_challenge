@@ -254,11 +254,10 @@ theorem nameOk_openMany_iff : ∀ (t : Term String) (env : List (String × Strin
       · intro h
         cases h with
         | abs v hv xs hbody =>
-            obtain ⟨y, hy⟩ := Infinite.exists_notMem_finset
-              (xs ∪ (env.map Prod.fst).toFinset ∪ fv M)
+            have ⟨y, hy⟩ := fresh_exists <| ((free_union [fv] String) ∪ (env.map Prod.fst).toFinset)
             simp only [Finset.mem_union, not_or] at hy
-            obtain ⟨⟨hy1, hy2⟩, hy3⟩ := hy
-            have hb := hbody y hy1
+            obtain ⟨hy1, hy2⟩ := hy
+            have hb := hbody y (by grind)
             rw [hkey y v] at hb
             have hnd' : (((y, v) :: env).map Prod.fst).Nodup := by
               simp only [List.map_cons, List.nodup_cons]
@@ -271,7 +270,7 @@ theorem nameOk_openMany_iff : ∀ (t : Term String) (env : List (String × Strin
             have hdisj' : ∀ p ∈ (y, v) :: env, p.1 ∉ fv M := by
               intro p hp
               rcases List.mem_cons.1 hp with rfl | hp
-              · exact hy3
+              · grind
               · exact hdM p hp
             obtain ⟨u, hwn, heq⟩ := (ih ((y, v) :: env) hnd' hxy' hdisj').1 hb
             exact ⟨.abs v u, ⟨hv, hwn⟩, by simpa [NTerm.toLN] using heq⟩

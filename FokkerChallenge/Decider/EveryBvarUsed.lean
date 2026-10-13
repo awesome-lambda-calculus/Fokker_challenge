@@ -2,7 +2,6 @@ import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Basic
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBeta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullEta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaEtaConfluence
-import Mathlib.Data.Set.Card
 import FokkerChallenge.EnhancedCslib.CountBvar
 import FokkerChallenge.Basic
 import FokkerChallenge.FamousCombinator
@@ -118,8 +117,7 @@ theorem xi_preserves_free_vars {R}: r_preserves_free_vars R -> r_preserves_free_
   | appL _ _ _ => grind
   | appR _ _ _ => grind
   | abs xs h ih =>  rename_i M N
-                    have h4 : ∃ x: String, x ∉ xs ∪ N.fv ∪ M.fv := by apply Finset.exists_not_mem_of_card_lt_enatCard; simp
-                    obtain ⟨x, hx⟩ := h4
+                    have ⟨x, hx⟩ := fresh_exists <| free_union [fv] String
                     unfold fv
                     have : (M ^ fvar x).every_bvar_used := by apply open_every_bvar_used <;> grind
                     specialize ih x (by grind) (by assumption)
@@ -159,8 +157,7 @@ theorem xi_preserves_every_bvar_used {R: Term String → Term String → Prop} :
   | abs s h h1 =>   unfold every_bvar_used at g
                     simp at g
                     rename_i M N
-                    have h4 : ∃ x : String, x ∉ s ∪ M.fv := by apply Finset.exists_not_mem_of_card_lt_enatCard; simp
-                    obtain ⟨x, hx⟩ := h4
+                    have ⟨x, hx⟩ := fresh_exists <| free_union [fv] String
                     unfold every_bvar_used
                     simp
                     refine ⟨open_every_bvar_used_of_fvar _ x 0 (h1 _ (by grind) ?_), ?_⟩
@@ -169,8 +166,7 @@ theorem xi_preserves_every_bvar_used {R: Term String → Term String → Prop} :
                       cases g
                       any_goals assumption
                       exfalso
-                      have h4 : ∃ y : String, y ∉ insert x s ∪ M.fv := by apply Finset.exists_not_mem_of_card_lt_enatCard; simp
-                      obtain ⟨y, hy⟩ := h4
+                      have ⟨y, hy⟩ := fresh_exists <| free_union [fv] String
                       have h4 := h x (by grind)
                       have h5 := h y (by grind)
                       unfold open' at h4 h5

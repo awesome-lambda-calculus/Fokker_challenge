@@ -2,7 +2,6 @@ import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Basic
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBeta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullEta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaEtaConfluence
-import Mathlib.Data.Set.Card
 import FokkerChallenge.Basic
 import FokkerChallenge.EnhancedCslib.Basic
 import FokkerChallenge.EnhancedCslib.CountFvar
@@ -229,8 +228,7 @@ theorem xi_preserves_fvar {R}:  r_preserves_fvar_subset (Xi R) ->
                       apply hcfv
                       apply g <;> assumption
   | abs xs _ ih =>  rename_i M N _
-                    have h4 : ∃ y: String, y ∉ insert x xs ∪ N.fv ∪ M.fv := by apply Finset.exists_not_mem_of_card_lt_enatCard; simp
-                    obtain ⟨y, hx⟩ := h4
+                    have ⟨y, _⟩ := fresh_exists <| free_union [fv] String
                     specialize ih y (by grind)
                     unfold count_fvar
                     unfold count_fvar at hcfv
@@ -272,14 +270,12 @@ theorem xi_preserves_no_duplicate {R: Term String → Term String → Prop} :
                     simp at hnd
                     unfold no_duplicate
                     simp
-                    have h4 : ∃ x : String, x ∉ s := by apply Finset.exists_not_mem_of_card_lt_enatCard; simp
-                    obtain ⟨x, hx⟩ := h4
+                    have ⟨x, hx⟩ := fresh_exists s
                     apply And.intro
                     . apply open_no_duplicate_fvar
                       apply ih _ hx
                       apply open_no_duplicate <;> tauto
-                    . have h4 : ∃ y: String, y ∉ insert x s ∪ N.fv ∪ M.fv := by apply Finset.exists_not_mem_of_card_lt_enatCard; simp
-                      obtain ⟨y, hy⟩ := h4
+                    . have ⟨y, hy⟩ := fresh_exists <| free_union [fv] String
                       specialize h y (by grind)
                       apply xi_preserves_fvar at h
                       any_goals assumption

@@ -1,6 +1,5 @@
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaEta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LcAt
-import Mathlib.Data.Finset.Lattice.Basic
 
 namespace Cslib
 

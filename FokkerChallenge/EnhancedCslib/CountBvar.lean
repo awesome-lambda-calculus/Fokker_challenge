@@ -1,6 +1,5 @@
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Basic
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LcAt
-import Mathlib.Data.Set.Card
 import FokkerChallenge.EnhancedCslib.Basic
 import FokkerChallenge.EnhancedCslib.FvarSubset
 
@@ -140,8 +139,7 @@ theorem count_bvar_0_of_locally_closed {N} (hn: N.LC) : (j: Nat) -> count_bvar j
                       omega
   | abs L e h ih => unfold count_bvar
                     intros j
-                    have h4 : ∃ x : String, x ∉ L := by apply Finset.exists_not_mem_of_card_lt_enatCard; simp
-                    obtain ⟨x, hx⟩ := h4
+                    have ⟨x, hx⟩ := fresh_exists L
                     specialize ih x hx (j+1)
                     rwa [count_bvar_openRec_fvar] at ih
                     omega
@@ -238,8 +236,7 @@ theorem xi_preserves_count_bvar_all_eq_0 {R: Term String → Term String → Pro
                     simp
                     intros hm
                     have h2: count_bvar 0 M = 0 := by grind [count_bvar_le_count_bvar_all]
-                    have h4 : ∃ x: String, x ∉ xs ∪ N.fv ∪ M.fv := by apply Finset.exists_not_mem_of_card_lt_enatCard; simp
-                    obtain ⟨y, h4⟩ := h4
+                    have ⟨y, hy⟩ := fresh_exists <| free_union [fv] String
                     specialize ih y (by grind)
                     specialize h y (by grind)
                     apply openRec_noop_of_count_bvar_zero at h2

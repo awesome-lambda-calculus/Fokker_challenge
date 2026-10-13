@@ -218,8 +218,8 @@ theorem tailPreserves_xi {R : Term String → Term String → Prop}
   | @abs T T' xs _ ih =>
       have key : tailOkBody T → tailOkBody T' := by
         intro hT
-        obtain ⟨y, hy⟩ : ∃ y : String, y ∉ xs := Finset.exists_notMem _
-        have := (ih y hy).2.1 (by rw [open', tailOkBody_openRec_fvar]; exact hT)
+        have ⟨y, hy⟩ := fresh_exists <| free_union [fv] String
+        have := (ih y (by grind)).2.1 (by rw [open', tailOkBody_openRec_fvar]; exact hT)
         rwa [open', tailOkBody_openRec_fvar] at this
       exact ⟨fun hM => by simpa using key (by simpa using hM), key, fun _ _ => rfl⟩
 

@@ -5,7 +5,6 @@ import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaConfluence
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Congruence
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaEtaConfluence
 import FokkerChallenge.EnhancedCslib.CountBvar
-import Mathlib.Data.Finset.Lattice.Basic
 
 namespace Cslib
 

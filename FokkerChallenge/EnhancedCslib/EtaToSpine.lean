@@ -235,15 +235,14 @@ theorem abs_escape {T U : Term Var} (h : (abs T) ↠ηᶠ U)
         · obtain ⟨W, ys, hW, hWU, hopen⟩ := ih T' rfl
           refine ⟨W, ys ∪ xs, hW, hWU, ?_⟩
           intro y hy
-          simp only [Finset.mem_union, not_or] at hy
-          exact .head (hs y hy.2) (hopen y hy.1)
+          exact .head (hs y (by grind)) (hopen y (by grind))
   exact key h T rfl
 
 /-! ## The main result -/
 
 /-- A normal term that η-reduces to a spine headed by the free variable `x` is
 itself a spine headed by `x`, under some number of abstractions. -/
-theorem Normal.etaStar_absN_spine {M : Term Var} (h : Normal M) :
+theorem etaStar_absN_spine {M : Term Var} (h : BetaNfLc M) :
     ∀ (x : Var) (l : List (Term Var)), M ↠ηᶠ (spine x l) →
       ∃ n l', M = (Term.abs)^[n] (spine x l') := by
   induction h with
@@ -292,7 +291,7 @@ theorem betaNF_etaStar_absN_spine (M : Term Var) (x : Var) (l : List (Term Var))
   have steps' : M ↠ηᶠ (spine x l) := steps
   rcases steps'.cases_head with h | ⟨c, hc, _⟩
   · exact ⟨0, l, h⟩
-  · exact (betaNF_normal (FullEta.step_lc_l hc) hM).etaStar_absN_spine x l steps'
+  · exact etaStar_absN_spine (betaNF_normal (FullEta.step_lc_l hc) hM) x l steps'
 
 
 /-

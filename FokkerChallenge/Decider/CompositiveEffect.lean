@@ -224,10 +224,10 @@ theorem noCompositive_xi {R : Term String → Term String → Prop}
       exact ⟨⟨ih hM.1.1, hM.1.2⟩, hM.2⟩
   | @abs T T' xs _ ih =>
       intro hM
-      obtain ⟨y, hy⟩ : ∃ y : String, y ∉ xs := Finset.exists_notMem _
+      have ⟨y, hy⟩ := fresh_exists <| free_union [fv] String
       have h1 : noCompositive (T ^ Term.fvar y) := by
         rw [open', noCompositive_openRec_fvar]; simpa using hM
-      have h2 := ih y hy h1
+      have h2 := ih y (by grind) h1
       rw [open', noCompositive_openRec_fvar] at h2
       simpa using h2
 

@@ -100,8 +100,7 @@ theorem IPar.headNF_back {M N : Term Var} (h : IPar M N) (hn : HeadNF N) :
       | @abs ys A hA =>
           refine HeadNF.abs (xs ∪ ys) ?_
           intro x hx
-          simp only [Finset.mem_union, not_or] at hx
-          exact ih x hx.1 (hA x hx.2)
+          exact ih x (by grind) (hA x (by grind))
 
 variable  [HasFresh Var]
 

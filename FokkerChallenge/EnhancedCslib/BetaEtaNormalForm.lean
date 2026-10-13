@@ -10,7 +10,6 @@ import FokkerChallenge.EnhancedCslib.CountBvar
 import FokkerChallenge.EnhancedCslib.BetaNormalForm
 import FokkerChallenge.EnhancedCslib.EtaNormalForm
 import FokkerChallenge.EnhancedCslib.Closedunderapp
-import Mathlib.Data.Finset.Lattice.Basic
 
 namespace Cslib
 

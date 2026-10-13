@@ -95,7 +95,7 @@ theorem LC.not_hasBvar {t : Term Var} (h : LC t) (k : ℕ) : ¬ HasBvar k t := b
   | abs xs t hbody ih =>
       intro hb
       simp only [HasBvar] at hb
-      obtain ⟨y, hy⟩ := Infinite.exists_notMem_finset xs
+      have ⟨y, hy⟩ := fresh_exists xs
       exact ih y hy (k + 1) (by
         have := hasBvar_openRec_of_ne (k := k + 1) (j := 0) (by omega) (u := Term.fvar y) hb
         grind)
@@ -163,7 +163,7 @@ theorem EtaExpArgs.length {n : ℕ} {l : List (Term Var)} (h : EtaExpArgs n l) :
 bound variable `k`. -/
 theorem EtaExpBvar.hasBvar {k : ℕ} {E : Term Var} (h : EtaExpBvar k E) : HasBvar k E := by
   by_contra hb
-  obtain ⟨y, hy⟩ := Infinite.exists_notMem_finset (fv E)
+  have ⟨y, hy⟩ := fresh_exists E.fv
   have hred := h y hy
   rw [openRec_eq_self_of_not_hasBvar hb] at hred
   have : fv E = ({y} : Finset Var) := by simpa [fv] using FullEta.steps_fv hred
@@ -259,7 +259,7 @@ variables at all. -/
 theorem EtaExpBvar.openRec_eq_self {j m : ℕ} {y : Var} {E : Term Var}
     (h : EtaExpBvar j (openRec m (fvar y) E)) : openRec m (fvar y) E = E := by
   set Q := openRec m (fvar y) E with hQ
-  obtain ⟨z, hz⟩ := Infinite.exists_notMem_finset (fv Q)
+  have ⟨z, hz⟩ := fresh_exists Q.fv
   have hred := h z hz
   have hfv : fv (openRec j (fvar z) Q) = {z} := by simpa [fv] using FullEta.steps_fv hred
   have hsub : fv Q ⊆ ({z} : Finset Var) := by grind [open_preserve_not_fvar]
@@ -318,7 +318,7 @@ normal and `M ↠ηᶠ x N₁ … Nₖ`, then `M = λ…λ. x A₁ … A_k E₁ 
 are locally closed and η-reduce to the `Nᵢ`, and the appended arguments
 `E₁ … E_n` are η-expansions of the `n` enclosing bound variables (so each of
 them contains a dangling bound variable). -/
-theorem Normal_etaStar_spine_shape {M : Term Var} (h : Normal M) :
+theorem Normal_etaStar_spine_shape {M : Term Var} (h : BetaNfLc M) :
     ∀ (x : Var) (l : List (Term Var)), M ↠ηᶠ (spine x l) →
       ∃ (n : ℕ) (l₀ E : List (Term Var)),
         M = Term.abs^[n] (spine x (l₀ ++ E)) ∧ List.Forall₂ (Relation.ReflTransGen FullEta) l₀ l ∧

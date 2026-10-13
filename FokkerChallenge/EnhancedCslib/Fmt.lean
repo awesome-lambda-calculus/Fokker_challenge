@@ -1,11 +1,9 @@
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Basic
-import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBeta
-import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Congruence
-import Mathlib.Data.Finset.Lattice.Basic
 
 namespace Cslib
 
 namespace LambdaCalculus.LocallyNameless.Untyped.Term
+
 def toStringTerm {α} [ToString α] : Term α → String
   | bvar n => toString n
   | fvar x => toString x

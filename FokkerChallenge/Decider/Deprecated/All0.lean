@@ -3,7 +3,6 @@ import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBeta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullEta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaEtaConfluence
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LcAt
-import Mathlib.Data.Set.Card
 import FokkerChallenge.Basic
 import FokkerChallenge.EnhancedCslib.Basic
 import FokkerChallenge.EnhancedCslib.CountBvar
@@ -205,8 +204,7 @@ theorem xi_preserves_all0_no_fvar_inside_abs {R: Term String → Term String →
   | appL _ _ _ => grind [all0_no_fvar_inside_abs, no_fvar_inside_abs, all0]
   | appR _ _ _ => grind [all0_no_fvar_inside_abs, no_fvar_inside_abs, all0]
   | abs xs h ih =>  rename_i M N
-                    have h4 : ∃ x : String, x ∉ xs := by apply Finset.exists_not_mem_of_card_lt_enatCard; simp
-                    obtain ⟨x, hx⟩ := h4
+                    have ⟨x, hx⟩ := fresh_exists xs
                     have g := all0_no_fvar_inside_abs_abs_rev hnd
                     apply all0_no_fvar_inside_abs_of_open at g
                     apply ih at g
@@ -224,7 +222,7 @@ theorem xi_preserves_all0_no_fvar_inside_abs {R: Term String → Term String →
                     simp_all
                     unfold all0
                     grind [all0_no_fvar_inside_abs]
-                    assumption
+                    exact hx
 
 
 theorem beta_preserves_all0_no_fvar_inside_abs: r_preserves all0_no_fvar_inside_abs Beta := by

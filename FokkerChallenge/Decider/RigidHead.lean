@@ -252,8 +252,7 @@ theorem preserves_xi {R : Term String → Term String → Prop}
   | @abs T T' xs hstep ih =>
       have key : rigidBody T → rigidBody T' := by
         intro hT
-        obtain ⟨y, hy⟩ : ∃ y : String, y ∉ xs ∪ T.fv ∪ T'.fv :=
-          Finset.exists_notMem _
+        have ⟨y, hy⟩ := fresh_exists <| free_union [fv] String
         have hy1 : y ∉ xs := by simp at hy; tauto
         have hy2 : y ∉ T.fv := by simp at hy; tauto
         have hy3 : y ∉ T'.fv := by simp at hy; tauto

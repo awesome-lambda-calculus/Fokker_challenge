@@ -2,7 +2,6 @@ import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaEta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.LcAt
 import FokkerChallenge.EnhancedCslib.Closedunderapp
 import FokkerChallenge.EnhancedCslib.List
-import Mathlib.Data.Finset.Lattice.Basic
 
 namespace Cslib
 

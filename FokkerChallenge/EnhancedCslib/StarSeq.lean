@@ -98,9 +98,8 @@ theorem StarSeq.abs_close (x : Var) {A B : Term Var} (h : StarSeq A B) :
 theorem StarSeq.abs_cofinite {M M' : Term Var} (xs : Finset Var)
     (h : ∀ x ∉ xs, StarSeq (M ^ Term.fvar x) (M' ^ Term.fvar x)) :
     StarSeq (Term.abs M) (Term.abs M') := by
-  obtain ⟨z, hz⟩ := Infinite.exists_notMem_finset (xs ∪ (fv M ∪ fv M'))
-  simp only [Finset.mem_union, not_or] at hz
-  have h2 := StarSeq.abs_close z (h z hz.1)
+  have ⟨z, _⟩ := fresh_exists <| free_union [fv] Var
+  have h2 := StarSeq.abs_close z (h z (by grind))
   rw [<- open_close, <- open_close] at h2
   grind
   grind

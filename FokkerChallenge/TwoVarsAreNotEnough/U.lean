@@ -7,7 +7,6 @@ import Cslib.Foundations.Data.HasFresh
 import FokkerChallenge.TwoVarsAreNotEnough.Basic
 import FokkerChallenge.TwoVarsAreNotEnough.Head2
 import FokkerChallenge.TwoVarsAreNotEnough.Unroll
-import Mathlib.Data.Finset.Basic
 
 namespace Cslib
 

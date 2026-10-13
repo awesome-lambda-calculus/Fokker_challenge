@@ -2,7 +2,6 @@ import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.Basic
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBeta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullEta
 import Cslib.Languages.LambdaCalculus.LocallyNameless.Untyped.FullBetaEtaConfluence
-import Mathlib.Data.Set.Card
 import FokkerChallenge.EnhancedCslib.CountBvar
 import FokkerChallenge.EnhancedCslib.FvarSubset
 import FokkerChallenge.Basic
@@ -83,8 +82,7 @@ theorem xi_preserves_only_one_var_used {R: Term String → Term String → Prop}
   | appL _ _ _ => grind
   | appR _ _ _ => grind
   | abs xs h ih =>  rename_i M N
-                    have h4 : ∃ x: String, x ∉ xs ∪ N.fv ∪ M.fv := by apply Finset.exists_not_mem_of_card_lt_enatCard; simp
-                    obtain ⟨y, h4⟩ := h4
+                    have ⟨y, _⟩ := fresh_exists <| free_union [fv] String
                     specialize ih y (by grind)
                     specialize h y (by grind)
                     intros hm
