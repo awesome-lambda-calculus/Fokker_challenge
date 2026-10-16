@@ -19,7 +19,7 @@ theorem subterms_subset {t : Term String} :
   induction h : t.fokker_size using Nat.strong_induction_on generalizing t with
   | h n _ => cases t with (simp_all; try subst_vars)
   | app _ _ => grind
-  | abs t => cases t with (simp_all; try subst_vars)
+  | abs t => cases t with simp_all
     | abs _ => grind
 
 theorem subterms_size {t} :
@@ -27,20 +27,15 @@ theorem subterms_size {t} :
   induction h : t.fokker_size using Nat.strong_induction_on generalizing t with
   | h n _ => cases t with (simp_all; try subst_vars)
   | app _ _ => grind
-  | abs t => cases t with (simp_all; try subst_vars)
+  | abs t => cases t with simp_all
     | abs _ => grind
-
-/-
-theorem subterms_gen {t M} (h : Gen t M) : t.subterms = M.subterms := by
-  induction h with grind
--/
 
 theorem subterms_fv {t} (h : t.fv = ∅) :
     ∀ s ∈ subterms t, s.fv = ∅ := by
     induction h : t.fokker_size using Nat.strong_induction_on generalizing t with
     | h n _ => cases t with  (simp_all; try subst_vars)
       | app _ _ => grind
-      | abs t => cases t with (simp_all; try subst_vars)
+      | abs t => cases t with simp_all
         | abs _ => grind
 
 theorem subterms_preserved_under_openRec {x i t} (h : two_vars_are_enough t) :
@@ -57,7 +52,7 @@ theorem subterms_two_vars_are_enough {t} (h : two_vars_are_enough t) :
     induction h : t.fokker_size using Nat.strong_induction_on generalizing t with
     | h n _ => cases t with (simp_all; try subst_vars)
       | app _ _ => grind
-      | abs t => cases t with (simp_all; try subst_vars)
+      | abs t => cases t with simp_all
         | abs _ => grind
 
 theorem two_vars_are_enough_subterms_lc {t} (h : two_vars_are_enough t) :
@@ -68,7 +63,7 @@ theorem subterms_closedunderappbool {t} (h : ClosedUnderAppBool abs_two_vars_are
     induction h : t.fokker_size using Nat.strong_induction_on generalizing t with
     | h n _ => cases t with (simp_all; try subst_vars)
       | app _ _ => grind
-      | abs t => cases t with (simp_all; try subst_vars)
+      | abs t => cases t with simp_all
         | abs _ => grind [subterms_two_vars_are_enough]
 
 theorem closedUnderAppBool_genfinset_subterms {t}

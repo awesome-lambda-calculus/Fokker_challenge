@@ -13,13 +13,6 @@ import FokkerChallenge.NativeEnum
 /-!
 # The undecided terms of the Fokker challenge are β-reducts of nameable terms
 
-`undecided_terms.json` of the `awesome-lambda-calculus/Fokker_challenge`
-collection lists 402 closed λ-terms whose status as a one-point basis was still
-open.  None of them is nameable with only the two variable names `x` and `y`
-(`fokkerUndecided_not_namableXY`).  Nevertheless **every one of them is a
-β-reduct of a term that is nameable with two names**
-(`fokkerUndecided_betaReductOfNamable`).
-
 The certificates were found by the lift search of `FokkerChallenge.LiftSearch`
 (at most two lift β-expansions per term) and are checked by the kernel in
 `FokkerChallenge.FokkerCerts1`–`FokkerCerts4`.
