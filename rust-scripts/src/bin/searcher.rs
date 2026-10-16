@@ -36,8 +36,6 @@ struct SearchResult {
     terms_with_redex: usize,
 }
 
-const UNDECIDED_TERMS_JSON: &str = "../undecided_terms.json";
-const FINITE_TERMS_JSON: &str = "../FokkerChallenge/GenFinite/finite.json";
 const OTHER_JSON: &str = "../other.json";
 
 fn serialize_terms(terms: Vec<Term>) -> Vec<String> {
@@ -88,16 +86,14 @@ mod tests {
 }
 
 fn main() {
-    let json_str = fs::read_to_string(UNDECIDED_TERMS_JSON).unwrap();
-    let undecided_terms: Vec<String> = serde_json::from_str(&json_str).unwrap();
+    let undecided_terms: Vec<String> = Vec::new();
     let undecided_terms: HashSet<Term> = undecided_terms
         .into_iter()
         .map(|s| parse_term(&s))
         .flatten()
         .collect();
 
-    let json_str = fs::read_to_string(FINITE_TERMS_JSON).unwrap();
-    let finite_terms: Vec<String> = serde_json::from_str(&json_str).unwrap();
+    let finite_terms: Vec<String> = Vec::new();
     let finite_terms: HashSet<Term> = finite_terms
         .into_iter()
         .map(|s| parse_term(&s))
@@ -209,11 +205,6 @@ fn main() {
         .map(|t| format!("{:?}", t))
         .collect::<Vec<_>>();
     undecided_terms.sort();
-    fs::write(
-        UNDECIDED_TERMS_JSON,
-        serde_json::to_string_pretty(&undecided_terms).unwrap(),
-    )
-    .unwrap();
 
     let finite_terms = &finite_terms - &found_terms;
     let mut finite_terms = finite_terms
@@ -221,9 +212,4 @@ fn main() {
         .map(|t| format!("{:?}", t))
         .collect::<Vec<_>>();
     finite_terms.sort();
-    fs::write(
-        FINITE_TERMS_JSON,
-        serde_json::to_string_pretty(&finite_terms).unwrap(),
-    )
-    .unwrap();
 }
