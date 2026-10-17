@@ -157,7 +157,8 @@ theorem multiapp_headneutral {l : List (Term Var)} {x} (h_lc : ∀ t ∈ l, t.LC
   (List.foldl app (fvar x) l).HeadNeutral := by
   induction l using List.reverseRecOn with
   | nil => simp; grind
-  | append_singleton l a ih => simp; grind
+  | append_singleton l a ih =>  rw [List.foldl_concat]
+                                exact .app (by grind) (by grind)
 
 lemma step_beta_normal_preserve_multiapp {x M} {l: List (Term Var)}
   (h_normal : Relation.Normal HeadStep M)

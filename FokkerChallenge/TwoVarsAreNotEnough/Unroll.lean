@@ -69,8 +69,10 @@ theorem unroll_fvar_or_combinator {M N : Term String}
   induction hmn with
   | refl => grind
   | tail _ h g => cases h with
-  | reflTrans h => apply steps_HeadReduction2_fvar_or_combinator g (.single h)
-  | throughAbsApp => cases g with grind
+  | reflTrans h => exact steps_HeadReduction2_fvar_or_combinator g (.single h)
+  | throughAbsApp => cases g with
+    | app _ _ => grind
+    | base h => cases h with grind
 
 theorem unroll.depth {M N : Term String}
   (hm : ClosedUnderApp fvar_or_combinator M)

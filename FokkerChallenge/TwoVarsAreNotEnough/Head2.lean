@@ -155,7 +155,8 @@ theorem HeadReduction2_preserver_fvar_or_combinator {M N : Term String}
   (hmn : HeadReduction2 M N):
   ClosedUnderApp fvar_or_combinator N := by
   induction hmn with
-  | appL _ _ => grind
+  | appL _ _ => refine .app (by grind) ?_
+                cases hm <;> grind
   | base => cases hm with
   | base _ => grind
   | app hm _ => cases hm with
